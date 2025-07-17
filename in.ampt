@@ -1,0 +1,68 @@
+# SETUP --------------------------------------------------------------------------------------
+
+shell mkdir -p dumps
+
+units              si
+seed               12345
+dimension          3
+
+# outflow in +x, periodic y,z. will inject at xlo (x=0)
+boundary           o p p
+
+# domain size (m)
+variable           Lx equal 5.0
+variable           Ly equal 2.0
+variable           Lz equal 2.0
+create_box         0 ${Lx} 0 ${Ly} 0 ${Lz}
+
+# grid resolution
+create_grid        100 20 20
+balance_grid       rcb part
+
+
+# SPECIES AND MIXTURE -------------------------------------------------------------------------
+
+
+# use local species file
+species            species/air.species N2 O2
+
+# test case: n=3.8e20 m^-3, T=200 K, v=7.8 km/s in +x dir
+variable           nrho equal 3.8e20
+variable           T    equal 200.0
+variable	   vx   equal 7800.0
+
+# define inflow gas mixture named atm
+mixture 	   atm N2 frac 0.79
+mixture		   atm O2 frac 0.21
+mixture            atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
+
+# particle weighting: set target of 2e5 sim particles, calculate weighting factor
+variable           Ns_target equal 200000.0
+variable           Vol       equal ${Lx}*${Ly}*${Lz}
+variable           fnum      equal ${nrho}*${Vol}/${Ns_target}
+global             fnum ${fnum} # global bc will be queried by each new particle
+
+# global useful for stat query later
+global             nrho ${nrho}
+
+# create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
+create_particles   atm n 0
+
+# continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
+fix                in emit/face atm xlo
+
+
+# DIAGNOSTICS ---------------------------------------------------------------------------------
+
+	      # ID, data type, mixture, every _ steps, filename, columns
+dump          p1 particle atm 100 dumps/part.*.dat id type x y z vx vy vz
+
+# cell-averaged (streaming+thermal) temperature
+compute            Tbox temp # define a compute Tbox that calculates domain everaged temp
+stats              100 # print diagnostics every 100 timesteps
+stats_style        step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
+
+# choose small dt << cell flight time; start 1e-7 s
+timestep           1.0e-7
+collide		   vss atm vss/air.vss # variable soft sphere model
+run                1000
