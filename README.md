@@ -50,10 +50,3 @@ python scripts/load_dumps.py
 
 - This parses raw dump files in `dumps/` and saves a binary cache as `dumps/traj.pkl`
 - Python analysis scripts will read from `traj.pkl` for fast access
-
-> If you re-run the simulation and new dumps are written, delete the old cache first:
-
-```
-rm dumps/traj.pkl
-python scripts/load_dumps.py
-```

@@ -12,6 +12,8 @@ if not os.path.exists(traj_path):
 with open(traj_path, "rb") as f:
     traj = pickle.load(f)
 
+traj.sort(key=lambda tup: tup[0])  # sort by timestep
+
 # Species color mapping
 type_to_color = {1: 0, 2: 1}  # map species type to color index
 colors_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']

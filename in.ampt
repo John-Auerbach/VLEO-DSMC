@@ -1,5 +1,7 @@
 # SETUP --------------------------------------------------------------------------------------
 
+shell "bash -c 'rm -f dumps/part.*.dat'"
+
 shell mkdir -p dumps
 
 units              si
@@ -54,12 +56,15 @@ fix                in emit/face atm xlo
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
+
+variable	   diag_freq     equal 100 # dump diagnostics every _ timesteps
+
 	      # ID, data type, mixture, every _ steps, filename, columns
-dump          p1 particle atm 100 dumps/part.*.dat id type x y z vx vy vz
+dump          p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
 
 # cell-averaged (streaming+thermal) temperature
 compute            Tbox temp # define a compute Tbox that calculates domain everaged temp
-stats              100 # print diagnostics every 100 timesteps
+stats              ${diag_freq} # print diagnostics every _ timesteps
 stats_style        step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
 
 # choose small dt << cell flight time; start 1e-7 s

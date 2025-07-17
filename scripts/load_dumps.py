@@ -83,13 +83,7 @@ Output is list of snapshots containing:
 
 traj_path = os.path.expanduser("~/AMPT/dumps/traj.pkl")
 
-if os.path.exists(traj_path):
-    with open(traj_path, "rb") as f:
-        traj = pickle.load(f)
-    print(f"Loaded cached dumps/traj.pkl with {len(traj)} frames.")
-else:
-    # Otherwise load from raw files and save
-    traj = load_all_sparta_dumps()
-    with open(traj_path, "wb") as f:
-        pickle.dump(traj, f)
-    print(f"Parsed and cached {len(traj)} frames to dumps/traj.pkl.")
+traj = load_all_sparta_dumps()
+with open(traj_path, "wb") as f:
+    pickle.dump(traj, f)
+print(f"Parsed and cached {len(traj)} frames to dumps/traj.pkl.")

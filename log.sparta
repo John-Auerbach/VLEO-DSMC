@@ -2,6 +2,8 @@ SPARTA (20 Jan 2025)
 Running on 1 MPI task(s)
 # SETUP --------------------------------------------------------------------------------------
 
+shell "bash -c 'rm -f dumps/part.*.dat'"
+
 shell mkdir -p dumps
 
 units              si
@@ -24,12 +26,12 @@ Created orthogonal box = (0 0 0) to (5 2 2)
 # grid resolution
 create_grid        100 20 20
 Created 40000 child grid cells
-  CPU time = 0.029753 secs
-  create/ghost percent = 32.9009 67.0991
+  CPU time = 0.0298741 secs
+  create/ghost percent = 34.2807 65.7193
 balance_grid       rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.0225191 secs
-  reassign/sort/migrate/ghost percent = 26.6442 0.918985 6.31961 66.1172
+  CPU time = 0.02442 secs
+  reassign/sort/migrate/ghost percent = 24.8894 0.70393 5.56114 68.8455
 
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
@@ -71,7 +73,7 @@ global             nrho 3.8e+20
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles   atm n 0
 Created 199999 particles
-  CPU time = 0.046386 secs
+  CPU time = 0.044256 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix                in emit/face atm xlo
@@ -79,12 +81,17 @@ fix                in emit/face atm xlo
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
+
+variable	   diag_freq     equal 38 # dump diagnostics every _ timesteps
+
 	      # ID, data type, mixture, every _ steps, filename, columns
-dump          p1 particle atm 100 dumps/part.*.dat id type x y z vx vy vz
+dump          p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+dump          p1 particle atm 38 dumps/part.*.dat id type x y z vx vy vz
 
 # cell-averaged (streaming+thermal) temperature
 compute            Tbox temp # define a compute Tbox that calculates domain everaged temp
-stats              100 # print diagnostics every 100 timesteps
+stats              ${diag_freq} # print diagnostics every _ timesteps
+stats              38 
 stats_style        step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
 
 # choose small dt << cell flight time; start 1e-7 s
@@ -98,28 +105,45 @@ Memory usage per proc in Mbytes:
   total     (ave,min,max) = 29.2013 29.2013 29.2013
 Step CPU Np Natt Ncoll c_Tbox 
        0            0   199999        0        0    70557.552 
-     100   0.74632382   199989     1303     1040        70546 
-     200    1.5693769   199897     1329      989    70535.486 
-     300     2.421797   199925     1395     1027    70529.978 
-     400     3.315129   199978     1357      962    70521.908 
-     500    4.2011039   199981     1432      967    70517.105 
-     600    5.1020899   199970     1367      931    70512.718 
-     700     6.039592   200103     1460      985    70510.166 
-     800     6.958591   199964     1487      999    70505.372 
-     900     7.895396   200041     1444      984    70505.603 
-    1000    8.8697748   200070     1555     1040    70506.005 
-Loop time of 8.86984 on 1 procs for 1000 steps with 200070 particles
+      38   0.48054099   199986     1302     1055    70553.837 
+      76   0.91977501   199998     1207      957    70548.489 
+     114    1.3848698   199966     1284     1005    70543.517 
+     152    1.8798609   199922     1367     1066    70540.532 
+     190    2.3538048   199924     1308      974    70535.878 
+     228    2.8366449   199955     1312      992    70533.898 
+     266    3.3459609   199908     1360      989    70531.668 
+     304    3.8295388   199948     1366      976    70530.632 
+     342     4.317189   199984     1353      962    70526.644 
+     380    4.8417208   199983     1330      952    70523.177 
+     418     5.346736   199987     1356      937    70521.531 
+     456    5.8454039   199975     1398      988    70520.701 
+     494     6.365063   199986     1415      980     70518.59 
+     532     6.894335   200028     1415      962    70514.678 
+     570    7.4074318   200005     1381      937    70511.632 
+     608    7.9120369   199978     1400      963    70512.528 
+     646    8.4480879   200060     1438      994    70510.306 
+     684    8.9739549   200060     1506     1013    70510.443 
+     722     9.489342   200045     1434      947    70509.437 
+     760    9.9776199   200009     1531     1021    70507.423 
+     798     10.41651   199978     1506     1000    70505.354 
+     836    10.842964   199978     1464      977    70504.467 
+     874    11.278826   199992     1513     1037    70505.179 
+     912    11.709847   200044     1562     1025    70506.601 
+     950    12.145403   200058     1538     1053    70506.903 
+     988    12.614356   200089     1470      953    70505.018 
+    1000    12.697636   200070     1555     1040    70506.005 
+Loop time of 12.6977 on 1 procs for 1000 steps with 200070 particles
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Move    | 3.2572     | 3.2572     | 3.2572     |   0.0 | 36.72
-Coll    | 1.6089     | 1.6089     | 1.6089     |   0.0 | 18.14
-Sort    | 1.3251     | 1.3251     | 1.3251     |   0.0 | 14.94
-Comm    | 0.0026631  | 0.0026631  | 0.0026631  |   0.0 |  0.03
-Modify  | 0.018594   | 0.018594   | 0.018594   |   0.0 |  0.21
-Output  | 2.6569     | 2.6569     | 2.6569     |   0.0 | 29.95
-Other   |            | 0.0004659  |            |       |  0.01
+Move    | 3.2822     | 3.2822     | 3.2822     |   0.0 | 25.85
+Coll    | 1.5748     | 1.5748     | 1.5748     |   0.0 | 12.40
+Sort    | 1.4795     | 1.4795     | 1.4795     |   0.0 | 11.65
+Comm    | 0.0030899  | 0.0030899  | 0.0030899  |   0.0 |  0.02
+Modify  | 0.01873    | 0.01873    | 0.01873    |   0.0 |  0.15
+Output  | 6.3389     | 6.3389     | 6.3389     |   0.0 | 49.92
+Other   |            | 0.0004525  |            |       |  0.00
 
 Particle moves    = 200020356 (200M)
 Cells touched     = 203179717 (203M)
@@ -135,7 +159,7 @@ Reactions         = 0 (0K)
 Particles stuck   = 0
 Axisymm bad moves = 0
 
-Particle-moves/CPUsec/proc: 2.25506e+07
+Particle-moves/CPUsec/proc: 1.57525e+07
 Particle-moves/step: 200020
 Cell-touches/particle/step: 1.0158
 Particle comm iterations/step: 1
