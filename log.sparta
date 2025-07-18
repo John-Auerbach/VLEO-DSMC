@@ -14,31 +14,31 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        xmin equal -5
-variable        xmax equal 5
-variable        ymin equal -2
-variable 	ymax equal 2
-variable	zmin equal -2
-variable	zmax equal 2
+variable        xmin equal -1.1
+variable        xmax equal 1.1
+variable        ymin equal -1.1
+variable 	ymax equal 1.1
+variable	zmin equal -1.1
+variable	zmax equal 1.1
 
 variable	Lx equal ${xmax}-${xmin}
-variable	Lx equal 5-${xmin}
-variable	Lx equal 5--5
+variable	Lx equal 1.1-${xmin}
+variable	Lx equal 1.1--1.1
 variable        Ly equal ${ymax}-${ymin}
-variable        Ly equal 2-${ymin}
-variable        Ly equal 2--2
+variable        Ly equal 1.1-${ymin}
+variable        Ly equal 1.1--1.1
 variable        Lz equal ${zmax}-${zmin}
-variable        Lz equal 2-${zmin}
-variable        Lz equal 2--2
+variable        Lz equal 1.1-${zmin}
+variable        Lz equal 1.1--1.1
 
 create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -5 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -5 5 ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -5 5 -2 ${ymax} ${zmin} ${zmax}
-create_box      -5 5 -2 2 ${zmin} ${zmax}
-create_box      -5 5 -2 2 -2 ${zmax}
-create_box      -5 5 -2 2 -2 2
-Created orthogonal box = (-5 -2 -2) to (5 2 2)
+create_box      -1.1 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
+create_box      -1.1 1.1 ${ymin} ${ymax} ${zmin} ${zmax}
+create_box      -1.1 1.1 -1.1 ${ymax} ${zmin} ${zmax}
+create_box      -1.1 1.1 -1.1 1.1 ${zmin} ${zmax}
+create_box      -1.1 1.1 -1.1 1.1 -1.1 ${zmax}
+create_box      -1.1 1.1 -1.1 1.1 -1.1 1.1
+Created orthogonal box = (-1.1 -1.1 -1.1) to (1.1 1.1 1.1)
 
 
 # test case: n=3.8e20 m^-3, T=200 K, v=7.8 km/s in +x dir
@@ -97,12 +97,12 @@ TIMESTEP MUST BE < 0.000169979445726247 s
 
 create_grid	100 100 100
 Created 1000000 child grid cells
-  CPU time = 0.549332 secs
-  create/ghost percent = 29.0658 70.9342
+  CPU time = 0.53052 secs
+  create/ghost percent = 27.3375 72.6625
 balance_grid    rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.425401 secs
-  reassign/sort/migrate/ghost percent = 26.2212 1.57589 5.94924 66.2537
+  CPU time = 0.410393 secs
+  reassign/sort/migrate/ghost percent = 27.0494 1.59994 6.52641 64.8242
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
@@ -113,15 +113,15 @@ read_surf   surf/ampt_box.surf  group ampt        # create surface group “ampt
   0 1 zlo zhi
   0.2 min triangle edge length
   0.1 min triangle area
-  1208 0 = cells overlapping surfs, overlap cells with unmarked corner pts
-  38 tiny edges removed
-  998056 736 1208 = cells outside/inside/overlapping surfs
-  1208 = surf cells with 1,2,etc splits
-  159.8 159.8 = cell-wise and global flow volume
-  CPU time = 0.540366 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0138542 0.0161044 6.32943 38.6825 54.9582 25.9855 0.000220608
-  surf2grid time = 0.209027 secs
-  map/comm1/comm2/comm3/comm4/split percent = 39.6169 0.00661555 32.2782 2.81161 5.21659 8.03767
+  6132 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  121 tiny edges removed
+  978380 15488 6132 = cells outside/inside/overlapping surfs
+  6132 = surf cells with 1,2,etc splits
+  10.448 10.448 = cell-wise and global flow volume
+  CPU time = 0.532665 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0125774 0.0131146 6.27807 41.1938 52.5024 26.4425 0.000179038
+  surf2grid time = 0.219425 secs
+  map/comm1/comm2/comm3/comm4/split percent = 37.9283 0.00641071 30.2582 3.06204 5.20495 11.8843
 surf_collide wall diffuse 300.0 0.9           # define collision model “wall”
 surf_modify  ampt collide wall
 
@@ -142,15 +142,15 @@ mixture         atm nrho 3.8e+20 vstream 7800 0.0 0.0 temp 200
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
 variable        Ns_target equal 200000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
-variable        Vol       equal 10*${Ly}*${Lz}
-variable        Vol       equal 10*4*${Lz}
-variable        Vol       equal 10*4*4
+variable        Vol       equal 2.2*${Ly}*${Lz}
+variable        Vol       equal 2.2*2.2*${Lz}
+variable        Vol       equal 2.2*2.2*2.2
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 variable        fnum      equal 3.8e+20*${Vol}/${Ns_target}
-variable        fnum      equal 3.8e+20*160/${Ns_target}
-variable        fnum      equal 3.8e+20*160/200000
+variable        fnum      equal 3.8e+20*10.648/${Ns_target}
+variable        fnum      equal 3.8e+20*10.648/200000
 global          fnum ${fnum} # global bc will be queried by each new particle
-global          fnum 3.04e+17 
+global          fnum 2.02312e+16 
 
 # global useful for stat query later
 global          nrho ${nrho}
@@ -158,8 +158,8 @@ global          nrho 3.8e+20
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
-Created 199749 particles
-  CPU time = 0.0394299 secs
+Created 196243 particles
+  CPU time = 0.0403781 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -185,64 +185,64 @@ timestep        1.0e-7
 collide		vss atm vss/air.vss # variable soft sphere model
 run             1000
 Memory usage per proc in Mbytes:
-  particles (ave,min,max) = 21.9375 21.9375 21.9375
+  particles (ave,min,max) = 20.25 20.25 20.25
   grid      (ave,min,max) = 176.889 176.889 176.889
   surf      (ave,min,max) = 0.00151062 0.00151062 0.00151062
-  total     (ave,min,max) = 198.828 198.828 198.828
+  total     (ave,min,max) = 197.14 197.14 197.14
 Step CPU Np Natt Ncoll c_Tbox 
-       0            0   199749        0        0    70539.521 
-     100    2.8421621   199723      225      170    70532.641 
-     200    5.8189321   199812      421      307    70523.182 
-     300    8.8713601   199786      586      441    70514.796 
-     400    11.357307   199766      760      553    70506.115 
-     500    14.522895   199708      824      590    70492.723 
-     600    17.731169   199741      911      651    70476.157 
-     700    20.943802   199772     1017      766    70463.905 
-     800    24.204594   199807     1088      790    70455.694 
-     900    27.467997   199832     1182      867    70450.088 
-    1000     30.74973   199821     1164      844    70441.155 
-Loop time of 30.7498 on 1 procs for 1000 steps with 199821 particles
+       0            0   196243        0        0    70539.263 
+     100    2.9144781   195867      259      199    70405.578 
+     200       6.0316   196713      581      424    70298.856 
+     300    9.2609372   196608      871      612    70185.212 
+     400    12.575961   196089     1059      737    70072.172 
+     500    15.918875   196395     1475      987    69940.112 
+     600    19.272986   196734     1600     1108    69833.877 
+     700    22.636688   196337     1740     1211    69729.731 
+     800    26.014185   196299     1846     1236    69611.041 
+     900    28.814332   197046     2024     1329    69506.371 
+    1000    32.266992   197207     2232     1467    69393.511 
+Loop time of 32.267 on 1 procs for 1000 steps with 197207 particles
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Move    | 12.627     | 12.627     | 12.627     |   0.0 | 41.06
-Coll    | 6.9192     | 6.9192     | 6.9192     |   0.0 | 22.50
-Sort    | 9.6388     | 9.6388     | 9.6388     |   0.0 | 31.35
-Comm    | 0.0025668  | 0.0025668  | 0.0025668  |   0.0 |  0.01
-Modify  | 0.14741    | 0.14741    | 0.14741    |   0.0 |  0.48
-Output  | 1.4138     | 1.4138     | 1.4138     |   0.0 |  4.60
-Other   |            | 0.001082   |            |       |  0.00
+Move    | 12.992     | 12.992     | 12.992     |   0.0 | 40.26
+Coll    | 7.7422     | 7.7422     | 7.7422     |   0.0 | 23.99
+Sort    | 9.3258     | 9.3258     | 9.3258     |   0.0 | 28.90
+Comm    | 0.0056133  | 0.0056133  | 0.0056133  |   0.0 |  0.02
+Modify  | 0.17929    | 0.17929    | 0.17929    |   0.0 |  0.56
+Output  | 2.0213     | 2.0213     | 2.0213     |   0.0 |  6.26
+Other   |            | 0.0009744  |            |       |  0.00
 
-Particle moves    = 199788716 (200M)
-Cells touched     = 201527313 (202M)
+Particle moves    = 196578494 (197M)
+Cells touched     = 203788322 (204M)
 Particle comms    = 0 (0K)
 Boundary collides = 0 (0K)
-Boundary exits    = 15525 (15.5K)
-SurfColl checks   = 302595 (0.303M)
-SurfColl occurs   = 406 (0.406K)
+Boundary exits    = 70018 (70K)
+SurfColl checks   = 1445794 (1.45M)
+SurfColl occurs   = 9408 (9.41K)
 Surf reactions    = 0 (0K)
-Collide attempts  = 761214 (0.761M)
-Collide occurs    = 556538 (0.557M)
+Collide attempts  = 1272078 (1.27M)
+Collide occurs    = 867355 (0.867M)
 Reactions         = 0 (0K)
 Particles stuck   = 0
 Axisymm bad moves = 0
 
-Particle-moves/CPUsec/proc: 6.49724e+06
-Particle-moves/step: 199789
-Cell-touches/particle/step: 1.0087
+Particle-moves/CPUsec/proc: 6.09224e+06
+Particle-moves/step: 196578
+Cell-touches/particle/step: 1.03668
 Particle comm iterations/step: 1
 Particle fraction communicated: 0
 Particle fraction colliding with boundary: 0
-Particle fraction exiting boundary: 7.77071e-05
-Surface-checks/particle/step: 0.00151458
-Surface-collisions/particle/step: 2.03215e-06
+Particle fraction exiting boundary: 0.000356183
+Surface-checks/particle/step: 0.00735479
+Surface-collisions/particle/step: 4.78587e-05
 Surf-reactions/particle/step: 0
-Collision-attempts/particle/step: 0.0038101
-Collisions/particle/step: 0.00278563
+Collision-attempts/particle/step: 0.00647109
+Collisions/particle/step: 0.00441226
 Reactions/particle/step: 0
 
-Particles: 199821 ave 199821 max 199821 min
+Particles: 197207 ave 197207 max 197207 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
 Cells:      1e+06 ave 1e+06 max 1e+06 min
 Histogram: 1 0 0 0 0 0 0 0 0 0

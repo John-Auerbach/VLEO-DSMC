@@ -1,0 +1,86 @@
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import numpy as np
+import pickle, os
+
+# I/O
+traj_path = os.path.expanduser("~/AMPT/dumps/traj.pkl")
+if not os.path.exists(traj_path):
+    raise FileNotFoundError(f"Pickle file '{traj_path}' not found. Run load_dumps.py first.")
+
+with open(traj_path, "rb") as f:
+    traj = pickle.load(f)
+
+traj.sort(key=lambda tup: tup[0])        # sort by timestep
+
+# box extents
+_, _, box0 = traj[0]
+xlim = (box0['xlo'], box0['xhi'])
+ylim = (box0['ylo'], box0['yhi'])
+zlim = (box0['zlo'], box0['zhi'])
+
+# choose slice thickness about z=0
+delta_z = 0.05 * (zlim[1] - zlim[0])     # 5% of box height
+
+# grid for the heat-map
+nx, ny = 150, 60                         # tweak resolution as desired
+x_edges = np.linspace(*xlim, nx + 1)
+y_edges = np.linspace(*ylim, ny + 1)
+
+# helpers ----------
+def speed_hist(df):
+    """Return 2‑D array of mean speed in each (x,y) bin for |z|<delta_z."""
+    in_slice = np.abs(df["z"].values) <= delta_z
+    if not in_slice.any():
+        return np.full((ny, nx), np.nan)
+    xs, ys = df["x"].values[in_slice], df["y"].values[in_slice]
+    vmag = np.linalg.norm(df[["vx", "vy", "vz"]].values[in_slice], axis=1)
+
+    # accumulate sum of speeds and counts, then divide
+    sum_v, _, _ = np.histogram2d(xs, ys, [x_edges, y_edges], weights=vmag)
+    cnt_v, _, _ = np.histogram2d(xs, ys, [x_edges, y_edges])
+    with np.errstate(invalid='ignore'):
+        mean_v = np.divide(sum_v, cnt_v, where=cnt_v > 0)
+    # flip y for imshow’s origin='lower'
+    return np.flipud(mean_v.T)
+
+# precompute global vmin/vmax ----------
+print("Computing global min/max for color scale...")
+all_min, all_max = [], []
+for _, df, _ in traj:
+    img = speed_hist(df)
+    if np.isfinite(img).any():
+        all_min.append(np.nanmin(img))
+        all_max.append(np.nanmax(img))
+vmin, vmax = min(all_min), max(all_max)
+print(f"Global vmin={vmin:.2f}, vmax={vmax:.2f}")
+
+# figure ----------
+fig, ax = plt.subplots(figsize=(6, 3))
+im = ax.imshow(
+    np.zeros((ny, nx)),
+    extent=(*xlim, *ylim),
+    origin='lower',
+    aspect='auto',
+    vmin=vmin, vmax=vmax, cmap='viridis'
+)
+cbar = fig.colorbar(im, ax=ax, label="|v| (m s⁻¹)")
+title = ax.set_title("")
+ax.set_xlabel("x (m)"); ax.set_ylabel("y (m)")
+
+# animation ----------
+def init():
+    im.set_data(np.zeros((ny, nx)))
+    return im,
+
+def update(i):
+    step, df, _ = traj[i]
+    img = speed_hist(df)
+    im.set_data(img)
+    title.set_text(f"Speed heat‑map at z≈0  |  Step {step}")
+    return im, title
+
+ani = FuncAnimation(fig, update, frames=len(traj),
+                    init_func=init, blit=False, interval=200)
+
+ani.save("velocity_heatmap.mp4", fps=5, dpi=150)

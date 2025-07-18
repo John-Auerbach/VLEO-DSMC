@@ -12,12 +12,12 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        xmin equal -5
-variable        xmax equal 5
-variable        ymin equal -2
-variable 	ymax equal 2
-variable	zmin equal -2
-variable	zmax equal 2
+variable        xmin equal -1.1
+variable        xmax equal 1.1
+variable        ymin equal -1.1
+variable 	ymax equal 1.1
+variable	zmin equal -1.1
+variable	zmax equal 1.1
 
 variable	Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}

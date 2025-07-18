@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/bin/env python
 
 # Script:  stl2surf.py
 # Purpose: convert an STL file (ASCII text) into a SPARTA surface file
@@ -89,19 +89,22 @@ for vert3 in triverts:
 
 fp = open(surffile,"w")
 
-print("# SPARTA surface file from", stlfile, file=fp)
+if name:
+  print("# SPARTA surface file, from STL file %s with name %s\n" % \
+      (stlfile,name),file=fp)
+else:
+  print("# SPARTA surface file, from STL file\n",stlfile,file=fp)
 
-print("Points", file=fp)
-print(len(verts), file=fp)
-for vert in verts:
-  print(vert[0],vert[1],vert[2],file=fp)
+print(len(verts),"points",file=fp)
+print(len(tris),"triangles",file=fp)
 
-print("", file=fp)
+print("\nPoints\n",file=fp)
+for i,vert in enumerate(verts):
+  print(i+1,vert[0],vert[1],vert[2],file=fp)
 
-print("Triangles", file=fp)
-print(len(tris), file=fp)
-for tri in tris:
-  print(tri[0]+1,tri[1]+1,tri[2]+1,file=fp)
+print("\nTriangles\n",file=fp)
+for i,tri in enumerate(tris):
+  print(i+1,tri[0]+1,tri[1]+1,tri[2]+1,file=fp)
 
 fp.close()
   
