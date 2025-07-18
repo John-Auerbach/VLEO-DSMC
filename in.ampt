@@ -25,8 +25,35 @@ variable        Lz equal ${zmax}-${zmin}
 
 create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
 
+
+# test case: n=3.8e20 m^-3, T=200 K, v=7.8 km/s in +x dir
+variable        rho  equal 4e-5 # kg/m3
+variable	nrho equal 3.8e20 # m-3
+variable        T    equal 200.0 # K
+variable	vx   equal 7800.0 # m/s
+
+variable 	kB equal 1.380649e-23  # J/K
+variable 	d equal 3.7e-10  # m
+variable 	R equal 287.05 # (J / kg*K)
+variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
+variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
+
+print "MEAN FREE PATH = ${lambda} m"
+print "MEAN MOLEC VEL = ${vbar} m/s"
+
 # grid resolution
-create_grid     100 20 20
+
+variable	dx equal ${lambda}/3 # m
+variable	mct equal ${lambda}/${vbar} # s
+variable	mtt equal ${dx}/${vbar} # s
+variable	dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
+
+print "CELL SIZE MUST BE LESS THAN ${dx} m"
+print "MEAN COLL TIME = ${mct} s"
+print "MEAN TRANSIT TIME = ${mtt} s"
+print "TIMESTEP MUST BE < ${dt} s"
+
+create_grid	100 100 100 
 balance_grid    rcb part
 
 
@@ -35,18 +62,6 @@ balance_grid    rcb part
 
 # use local species file
 species         species/air.species N2 O2
-
-# test case: n=3.8e20 m^-3, T=200 K, v=7.8 km/s in +x dir
-variable        rho  equal 4e-5
-variable	nrho equal 3.8e20
-variable        T    equal 200.0
-variable	vx   equal 7800.0
-
-variable 	kB equal 1.380649e-23  # J/K
-variable 	d equal 3.7e-10  # m
-variable 	R equal 287.05 # (J / kg*K)
-variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
-print "MEAN FREE PATH = ${lambda} m"
 
 # define inflow gas mixture named atm
 mixture 	atm N2 frac 0.79

@@ -40,15 +40,69 @@ create_box      -5 5 -2 2 -2 ${zmax}
 create_box      -5 5 -2 2 -2 2
 Created orthogonal box = (-5 -2 -2) to (5 2 2)
 
+
+# test case: n=3.8e20 m^-3, T=200 K, v=7.8 km/s in +x dir
+variable        rho  equal 4e-5 # kg/m3
+variable	nrho equal 3.8e20 # m-3
+variable        T    equal 200.0 # K
+variable	vx   equal 7800.0 # m/s
+
+variable 	kB equal 1.380649e-23  # J/K
+variable 	d equal 3.7e-10  # m
+variable 	R equal 287.05 # (J / kg*K)
+variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
+variable 	lambda equal 1.380649e-23*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*4e-05*${R}) 
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*4e-05*287.05) 
+variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
+variable	vbar equal sqrt(8*1.380649e-23*${T}/(PI*${rho}/${nrho})) 
+variable	vbar equal sqrt(8*1.380649e-23*200/(PI*${rho}/${nrho})) 
+variable	vbar equal sqrt(8*1.380649e-23*200/(PI*4e-05/${nrho})) 
+variable	vbar equal sqrt(8*1.380649e-23*200/(PI*4e-05/3.8e+20)) 
+
+print "MEAN FREE PATH = ${lambda} m"
+MEAN FREE PATH = 0.395391580478045 m
+print "MEAN MOLEC VEL = ${vbar} m/s"
+MEAN MOLEC VEL = 258.457118995713 m/s
+
 # grid resolution
-create_grid     100 20 20
-Created 40000 child grid cells
-  CPU time = 0.0196209 secs
-  create/ghost percent = 29.1472 70.8528
+
+variable	dx equal ${lambda}/3 # m
+variable	dx equal 0.395391580478045/3 
+variable	mct equal ${lambda}/${vbar} # s
+variable	mct equal 0.395391580478045/${vbar} 
+variable	mct equal 0.395391580478045/258.457118995713 
+variable	mtt equal ${dx}/${vbar} # s
+variable	mtt equal 0.131797193492682/${vbar} 
+variable	mtt equal 0.131797193492682/258.457118995713 
+variable	dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
+variable	dt equal ((0.00152981501153622<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00152981501153622<0.000509938337178741)*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00152981501153622<0.000509938337178741)*0.00152981501153622+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00152981501153622<0.000509938337178741)*0.00152981501153622+(0.00152981501153622>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00152981501153622<0.000509938337178741)*0.00152981501153622+(0.00152981501153622>=0.000509938337178741)*${mtt})/3.0 
+variable	dt equal ((0.00152981501153622<0.000509938337178741)*0.00152981501153622+(0.00152981501153622>=0.000509938337178741)*0.000509938337178741)/3.0 
+
+print "CELL SIZE MUST BE LESS THAN ${dx} m"
+CELL SIZE MUST BE LESS THAN 0.131797193492682 m
+print "MEAN COLL TIME = ${mct} s"
+MEAN COLL TIME = 0.00152981501153622 s
+print "MEAN TRANSIT TIME = ${mtt} s"
+MEAN TRANSIT TIME = 0.000509938337178741 s
+print "TIMESTEP MUST BE < ${dt} s"
+TIMESTEP MUST BE < 0.000169979445726247 s
+
+create_grid	100 100 100
+Created 1000000 child grid cells
+  CPU time = 0.552889 secs
+  create/ghost percent = 28.613 71.387
 balance_grid    rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.0132911 secs
-  reassign/sort/migrate/ghost percent = 21.6837 0.557878 3.11407 74.6444
+  CPU time = 0.404343 secs
+  reassign/sort/migrate/ghost percent = 27.9747 1.6684 6.57908 63.7778
 
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
@@ -56,25 +110,6 @@ Balance grid migrated 0 cells
 
 # use local species file
 species         species/air.species N2 O2
-
-# test case: n=3.8e20 m^-3, T=200 K, v=7.8 km/s in +x dir
-variable        rho  equal 4e-5
-variable	nrho equal 3.8e20
-variable        T    equal 200.0
-variable	vx   equal 7800.0
-
-variable 	kB equal 1.380649e-23  # J/K
-variable 	d equal 3.7e-10  # m
-variable 	R equal 287.05 # (J / kg*K)
-variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
-variable 	lambda equal 1.380649e-23*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
-variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
-variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R})
-variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R})
-variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*4e-05*${R})
-variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*4e-05*287.05)
-print "MEAN FREE PATH = ${lambda} m"
-MEAN FREE PATH = 0.395391580478045 m
 
 # define inflow gas mixture named atm
 mixture 	atm N2 frac 0.79
@@ -104,7 +139,7 @@ global          nrho 3.8e+20
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
 Created 199999 particles
-  CPU time = 0.032011 secs
+  CPU time = 0.0499029 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -131,65 +166,65 @@ collide		vss atm vss/air.vss # variable soft sphere model
 run             1000
 Memory usage per proc in Mbytes:
   particles (ave,min,max) = 21.9375 21.9375 21.9375
-  grid      (ave,min,max) = 7.26379 7.26379 7.26379
+  grid      (ave,min,max) = 176.889 176.889 176.889
   surf      (ave,min,max) = 0 0 0
-  total     (ave,min,max) = 29.2013 29.2013 29.2013
+  total     (ave,min,max) = 198.826 198.826 198.826
 Step CPU Np Natt Ncoll c_Tbox 
-       0            0   199999        0        0    70557.552 
-     100   0.62645698   199942     1278     1025    70544.285 
-     200     1.283236   199943     1291      982    70531.827 
-     300     2.029567   199981     1326      957    70525.239 
-     400     2.859215   200003     1303      930    70521.334 
-     500    3.6051469   200096     1300      909    70514.593 
-     600     4.391983   200106     1418      985    70508.456 
-     700    5.1211779   200093     1440      962    70504.534 
-     800    5.8718541   200162     1420      959    70502.759 
-     900    6.6265829   200179     1352      874    70500.225 
-    1000    7.3803129   200160     1404      959    70500.237 
-Loop time of 7.38035 on 1 procs for 1000 steps with 200160 particles
+       0            0   199999        0        0     70546.89 
+     100    2.5839529   200024      268      212    70545.089 
+     200    5.3777618   200063      457      349    70542.187 
+     300    8.1350288   200136      597      419    70539.092 
+     400    10.969731   200133      758      560    70536.649 
+     500    13.871501   200156      885      654    70534.611 
+     600    16.773866   200111      896      659    70531.314 
+     700    19.062247   200103     1037      767    70525.364 
+     800    22.012244   200096     1070      784    70523.406 
+     900    24.998027   200171     1104      799    70523.806 
+    1000    27.962268   200144     1177      849     70522.79 
+Loop time of 27.9623 on 1 procs for 1000 steps with 200144 particles
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Move    | 2.7081     | 2.7081     | 2.7081     |   0.0 | 36.69
-Coll    | 1.2438     | 1.2438     | 1.2438     |   0.0 | 16.85
-Sort    | 1.3674     | 1.3674     | 1.3674     |   0.0 | 18.53
-Comm    | 0.0020278  | 0.0020278  | 0.0020278  |   0.0 |  0.03
-Modify  | 0.013243   | 0.013243   | 0.013243   |   0.0 |  0.18
-Output  | 2.0454     | 2.0454     | 2.0454     |   0.0 | 27.71
-Other   |            | 0.0003934  |            |       |  0.01
+Move    | 9.7758     | 9.7758     | 9.7758     |   0.0 | 34.96
+Coll    | 6.8373     | 6.8373     | 6.8373     |   0.0 | 24.45
+Sort    | 9.1628     | 9.1628     | 9.1628     |   0.0 | 32.77
+Comm    | 0.0025296  | 0.0025296  | 0.0025296  |   0.0 |  0.01
+Modify  | 0.14582    | 0.14582    | 0.14582    |   0.0 |  0.52
+Output  | 2.0375     | 2.0375     | 2.0375     |   0.0 |  7.29
+Other   |            | 0.0005219  |            |       |  0.00
 
-Particle moves    = 200066903 (200M)
-Cells touched     = 201646988 (202M)
+Particle moves    = 200113848 (200M)
+Cells touched     = 201855330 (202M)
 Particle comms    = 0 (0K)
 Boundary collides = 0 (0K)
-Boundary exits    = 15585 (15.6K)
+Boundary exits    = 15558 (15.6K)
 SurfColl checks   = 0 (0K)
 SurfColl occurs   = 0 (0K)
 Surf reactions    = 0 (0K)
-Collide attempts  = 1330598 (1.33M)
-Collide occurs    = 939060 (0.939M)
+Collide attempts  = 760949 (0.761M)
+Collide occurs    = 558067 (0.558M)
 Reactions         = 0 (0K)
 Particles stuck   = 0
 Axisymm bad moves = 0
 
-Particle-moves/CPUsec/proc: 2.71081e+07
-Particle-moves/step: 200067
-Cell-touches/particle/step: 1.0079
+Particle-moves/CPUsec/proc: 7.15656e+06
+Particle-moves/step: 200114
+Cell-touches/particle/step: 1.0087
 Particle comm iterations/step: 1
 Particle fraction communicated: 0
 Particle fraction colliding with boundary: 0
-Particle fraction exiting boundary: 7.78989e-05
+Particle fraction exiting boundary: 7.77457e-05
 Surface-checks/particle/step: 0
 Surface-collisions/particle/step: 0
 Surf-reactions/particle/step: 0
-Collision-attempts/particle/step: 0.00665077
-Collisions/particle/step: 0.00469373
+Collision-attempts/particle/step: 0.00380258
+Collisions/particle/step: 0.00278875
 Reactions/particle/step: 0
 
-Particles: 200160 ave 200160 max 200160 min
+Particles: 200144 ave 200144 max 200144 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
-Cells:      40000 ave 40000 max 40000 min
+Cells:      1e+06 ave 1e+06 max 1e+06 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
 GhostCell: 0 ave 0 max 0 min
 Histogram: 1 0 0 0 0 0 0 0 0 0
