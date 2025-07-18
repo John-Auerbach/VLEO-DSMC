@@ -56,6 +56,11 @@ print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 create_grid	100 100 100 
 balance_grid    rcb part
 
+# SURFACE GEOMETRY ----------------------------------------------------------------------------
+
+read_surf   surf/ampt_box.surf  group ampt        # create surface group “ampt”
+surf_collide wall diffuse 300.0 0.9           # define collision model “wall”
+surf_modify  ampt collide wall
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
