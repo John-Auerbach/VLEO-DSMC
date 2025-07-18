@@ -1,0 +1,86 @@
+solid b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+facet normal 4.000000 0.000000 0.000000
+  outer loop
+    vertex 2.000000 -7.000000 1.000000
+    vertex 2.000000 -7.000000 -1.000000
+    vertex 2.000000 -5.000000 -1.000000
+  endloop
+endfacet
+facet normal 4.000000 -0.000000 0.000000
+  outer loop
+    vertex 2.000000 -7.000000 1.000000
+    vertex 2.000000 -5.000000 -1.000000
+    vertex 2.000000 -5.000000 1.000000
+  endloop
+endfacet
+facet normal 0.000000 20.000000 0.000000
+  outer loop
+    vertex 2.000000 -5.000000 1.000000
+    vertex 2.000000 -5.000000 -1.000000
+    vertex -8.000000 -5.000000 -1.000000
+  endloop
+endfacet
+facet normal 0.000000 20.000000 0.000000
+  outer loop
+    vertex 2.000000 -5.000000 1.000000
+    vertex -8.000000 -5.000000 -1.000000
+    vertex -8.000000 -5.000000 1.000000
+  endloop
+endfacet
+facet normal 0.000000 0.000000 -20.000000
+  outer loop
+    vertex 2.000000 -7.000000 -1.000000
+    vertex -8.000000 -7.000000 -1.000000
+    vertex -8.000000 -5.000000 -1.000000
+  endloop
+endfacet
+facet normal 0.000000 0.000000 -20.000000
+  outer loop
+    vertex 2.000000 -7.000000 -1.000000
+    vertex -8.000000 -5.000000 -1.000000
+    vertex 2.000000 -5.000000 -1.000000
+  endloop
+endfacet
+facet normal 0.000000 0.000000 20.000000
+  outer loop
+    vertex 2.000000 -5.000000 1.000000
+    vertex -8.000000 -5.000000 1.000000
+    vertex -8.000000 -7.000000 1.000000
+  endloop
+endfacet
+facet normal 0.000000 0.000000 20.000000
+  outer loop
+    vertex 2.000000 -5.000000 1.000000
+    vertex -8.000000 -7.000000 1.000000
+    vertex 2.000000 -7.000000 1.000000
+  endloop
+endfacet
+facet normal -4.000000 0.000000 -0.000000
+  outer loop
+    vertex -8.000000 -5.000000 1.000000
+    vertex -8.000000 -5.000000 -1.000000
+    vertex -8.000000 -7.000000 -1.000000
+  endloop
+endfacet
+facet normal -4.000000 -0.000000 0.000000
+  outer loop
+    vertex -8.000000 -5.000000 1.000000
+    vertex -8.000000 -7.000000 -1.000000
+    vertex -8.000000 -7.000000 1.000000
+  endloop
+endfacet
+facet normal 0.000000 -20.000000 0.000000
+  outer loop
+    vertex -8.000000 -7.000000 1.000000
+    vertex -8.000000 -7.000000 -1.000000
+    vertex 2.000000 -7.000000 -1.000000
+  endloop
+endfacet
+facet normal 0.000000 -20.000000 0.000000
+  outer loop
+    vertex -8.000000 -7.000000 1.000000
+    vertex 2.000000 -7.000000 -1.000000
+    vertex 2.000000 -7.000000 1.000000
+  endloop
+endfacet
+endsolid b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'

@@ -51,7 +51,7 @@ variable	dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${m
 print "CELL SIZE MUST BE LESS THAN ${dx} m"
 print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
-print "TIMESTEP MUST BE < ${dt} s"
+print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
 create_grid	100 100 100 
 balance_grid    rcb part
