@@ -6,103 +6,175 @@ shell "bash -c 'rm -f dumps/part.*.dat'"
 
 shell "mkdir -p dumps"
 
-units              si
-seed               12345
-dimension          3
+units           si
+seed            12345
+dimension       3
 
 # outflow in +x, periodic y,z. will inject at xlo (x=0)
-boundary           o p p
+boundary        o p p
 
 # domain size (m)
-variable           Lx equal 5.0
-variable           Ly equal 2.0
-variable           Lz equal 2.0
-create_box         0 ${Lx} 0 ${Ly} 0 ${Lz}
-create_box         0 5 0 ${Ly} 0 ${Lz}
-create_box         0 5 0 2 0 ${Lz}
-create_box         0 5 0 2 0 2
+variable        Lx equal 5.0
+variable        Ly equal 2.0
+variable        Lz equal 2.0
+create_box      0 ${Lx} 0 ${Ly} 0 ${Lz}
+create_box      0 5 0 ${Ly} 0 ${Lz}
+create_box      0 5 0 2 0 ${Lz}
+create_box      0 5 0 2 0 2
 Created orthogonal box = (0 0 0) to (5 2 2)
 
 # grid resolution
-create_grid        100 20 20
+create_grid     100 20 20
 Created 40000 child grid cells
-  CPU time = 0.020206 secs
-  create/ghost percent = 30.3717 69.6283
-balance_grid       rcb part
+  CPU time = 0.0193181 secs
+  create/ghost percent = 29.4128 70.5872
+balance_grid    rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.0139971 secs
-  reassign/sort/migrate/ghost percent = 27.2774 2.0355 6.48804 64.1991
+  CPU time = 0.0135272 secs
+  reassign/sort/migrate/ghost percent = 23.4715 0.502318 2.62439 73.4018
 
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
 
 # use local species file
-species            species/air.species N2 O2
+species         species/air.species N2 O2
 
 # test case: n=3.8e20 m^-3, T=200 K, v=7.8 km/s in +x dir
-variable           rho  equal 4e-5
-variable	   nrho equal 3.8e20
-variable           T    equal 200.0
-variable	   vx   equal 7800.0
+variable        rho  equal 4e-5
+variable	nrho equal 3.8e20
+variable        T    equal 200.0
+variable	vx   equal 7800.0
 
-variable kB equal 1.380649e-23  # J/K
-variable d equal 3.7e-10  # m
-variable R equal 287.05 # (J / kg*K)
-variable lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
-variable lambda equal 1.380649e-23*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
-variable lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
-variable lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R})
-variable lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R})
-variable lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*4e-05*${R})
-variable lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*4e-05*287.05)
+variable 	kB equal 1.380649e-23  # J/K
+variable 	d equal 3.7e-10  # m
+variable 	R equal 287.05 # (J / kg*K)
+variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
+variable 	lambda equal 1.380649e-23*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R})
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R})
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*4e-05*${R})
+variable 	lambda equal 1.380649e-23*200/(sqrt(2.0)*PI*3.7e-10*3.7e-10*4e-05*287.05)
 print "MEAN FREE PATH = ${lambda} m"
 MEAN FREE PATH = 0.395391580478045 m
 
 # define inflow gas mixture named atm
-mixture 	   atm N2 frac 0.79
-mixture		   atm O2 frac 0.21
-mixture            atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
-mixture            atm nrho 3.8e+20 vstream ${vx} 0.0 0.0 temp ${T}
-mixture            atm nrho 3.8e+20 vstream 7800 0.0 0.0 temp ${T}
-mixture            atm nrho 3.8e+20 vstream 7800 0.0 0.0 temp 200
+mixture 	atm N2 frac 0.79
+mixture		atm O2 frac 0.21
+mixture         atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
+mixture         atm nrho 3.8e+20 vstream ${vx} 0.0 0.0 temp ${T}
+mixture         atm nrho 3.8e+20 vstream 7800 0.0 0.0 temp ${T}
+mixture         atm nrho 3.8e+20 vstream 7800 0.0 0.0 temp 200
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable           Ns_target equal 200000.0
-variable           Vol       equal ${Lx}*${Ly}*${Lz}
-variable           Vol       equal 5*${Ly}*${Lz}
-variable           Vol       equal 5*2*${Lz}
-variable           Vol       equal 5*2*2
-variable           fnum      equal ${nrho}*${Vol}/${Ns_target}
-variable           fnum      equal 3.8e+20*${Vol}/${Ns_target}
-variable           fnum      equal 3.8e+20*20/${Ns_target}
-variable           fnum      equal 3.8e+20*20/200000
-global             fnum ${fnum} # global bc will be queried by each new particle
-global             fnum 3.8e+16 
+variable        Ns_target equal 200000.0
+variable        Vol       equal ${Lx}*${Ly}*${Lz}
+variable        Vol       equal 5*${Ly}*${Lz}
+variable        Vol       equal 5*2*${Lz}
+variable        Vol       equal 5*2*2
+variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
+variable        fnum      equal 3.8e+20*${Vol}/${Ns_target}
+variable        fnum      equal 3.8e+20*20/${Ns_target}
+variable        fnum      equal 3.8e+20*20/200000
+global          fnum ${fnum} # global bc will be queried by each new particle
+global          fnum 3.8e+16 
 
 # global useful for stat query later
-global             nrho ${nrho}
-global             nrho 3.8e+20
+global          nrho ${nrho}
+global          nrho 3.8e+20
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
-create_particles   atm n 0
+create_particles	atm n 0
 Created 199999 particles
-  CPU time = 0.0311451 secs
+  CPU time = 0.0321822 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
-fix                in emit/face atm xlo
+fix		in emit/face atm xlo
 
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
 
-variable	   diag_freq     equal 100 # dump diagnostics every _ timesteps
+variable	diag_freq     equal 100 # dump diagnostics every _ timesteps
 
-	      # ID, data type, mixture, every _ steps, filename, columns
-dump          p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
-dump          p1 particle atm 100 dumps/part.*.dat id type x y z vx vy vz
+	        # ID, data type, mixture, every _ steps, filename, columns
+dump            p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+dump            p1 particle atm 100 dumps/part.*.dat id type x y z vx vy vz
 
 # cell-averaged (streaming+thermal) temperature
-compute            Tbox temp # define a compute Tbox that calculates domain everaged temp
-stats              ${diag_freq} # print diagnostics every _ timesteps
-stats
+compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
+stats           ${diag_freq} # print diagnostics every _ timesteps
+stats           100 
+stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
+
+# choose small dt << cell flight time; start 1e-7 s
+timestep        1.0e-7
+collide		vss atm vss/air.vss # variable soft sphere model
+run             1000
+Memory usage per proc in Mbytes:
+  particles (ave,min,max) = 21.9375 21.9375 21.9375
+  grid      (ave,min,max) = 7.26379 7.26379 7.26379
+  surf      (ave,min,max) = 0 0 0
+  total     (ave,min,max) = 29.2013 29.2013 29.2013
+Step CPU Np Natt Ncoll c_Tbox 
+       0            0   199999        0        0    70557.552 
+     100   0.68492508   199989     1303     1040        70546 
+     200      1.58058   199897     1329      989    70535.486 
+     300    2.4235921   199925     1395     1027    70529.978 
+     400     2.628248   199978     1357      962    70521.908 
+     500     3.481102   199981     1432      967    70517.105 
+     600     4.358887   199970     1367      931    70512.718 
+     700     5.211165   200103     1460      985    70510.166 
+     800    6.0626731   199964     1487      999    70505.372 
+     900    6.8864369   200041     1444      984    70505.603 
+    1000     7.715461   200070     1555     1040    70506.005 
+Loop time of 7.71549 on 1 procs for 1000 steps with 200070 particles
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Move    | 3.3263     | 3.3263     | 3.3263     |   0.0 | 43.11
+Coll    | 1.3101     | 1.3101     | 1.3101     |   0.0 | 16.98
+Sort    | 1.0075     | 1.0075     | 1.0075     |   0.0 | 13.06
+Comm    | 0.0031152  | 0.0031152  | 0.0031152  |   0.0 |  0.04
+Modify  | 0.016271   | 0.016271   | 0.016271   |   0.0 |  0.21
+Output  | 2.0519     | 2.0519     | 2.0519     |   0.0 | 26.59
+Other   |            | 0.0003824  |            |       |  0.00
+
+Particle moves    = 200020356 (200M)
+Cells touched     = 203179717 (203M)
+Particle comms    = 0 (0K)
+Boundary collides = 0 (0K)
+Boundary exits    = 31177 (31.2K)
+SurfColl checks   = 0 (0K)
+SurfColl occurs   = 0 (0K)
+Surf reactions    = 0 (0K)
+Collide attempts  = 1370694 (1.37M)
+Collide occurs    = 964699 (0.965M)
+Reactions         = 0 (0K)
+Particles stuck   = 0
+Axisymm bad moves = 0
+
+Particle-moves/CPUsec/proc: 2.59245e+07
+Particle-moves/step: 200020
+Cell-touches/particle/step: 1.0158
+Particle comm iterations/step: 1
+Particle fraction communicated: 0
+Particle fraction colliding with boundary: 0
+Particle fraction exiting boundary: 0.000155869
+Surface-checks/particle/step: 0
+Surface-collisions/particle/step: 0
+Surf-reactions/particle/step: 0
+Collision-attempts/particle/step: 0.00685277
+Collisions/particle/step: 0.004823
+Reactions/particle/step: 0
+
+Particles: 200070 ave 200070 max 200070 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Cells:      40000 ave 40000 max 40000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+GhostCell: 0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+EmptyCell: 0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
