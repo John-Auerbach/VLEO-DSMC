@@ -12,10 +12,18 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        Lx equal 5.0
-variable        Ly equal 2.0
-variable        Lz equal 2.0
-create_box      0 ${Lx} 0 ${Ly} 0 ${Lz}
+variable        xmin equal -5
+variable        xmax equal 5
+variable        ymin equal -2
+variable 	ymax equal 2
+variable	zmin equal -2
+variable	zmax equal 2
+
+variable	Lx equal ${xmax}-${xmin}
+variable        Ly equal ${ymax}-${ymin}
+variable        Lz equal ${zmax}-${zmin}
+
+create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
 
 # grid resolution
 create_grid     100 20 20
