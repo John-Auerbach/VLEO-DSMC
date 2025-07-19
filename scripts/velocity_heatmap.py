@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 import pickle, os
+import re
+
 
 # I/O
 traj_path = os.path.expanduser("~/AMPT/dumps/traj.pkl")
@@ -70,6 +72,18 @@ ax.set_xlabel("x (m)")
 ax.set_ylabel("y (m)")
 
 # animation ----------
+
+def extract_tstep_from_input(path):
+    with open(path, 'r') as f:
+        for line in f:
+            m = re.match(r'variable\s+tstep\s+equal\s+([eE\d.+-]+)', line)
+            if m:
+                return float(m.group(1))
+    raise ValueError("tstep not found in input")
+
+tstep = extract_tstep_from_input(os.path.expanduser("~/AMPT/in.ampt"))
+
+
 def init():
     im.set_data(np.zeros((ny, nx)))
     return im,
@@ -78,7 +92,7 @@ def update(i):
     step, df, _ = traj[i]
     img = speed_hist(df)
     im.set_data(img)
-    title.set_text(f"speed heatmap z=0 cross-section  |  Timestep: {step}")
+    title.set_text(f"speed heatmap z=0 cross-section  |  time = {step * tstep:.2e} s")
     return im, title
 
 ani = FuncAnimation(fig, update, frames=len(traj),

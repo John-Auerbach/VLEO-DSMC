@@ -96,7 +96,7 @@ variable	diag_freq   equal 50 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
 
 	        # ID, data type, mixture, every _ steps, filename, columns
-dump            p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz # tstep
+dump            p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
 
 # cell-averaged (streaming+thermal) temperature
 compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
