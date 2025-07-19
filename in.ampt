@@ -5,7 +5,7 @@ shell "bash -c 'rm -f dumps/part.*.dat'"
 shell "mkdir -p dumps"
 
 units           si
-seed            12345
+seed            11111
 dimension       3
 
 # outflow in +x, periodic y,z. will inject at xlo (x=0)
@@ -53,7 +53,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	100 100 100 
+create_grid	200 100 100 
 balance_grid    rcb part
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
@@ -92,7 +92,7 @@ fix		in emit/face atm xlo
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
 
-variable	diag_freq     equal 100 # dump diagnostics every _ timesteps
+variable	diag_freq     equal 20 # dump diagnostics every _ timesteps
 
 	        # ID, data type, mixture, every _ steps, filename, columns
 dump            p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz

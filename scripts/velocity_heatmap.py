@@ -11,7 +11,7 @@ if not os.path.exists(traj_path):
 with open(traj_path, "rb") as f:
     traj = pickle.load(f)
 
-traj.sort(key=lambda tup: tup[0])        # sort by timestep
+traj.sort(key=lambda tup: tup[0])  # sort by timestep
 
 # box extents
 _, _, box0 = traj[0]
@@ -20,10 +20,10 @@ ylim = (box0['ylo'], box0['yhi'])
 zlim = (box0['zlo'], box0['zhi'])
 
 # choose slice thickness about z=0
-delta_z = 0.05 * (zlim[1] - zlim[0])     # 5% of box height
+delta_z = 0.05 * (zlim[1] - zlim[0])  # 5% of box height
 
 # grid for the heat-map
-nx, ny = 150, 60                         # tweak resolution as desired
+nx, ny = 150, 60
 x_edges = np.linspace(*xlim, nx + 1)
 y_edges = np.linspace(*ylim, ny + 1)
 
@@ -41,19 +41,19 @@ def speed_hist(df):
     cnt_v, _, _ = np.histogram2d(xs, ys, [x_edges, y_edges])
     with np.errstate(invalid='ignore'):
         mean_v = np.divide(sum_v, cnt_v, where=cnt_v > 0)
-    # flip y for imshow’s origin='lower'
-    return np.flipud(mean_v.T)
+    return np.flipud(mean_v.T)  # flip y for imshow’s origin='lower'
 
-# precompute global vmin/vmax ----------
-print("Computing global min/max for color scale...")
-all_min, all_max = [], []
+# precompute robust vmin/vmax ----------
+print("Computing robust min/max for color scale...")
+all_vals = []
 for _, df, _ in traj:
     img = speed_hist(df)
     if np.isfinite(img).any():
-        all_min.append(np.nanmin(img))
-        all_max.append(np.nanmax(img))
-vmin, vmax = min(all_min), max(all_max)
-print(f"Global vmin={vmin:.2f}, vmax={vmax:.2f}")
+        all_vals.extend(img[np.isfinite(img)].flatten())
+
+vmin = np.percentile(all_vals, 5)
+vmax = np.percentile(all_vals, 95)
+print(f"Robust vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 # figure ----------
 fig, ax = plt.subplots(figsize=(6, 3))
@@ -66,7 +66,8 @@ im = ax.imshow(
 )
 cbar = fig.colorbar(im, ax=ax, label="|v| (m s⁻¹)")
 title = ax.set_title("")
-ax.set_xlabel("x (m)"); ax.set_ylabel("y (m)")
+ax.set_xlabel("x (m)")
+ax.set_ylabel("y (m)")
 
 # animation ----------
 def init():
