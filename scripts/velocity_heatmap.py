@@ -23,7 +23,7 @@ zlim = (box0['zlo'], box0['zhi'])
 delta_z = 0.1 * (zlim[1] - zlim[0])  # 5% of box height
 
 # grid for the heat-map
-nx, ny = 150, 60
+nx, ny = 400, 150
 x_edges = np.linspace(*xlim, nx + 1)
 y_edges = np.linspace(*ylim, ny + 1)
 
@@ -62,7 +62,7 @@ im = ax.imshow(
     extent=(*xlim, *ylim),
     origin='lower',
     aspect='auto',
-    vmin=vmin, vmax=vmax, cmap='viridis'
+    vmin=vmin, vmax=vmax, cmap='coolwarm'
 )
 cbar = fig.colorbar(im, ax=ax, label="v (m/s)")
 title = ax.set_title("")
@@ -84,4 +84,4 @@ def update(i):
 ani = FuncAnimation(fig, update, frames=len(traj),
                     init_func=init, blit=False, interval=200)
 
-ani.save("velocity_heatmap.mp4", fps=5, dpi=150)
+ani.save("velocity_heatmap.mp4", fps=30, dpi=150)

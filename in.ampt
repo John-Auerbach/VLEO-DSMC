@@ -53,7 +53,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	100 100 100 
+create_grid	400 400 20 
 balance_grid    rcb part
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
@@ -92,17 +92,17 @@ fix		in emit/face atm xlo
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
 
-variable	diag_freq     equal 20 # dump diagnostics every _ timesteps
+variable	diag_freq   equal 50 # dump diagnostics every _ timesteps
+variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
 
 	        # ID, data type, mixture, every _ steps, filename, columns
-dump            p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+dump            p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz # tstep
 
 # cell-averaged (streaming+thermal) temperature
 compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
 stats           ${diag_freq} # print diagnostics every _ timesteps
 stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
 
-# choose small dt << cell flight time; start 1e-7 s
-timestep        1.0e-7
+timestep        ${tstep}
 collide		vss atm vss/air.vss # variable soft sphere model
-run             1000
+run             10000
