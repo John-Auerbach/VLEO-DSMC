@@ -53,7 +53,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	400 400 20 
+create_grid	500 500 50 
 balance_grid    rcb part
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------

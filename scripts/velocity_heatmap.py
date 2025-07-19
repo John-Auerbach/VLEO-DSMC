@@ -4,7 +4,6 @@ import numpy as np
 import pickle, os
 import re
 
-
 # I/O
 traj_path = os.path.expanduser("~/AMPT/dumps/traj.pkl")
 if not os.path.exists(traj_path):
@@ -22,10 +21,10 @@ ylim = (box0['ylo'], box0['yhi'])
 zlim = (box0['zlo'], box0['zhi'])
 
 # choose slice thickness about z=0
-delta_z = 0.1 * (zlim[1] - zlim[0])  # 5% of box height
+delta_z = 0.2 * (zlim[1] - zlim[0])  # 5% of box height
 
 # grid for the heat-map
-nx, ny = 400, 150
+nx, ny = 500, 300
 x_edges = np.linspace(*xlim, nx + 1)
 y_edges = np.linspace(*ylim, ny + 1)
 
@@ -98,4 +97,4 @@ def update(i):
 ani = FuncAnimation(fig, update, frames=len(traj),
                     init_func=init, blit=False, interval=200)
 
-ani.save("velocity_heatmap.mp4", fps=30, dpi=150)
+ani.save("velocity_heatmap.mp4", fps=30, dpi=300)
