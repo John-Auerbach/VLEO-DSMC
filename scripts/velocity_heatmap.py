@@ -20,7 +20,7 @@ ylim = (box0['ylo'], box0['yhi'])
 zlim = (box0['zlo'], box0['zhi'])
 
 # choose slice thickness about z=0
-delta_z = 0.05 * (zlim[1] - zlim[0])  # 5% of box height
+delta_z = 0.1 * (zlim[1] - zlim[0])  # 5% of box height
 
 # grid for the heat-map
 nx, ny = 150, 60
@@ -64,7 +64,7 @@ im = ax.imshow(
     aspect='auto',
     vmin=vmin, vmax=vmax, cmap='viridis'
 )
-cbar = fig.colorbar(im, ax=ax, label="|v| (m s⁻¹)")
+cbar = fig.colorbar(im, ax=ax, label="v (m/s)")
 title = ax.set_title("")
 ax.set_xlabel("x (m)")
 ax.set_ylabel("y (m)")
@@ -78,7 +78,7 @@ def update(i):
     step, df, _ = traj[i]
     img = speed_hist(df)
     im.set_data(img)
-    title.set_text(f"Speed heat‑map at z≈0  |  Step {step}")
+    title.set_text(f"speed heatmap z=0 cross-section  |  Timestep: {step}")
     return im, title
 
 ani = FuncAnimation(fig, update, frames=len(traj),
