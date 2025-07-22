@@ -53,7 +53,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	500 500 50 
+create_grid	100 100 100 
 balance_grid    rcb part
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
@@ -92,11 +92,24 @@ fix		in emit/face atm xlo
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
 
-variable	diag_freq   equal 50 # dump diagnostics every _ timesteps
+variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
 
-	        # ID, data type, mixture, every _ steps, filename, columns
-dump            p1 particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+                # ID, data type, mixture, every _ steps, filename, columns (particle data)
+dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+
+                # compute ID, type, region, mixture, property (gas temperature per grid cell)
+compute         compute_Tgrid grid all atm temp
+                # ID, data type, region, every _ steps, filename, columns (cell gas temperature)
+dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*]
+
+                # compute ID, type, surf group, mixture, property (energy flux on surface)
+compute         compute_qwall surf ampt atm etot
+                # fix ID, type, group, every _ steps, input, T_init, emissivity, attr_name
+fix             fix_Tsurf surf/temp ampt ${diag_freq} c_compute_qwall[1] 300.0 0.9 Tsurf
+                # ID, data type, region, every _ steps, filename, columns (surface temperature)
+dump            dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id s_Tsurf
+
 
 # cell-averaged (streaming+thermal) temperature
 compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
@@ -105,4 +118,4 @@ stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, par
 
 timestep        ${tstep}
 collide		vss atm vss/air.vss # variable soft sphere model
-run             10000
+run             1000
