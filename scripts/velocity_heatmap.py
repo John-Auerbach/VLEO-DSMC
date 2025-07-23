@@ -29,7 +29,6 @@ nx, ny = 500, 300
 x_edges = np.linspace(*xlim, nx + 1)
 y_edges = np.linspace(*ylim, ny + 1)
 
-# helpers
 def speed_hist(df):
     """Return 2‑D array of mean speed in each (x,y) bin for |z|<delta_z."""
     in_slice = np.abs(df["z"].values) <= delta_z
@@ -45,8 +44,8 @@ def speed_hist(df):
         mean_v = np.divide(sum_v, cnt_v, where=cnt_v > 0)
     return np.flipud(mean_v.T)  # flip y for imshow’s origin='lower'
 
-# precompute robust vmin/vmax
-print("Computing robust min/max for color scale...")
+# precompute vmin/vmax
+print("Computing min/max for color scale...")
 all_vals = []
 for _, df, _ in traj:
     img = speed_hist(df)
@@ -55,7 +54,7 @@ for _, df, _ in traj:
 
 vmin = np.percentile(all_vals, 5)
 vmax = np.percentile(all_vals, 95)
-print(f"Robust vmin={vmin:.2f}, vmax={vmax:.2f}")
+print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 fig, ax = plt.subplots(figsize=(6, 3))
 im = ax.imshow(

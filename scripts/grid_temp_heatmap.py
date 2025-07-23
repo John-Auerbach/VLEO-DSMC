@@ -41,7 +41,6 @@ y_edges = np.linspace(*ylim, ny + 1)
 # temperature column name (e.g. 'c_compute_Tgrid[1]')
 temp_col = [c for c in grid[0][1].columns if c != "id"][0]
 
-# helpers
 def temp_hist(df):
     """Return 2‑D array of mean cell temperature for |z|<delta_z."""
     temps = df[temp_col].to_numpy()
@@ -67,8 +66,8 @@ def temp_hist(df):
         mean_t = sum_t / cnt_t
     return mean_t  # array shape (ny, nx) for imshow origin='lower'
 
-# precompute robust vmin/vmax
-print("Computing robust min/max for color scale...")
+# precompute vmin/vmax
+print("Computing min/max for color scale...")
 all_vals = []
 for _, df, _ in grid:
     img = temp_hist(df)
@@ -76,7 +75,7 @@ for _, df, _ in grid:
         all_vals.extend(img[np.isfinite(img)])
 vmin = np.percentile(all_vals, 5)
 vmax = np.percentile(all_vals, 95)
-print(f"Robust vmin={vmin:.2f}, vmax={vmax:.2f}")
+print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 fig, ax = plt.subplots(figsize=(6, 3))
 im = ax.imshow(
