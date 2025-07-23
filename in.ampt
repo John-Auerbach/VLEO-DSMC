@@ -59,7 +59,7 @@ balance_grid    rcb part
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
 read_surf   surf/ampt_box.surf  group ampt        # create surface group “ampt”
-surf_collide wall diffuse 300.0 0.9           # define collision model “wall”
+surf_collide wall diffuse 300.0 0.9           # define collision model “wall”, random dir, initial temp, acc
 surf_modify  ampt collide wall
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
@@ -99,14 +99,14 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
 
                 # compute ID, type, region, mixture, property (gas temperature per grid cell)
-compute         compute_Tgrid grid all atm temp
+compute         compute_Tgrid grid all atm temp # *per-grid array
                 # ID, data type, region, every _ steps, filename, columns (cell gas temperature)
-dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*]
+dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*] # compute for all columns (gases) in array
 
                 # compute ID, type, surf group, mixture, property (energy flux on surface)
-compute         compute_qwall surf ampt atm etot
+compute         compute_qwall surf ampt atm etot #etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
                 # fix ID, type, group, every _ steps, input, T_init, emissivity, attr_name
-fix             fix_Tsurf surf/temp ampt ${diag_freq} c_compute_qwall[1] 300.0 0.9 Tsurf
+fix             fix_Tsurf surf/temp ampt ${diag_freq} c_compute_qwall[1] 300.0 0.9 Tsurf # Stefan-Bolztmann *reduce array to vector for fix
                 # ID, data type, region, every _ steps, filename, columns (surface temperature)
 dump            dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id s_Tsurf
 
