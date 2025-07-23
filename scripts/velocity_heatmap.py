@@ -21,14 +21,15 @@ ylim = (box0['ylo'], box0['yhi'])
 zlim = (box0['zlo'], box0['zhi'])
 
 # choose slice thickness about z=0
-delta_z = 0.1 * (zlim[1] - zlim[0])  # 5% of box height
+slice_frac = 0.1                                      # _% of box height
+delta_z = slice_frac * (zlim[1] - zlim[0])
 
 # grid for the heat-map
 nx, ny = 500, 300
 x_edges = np.linspace(*xlim, nx + 1)
 y_edges = np.linspace(*ylim, ny + 1)
 
-# helpers ----------
+# helpers
 def speed_hist(df):
     """Return 2‑D array of mean speed in each (x,y) bin for |z|<delta_z."""
     in_slice = np.abs(df["z"].values) <= delta_z
@@ -44,7 +45,7 @@ def speed_hist(df):
         mean_v = np.divide(sum_v, cnt_v, where=cnt_v > 0)
     return np.flipud(mean_v.T)  # flip y for imshow’s origin='lower'
 
-# precompute robust vmin/vmax ----------
+# precompute robust vmin/vmax
 print("Computing robust min/max for color scale...")
 all_vals = []
 for _, df, _ in traj:
@@ -56,7 +57,6 @@ vmin = np.percentile(all_vals, 5)
 vmax = np.percentile(all_vals, 95)
 print(f"Robust vmin={vmin:.2f}, vmax={vmax:.2f}")
 
-# figure ----------
 fig, ax = plt.subplots(figsize=(6, 3))
 im = ax.imshow(
     np.zeros((ny, nx)),
@@ -70,7 +70,7 @@ title = ax.set_title("")
 ax.set_xlabel("x (m)")
 ax.set_ylabel("y (m)")
 
-# animation ----------
+# animation
 
 def extract_tstep_from_input(path):
     with open(path, 'r') as f:
@@ -91,7 +91,7 @@ def update(i):
     step, df, _ = traj[i]
     img = speed_hist(df)
     im.set_data(img)
-    title.set_text(f"speed heatmap z=0 cross-section  |  time = {step * tstep:.2e} s")
+    title.set_text(f"speed heatmap |z| ≤ {slice_frac:.2f}H  |  time = {step * tstep:.2e} s")
     return im, title
 
 ani = FuncAnimation(fig, update, frames=len(traj),
