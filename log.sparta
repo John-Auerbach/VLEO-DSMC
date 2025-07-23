@@ -92,4 +92,186 @@ print "MEAN COLL TIME = ${mct} s"
 MEAN COLL TIME = 0.00152981501153622 s
 print "MEAN TRANSIT TIME = ${mtt} s"
 MEAN TRANSIT TIME = 0.000509938337178741 s
-print "TIMESTEP MUST BE < $
+print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
+TIMESTEP MUST BE < 0.000169979445726247 s
+
+create_grid	100 100 100
+Created 1000000 child grid cells
+  CPU time = 0.565524 secs
+  create/ghost percent = 28.3654 71.6346
+balance_grid    rcb part
+Balance grid migrated 0 cells
+  CPU time = 0.422178 secs
+  reassign/sort/migrate/ghost percent = 28.0017 1.5429 6.39167 64.0638
+
+variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
+variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
+
+# SURFACE GEOMETRY ----------------------------------------------------------------------------
+
+read_surf	surf/ampt_box.surf  group ampt        # create surface group “ampt”
+  12 triangles
+  -0.5 0.5 xlo xhi
+  -0.1 0.1 ylo yhi
+  0 1 zlo zhi
+  0.2 min triangle edge length
+  0.1 min triangle area
+  6132 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  121 tiny edges removed
+  978380 15488 6132 = cells outside/inside/overlapping surfs
+  6132 = surf cells with 1,2,etc splits
+  10.448 10.448 = cell-wise and global flow volume
+  CPU time = 0.595113 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0126996 0.0254172 6.37178 45.2455 48.3446 22.546 7.1247e-05
+  surf2grid time = 0.269262 secs
+  map/comm1/comm2/comm3/comm4/split percent = 31.7312 0.0244019 42.9093 2.37603 3.85092 8.91103
+
+# SPECIES AND MIXTURE -------------------------------------------------------------------------
+
+
+# use local species file
+species         species/air.species N2 O2
+
+# define inflow gas mixture named atm
+mixture 	atm N2 frac 0.79
+mixture		atm O2 frac 0.21
+mixture         atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
+mixture         atm nrho 3.8e+20 vstream ${vx} 0.0 0.0 temp ${T}
+mixture         atm nrho 3.8e+20 vstream 7800 0.0 0.0 temp ${T}
+mixture         atm nrho 3.8e+20 vstream 7800 0.0 0.0 temp 200
+
+# collisions
+
+                # compute ID, type, surf group, mixture, property (energy flux on surface)
+compute         compute_qwall surf ampt atm etot # etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
+fix             fix_Tsurf surf/temp ampt ${diag_freq} c_compute_qwall[1] 300.0 0.9 Tsurf  # Stefan-Boltzmann
+fix             fix_Tsurf surf/temp ampt 100 c_compute_qwall[1] 300.0 0.9 Tsurf  
+surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
+surf_modify 	ampt collide wall # attach model to facets
+
+
+# particle weighting: set target of 2e5 sim particles, calculate weighting factor
+variable        Ns_target equal 200000.0
+variable        Vol       equal ${Lx}*${Ly}*${Lz}
+variable        Vol       equal 2.2*${Ly}*${Lz}
+variable        Vol       equal 2.2*2.2*${Lz}
+variable        Vol       equal 2.2*2.2*2.2
+variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
+variable        fnum      equal 3.8e+20*${Vol}/${Ns_target}
+variable        fnum      equal 3.8e+20*10.648/${Ns_target}
+variable        fnum      equal 3.8e+20*10.648/200000
+global          fnum ${fnum} # global bc will be queried by each new particle
+global          fnum 2.02312e+16 
+
+# global useful for stat query later
+global          nrho ${nrho}
+global          nrho 3.8e+20
+
+# create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
+create_particles	atm n 0
+Created 196243 particles
+  CPU time = 0.0464429 secs
+
+# continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
+fix		in emit/face atm xlo
+
+
+# DIAGNOSTICS ---------------------------------------------------------------------------------
+
+
+
+                # ID, data type, mixture, every _ steps, filename, columns (particle data)
+dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+dump            dump_part particle atm 100 dumps/part.*.dat id type x y z vx vy vz
+
+                # compute ID, type, region, mixture, property (gas temperature per grid cell)
+compute         compute_Tgrid grid all atm temp # *per-grid array
+                # ID, data type, region, every _ steps, filename, columns (cell gas temperature)
+dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*] # compute for all columns (gases) in array
+dump            dump_grid grid all 100 dumps/grid.*.dat id c_compute_Tgrid[*] 
+
+		# ID, data type, region, every _ steps, filename, columns (facet id, centroid, surface temperature)
+dump		dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z s_Tsurf
+dump		dump_surf surf ampt 100 dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z s_Tsurf
+
+
+# cell-averaged (streaming+thermal) temperature
+compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
+stats           ${diag_freq} # print diagnostics every _ timesteps
+stats           100 
+stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
+
+timestep        ${tstep}
+timestep        1e-07
+collide		vss atm vss/air.vss # variable soft sphere model
+run             1000
+Memory usage per proc in Mbytes:
+  particles (ave,min,max) = 20.25 20.25 20.25
+  grid      (ave,min,max) = 176.889 176.889 176.889
+  surf      (ave,min,max) = 0.00151062 0.00151062 0.00151062
+  total     (ave,min,max) = 212.399 212.399 212.399
+Step CPU Np Natt Ncoll c_Tbox 
+       0            0   196243        0        0    70548.886 
+     100    3.2012816   195922      270      206    70425.629 
+     200    6.5856275   196631      566      432    70314.676 
+     300    10.090948   196502      880      628    70202.712 
+     400    13.716849   195682     1127      796    70082.178 
+     500    17.344674   196092     1384      963    69946.407 
+     600    21.020551   196438     1594     1099    69843.816 
+     700    24.743615   195870     1825     1239    69732.006 
+     800    28.471593   195866     1983     1321    69603.669 
+     900    32.202646   196316     2177     1458    69494.289 
+    1000    35.998126   196491     2276     1459    69388.404 
+Loop time of 35.9982 on 1 procs for 1000 steps with 196491 particles
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Move    | 13.429     | 13.429     | 13.429     |   0.0 | 37.31
+Coll    | 8.7304     | 8.7304     | 8.7304     |   0.0 | 24.25
+Sort    | 9.6735     | 9.6735     | 9.6735     |   0.0 | 26.87
+Comm    | 0.0067926  | 0.0067926  | 0.0067926  |   0.0 |  0.02
+Modify  | 0.18945    | 0.18945    | 0.18945    |   0.0 |  0.53
+Output  | 3.9677     | 3.9677     | 3.9677     |   0.0 | 11.02
+Other   |            | 0.001031   |            |       |  0.00
+
+Particle moves    = 196262461 (196M)
+Cells touched     = 203460882 (203M)
+Particle comms    = 0 (0K)
+Boundary collides = 0 (0K)
+Boundary exits    = 70043 (70K)
+SurfColl checks   = 1465899 (1.47M)
+SurfColl occurs   = 9569 (9.57K)
+Surf reactions    = 0 (0K)
+Collide attempts  = 1283745 (1.28M)
+Collide occurs    = 868044 (0.868M)
+Reactions         = 0 (0K)
+Particles stuck   = 0
+Axisymm bad moves = 0
+
+Particle-moves/CPUsec/proc: 5.45201e+06
+Particle-moves/step: 196262
+Cell-touches/particle/step: 1.03668
+Particle comm iterations/step: 1
+Particle fraction communicated: 0
+Particle fraction colliding with boundary: 0
+Particle fraction exiting boundary: 0.000356884
+Surface-checks/particle/step: 0.00746907
+Surface-collisions/particle/step: 4.87561e-05
+Surf-reactions/particle/step: 0
+Collision-attempts/particle/step: 0.00654096
+Collisions/particle/step: 0.00442287
+Reactions/particle/step: 0
+
+Particles: 196491 ave 196491 max 196491 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Cells:      1e+06 ave 1e+06 max 1e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+GhostCell: 0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+EmptyCell: 0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Surfs:    12 ave 12 max 12 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+GhostSurf: 0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
