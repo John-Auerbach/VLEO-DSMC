@@ -72,14 +72,17 @@ species         species/air.species N2 O2
 # define inflow gas mixture named atm
 mixture 	atm N2 frac 0.79
 mixture		atm O2 frac 0.21
-mixture         atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
+mixture     atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # collisions
 
                 # compute ID, type, surf group, mixture, property (energy flux on surface)
 compute         compute_qwall surf ampt atm etot # etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
-fix             flux ave/surf ampt 10 10 100 c_compute_qwall[1] # sample every 1 step, average every 1 sample, output every 1 step (just forces compute to run) 
-fix             fix_Tsurf surf/temp ampt 100 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
+
+                # running‑average every step so flux is never exactly zero (exponential decay)
+fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
+fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
+
 
 surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
 surf_modify 	ampt collide wall # attach model to facets
@@ -111,8 +114,8 @@ compute         compute_Tgrid grid all atm temp # *per-grid array
                 # ID, data type, region, every _ steps, filename, columns (cell gas temperature)
 dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*] # compute for all columns (gases) in array
 
-		# ID, data type, region, every _ steps, filename, columns (facet id, centroid, surface temperature)
-dump    	dump_surf surf ampt 100 dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
+		        # ID, data type, region, every _ steps, filename, columns (facet id, centroid, surface temperature)
+dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # cell-averaged (streaming+thermal) temperature
 compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
@@ -120,5 +123,5 @@ stats           ${diag_freq} # print diagnostics every _ timesteps
 stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
 
 timestep        ${tstep}
-collide		vss atm vss/air.vss # variable soft sphere model
+collide		    vss atm vss/air.vss # variable soft sphere model
 run             10000
