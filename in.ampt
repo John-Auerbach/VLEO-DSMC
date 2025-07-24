@@ -53,10 +53,10 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	50 50 50 
+create_grid	100 100 20 
 balance_grid    rcb part
 
-variable	diag_freq   equal 5000 # dump diagnostics every _ timesteps
+variable	diag_freq   equal 50 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
@@ -78,14 +78,14 @@ mixture         atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
                 # compute ID, type, surf group, mixture, property (energy flux on surface)
 compute         compute_qwall surf ampt atm etot # etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
-fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] # sample every 1 step, average every 1 sample, output every 1 step (just forces compute to run) 
-fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
+fix             flux ave/surf ampt 10 10 100 c_compute_qwall[1] # sample every 1 step, average every 1 sample, output every 1 step (just forces compute to run) 
+fix             fix_Tsurf surf/temp ampt 100 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
 
 surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
 surf_modify 	ampt collide wall # attach model to facets
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 20000.0
+variable        Ns_target equal 200000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -112,7 +112,7 @@ compute         compute_Tgrid grid all atm temp # *per-grid array
 dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*] # compute for all columns (gases) in array
 
 		# ID, data type, region, every _ steps, filename, columns (facet id, centroid, surface temperature)
-dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z s_Tsurf
+dump    	dump_surf surf ampt 100 dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # cell-averaged (streaming+thermal) temperature
 compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
