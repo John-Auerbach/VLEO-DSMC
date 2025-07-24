@@ -65,7 +65,6 @@ read_surf	surf/ampt_box.surf  group ampt        # create surface group “ampt�
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
-
 # use local species file
 species         species/air.species N2 O2
 
@@ -73,19 +72,6 @@ species         species/air.species N2 O2
 mixture 	atm N2 frac 0.79
 mixture		atm O2 frac 0.21
 mixture     atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
-
-# collisions
-
-                # compute ID, type, surf group, mixture, property (energy flux on surface)
-compute         compute_qwall surf ampt atm etot # etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
-
-                # running‑average every step so flux is never exactly zero (exponential decay)
-fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
-fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
-
-
-surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
-surf_modify 	ampt collide wall # attach model to facets
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
 variable        Ns_target equal 200000.0
@@ -102,9 +88,20 @@ create_particles	atm n 0
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		        in emit/face atm xlo
 
+# SURFACE COLLISIONS --------------------------------------------------------------------------
+
+                # compute ID, type, surf group, mixture, property (energy flux on surface)
+compute         compute_qwall surf ampt atm etot # etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
+
+                # running‑average every step so flux is never exactly zero (exponential decay)
+fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
+fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
+
+
+surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
+surf_modify 	ampt collide wall # attach model to facets
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
-
 
                 # ID, data type, mixture, every _ steps, filename, columns (particle data)
 dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
@@ -114,7 +111,7 @@ compute         compute_Tgrid grid all atm temp # *per-grid array
                 # ID, data type, region, every _ steps, filename, columns (cell gas temperature)
 dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*] # compute for all columns (gases) in array
 
-		        # ID, data type, region, every _ steps, filename, columns (facet id, centroid, surface temperature)
+		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
 dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # cell-averaged (streaming+thermal) temperature
@@ -124,4 +121,4 @@ stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, par
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             10000
+run             1000
