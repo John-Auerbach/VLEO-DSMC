@@ -43,19 +43,17 @@ def read_surf(fname):
 
     return step, triangles, cols["s_Tsurf"], cols["f_flux[*]"]
 
-# Load all frames
+# load all frames
 files = sorted(glob.glob(dump_glob),
                key=lambda s: int(re.search(r"\.(\d+)\.dat$", s).group(1)))
 frames = [read_surf(f) for f in files]
 steps = np.array([f[0] for f in frames])
 t_phys = steps * dt
 
-# Geometry (constant triangles)
 triangles = frames[0][1]
 nt = len(frames)
 ntri = len(triangles)
 
-# Temperatures (nt × ntriangles)
 temps = np.array([f[2] for f in frames])
 fluxes = np.array([f[3] for f in frames])
 vmin, vmax = np.percentile(temps, [5, 95])
@@ -64,12 +62,12 @@ vmin, vmax = np.percentile(temps, [5, 95])
 cmap = cm.get_cmap("inferno")
 norm = plt.Normalize(vmin, vmax)
 
-# Figure setup
-fig = plt.figure(figsize=(12, 4.5))
-gs = gridspec.GridSpec(1, 3, width_ratios=[5, 20, 1], wspace=0.4)
+fig = plt.figure(figsize=(9, 4.5))
+gs = gridspec.GridSpec(1, 3, width_ratios=[5, 20, 1], wspace=0.01)
 text_ax = fig.add_subplot(gs[0])
 ax = fig.add_subplot(gs[1], projection='3d')
-cax = fig.add_subplot(gs[2])
+fig.subplots_adjust(left=0.05, right=0.95)
+cax = fig.add_axes([0.86, 0.15, 0.015, 0.7])
 text_ax.set_xlim(0, 1)
 text_ax.set_ylim(0, 1)
 text_ax.axis("off")
@@ -83,14 +81,13 @@ ax.set_xlabel("x (m)")
 ax.set_ylabel("y (m)")
 ax.set_zlabel("z (m)")
 title = ax.set_title("")
-text_display = text_ax.text(0, 0.5, "", fontsize=12, va="center", ha="left", family="monospace")
+text_display = text_ax.text(0.18, 0.5, "", fontsize=12, va="center", ha="left", family="monospace")
 
-# Fixed axis limits
 ax.set_xlim([-0.5, 0.5])
 ax.set_ylim([-0.5, 0.5])
 ax.set_zlim([-0.5, 0.5])
 
-# Animation update
+# animation update
 def update(i):
     collection.set_array(temps[i])
     ax.view_init(elev=30, azim=90 + (360 * i / nt))
