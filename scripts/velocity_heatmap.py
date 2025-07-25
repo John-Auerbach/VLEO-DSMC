@@ -25,7 +25,7 @@ slice_frac = 0.1                                      # _% of box height
 delta_z = slice_frac * (zlim[1] - zlim[0])
 
 # grid for the heat-map
-nx, ny = 500, 300
+nx, ny = 300, 200
 x_edges = np.linspace(*xlim, nx + 1)
 y_edges = np.linspace(*ylim, ny + 1)
 
