@@ -10,7 +10,7 @@ from matplotlib import gridspec
 dump_glob = os.path.expanduser("~/AMPT/dumps/surf.*.dat")
 input_sparta = os.path.expanduser("~/AMPT/in.ampt")
 outfile = "surface_temp_heatmap.mp4"
-fps = 30
+fps = 25
 
 # timestep size from input file
 def get_tstep(path):
@@ -56,7 +56,7 @@ ntri = len(triangles)
 
 temps = np.array([f[2] for f in frames])
 fluxes = np.array([f[3] for f in frames])
-vmin, vmax = np.percentile(temps, [5, 95])
+vmin, vmax = np.percentile(temps, [0, 100])
 
 # Colormap
 cmap = cm.get_cmap("inferno")
@@ -90,7 +90,7 @@ ax.set_zlim([-0.5, 0.5])
 # animation update
 def update(i):
     collection.set_array(temps[i])
-    ax.view_init(elev=30, azim=90 + (360 * i / nt))
+    ax.view_init(elev=30, azim=60 + (180 * np.cos((i / nt)*np.pi)))
     title.set_text(f"t = {t_phys[i]:.2e} s")
     flux_lines = [f"{j:2d}: {fluxes[i][j]:.2e} W/m²" for j in range(ntri)]
     text_display.set_text("\n".join(flux_lines))
