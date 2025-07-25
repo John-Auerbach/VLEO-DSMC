@@ -97,12 +97,12 @@ TIMESTEP MUST BE < 0.000169979445726247 s
 
 create_grid	100 80 80
 Created 640000 child grid cells
-  CPU time = 0.393666 secs
-  create/ghost percent = 27.8891 72.1109
+  CPU time = 0.321222 secs
+  create/ghost percent = 28.4983 71.5017
 balance_grid    rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.302443 secs
-  reassign/sort/migrate/ghost percent = 26.3411 1.47165 6.82126 65.366
+  CPU time = 0.2864 secs
+  reassign/sort/migrate/ghost percent = 27.1849 1.67228 7.78716 63.3557
 
 variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
@@ -121,10 +121,10 @@ read_surf	surf/ampt_box.surf  group ampt        # create surface group â€œamptâ€
   637056 1584 1360 = cells outside/inside/overlapping surfs
   1360 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.371001 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.159231 0.030164 6.40447 43.4135 49.9926 24.703 0.000116711
-  surf2grid time = 0.161065 secs
-  map/comm1/comm2/comm3/comm4/split percent = 37.2265 0.0101568 36.8139 2.40823 4.38302 7.66377
+  CPU time = 0.362333 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.159991 0.023625 8.0027 43.3907 48.423 25.1552 8.27968e-05
+  surf2grid time = 0.157219 secs
+  map/comm1/comm2/comm3/comm4/split percent = 35.9367 0.00890479 37.9174 2.74733 4.6473 7.32205
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -159,7 +159,7 @@ global          nrho 3.8e+20
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
 Created 199248 particles
-  CPU time = 0.0352505 secs
+  CPU time = 0.0335597 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -183,183 +183,4 @@ surf_modify 	ampt collide wall # attach model to facets
 dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
 dump            dump_part particle atm 100 dumps/part.*.dat id type x y z vx vy vz
 
-                # compute ID, type, region, mixture, property (gas temperature per grid cell)
-compute         compute_Tgrid grid all atm temp # *per-grid array
-                # ID, data type, region, every _ steps, filename, columns (cell gas temperature)
-dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*] # compute for all columns (gases) in array
-dump            dump_grid grid all 100 dumps/grid.*.dat id c_compute_Tgrid[*] 
-
-		# ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
-dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
-dump    	dump_surf surf ampt 100 dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
-
-# cell-averaged (streaming+thermal) temperature
-compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
-stats           ${diag_freq} # print diagnostics every _ timesteps
-stats           100 
-stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
-
-timestep        ${tstep}
-timestep        1e-07
-collide		    vss atm vss/air.vss # variable soft sphere model
-run             10000
-Memory usage per proc in Mbytes:
-  particles (ave,min,max) = 21.9375 21.9375 21.9375
-  grid      (ave,min,max) = 113.639 113.639 113.639
-  surf      (ave,min,max) = 0.00151062 0.00151062 0.00151062
-  total     (ave,min,max) = 145.344 145.344 145.344
-Step CPU Np Natt Ncoll c_Tbox 
-       0            0   199248        0        0    70562.896 
-     100    2.8343827   199301      147      118    70531.485 
-     200    5.8654671   199323      353      268    70497.692 
-     300    9.0204355   199300      580      454    70474.333 
-     400    12.180717   199385      774      598    70445.207 
-     500    15.361154   199335      893      666    70420.533 
-     600    18.563788   199281     1048      807    70382.674 
-     700     21.74773   199379     1173      907    70354.696 
-     800    24.971703   199480     1230      910    70322.682 
-     900    28.194431   199462     1239      913    70292.162 
-    1000    31.438193   199457     1368     1016     70263.43 
-    1100    34.706558   199537     1443     1065    70236.972 
-    1200    37.984645   199759     1485     1099    70213.223 
-    1300    41.323486   199816     1535     1144    70176.844 
-    1400    44.619253   199861     1595     1185    70149.752 
-    1500    47.945305   200168     1552     1175    70127.634 
-    1600    51.248175   200072     1602     1206    70092.493 
-    1700    54.597698   200238     1592     1195    70069.624 
-    1800    57.943315   200160     1728     1333    70035.005 
-    1900    61.278115   200452     1727     1294     70011.67 
-    2000    64.642664   200540     1648     1224    69993.451 
-    2100     68.00018   200500     1691     1293    69969.189 
-    2200    71.404356   200757     1735     1333    69943.459 
-    2300    74.791653   200904     1765     1348    69920.216 
-    2400    78.187319   200581     1765     1350    69895.274 
-    2500      81.5984   200671     1763     1353    69865.953 
-    2600    84.977604   200834     1843     1421    69836.906 
-    2700    88.374999   200981     1821     1333    69794.568 
-    2800    91.769658   201141     1820     1401    69750.669 
-    2900    95.164812   201316     1918     1430    69711.916 
-    3000    98.584626   201457     1886     1392    69678.115 
-    3100    101.98478   201602     1991     1478    69640.901 
-    3200    105.38923   201819     1970     1457    69607.148 
-    3300    108.81692   202049     1937     1428    69574.909 
-    3400    112.70273   202178     1997     1476     69548.49 
-    3500    116.17018   202462     2014     1513     69530.28 
-    3600    119.60883   202588     1946     1452    69505.114 
-    3700    123.05756   202755     2005     1465    69496.947 
-    3800    126.52387   202952     2032     1505    69482.721 
-    3900    129.96551   202863     2045     1494    69466.941 
-    4000    133.41582   202896     1994     1452    69450.809 
-    4100    136.85544   203074     2089     1491    69435.409 
-    4200    140.31445   202993     2025     1460    69422.207 
-    4300    143.82917   202819     2156     1540     69405.02 
-    4400    147.27153   202804     2189     1586    69388.751 
-    4500     150.7273   203100     2065     1456    69379.028 
-    4600      154.184   203352     2120     1481     69379.05 
-    4700    157.63048   203173     2091     1484    69372.412 
-    4800    161.08955   203399     2140     1522    69355.919 
-    4900    164.54736   203058     2114     1495    69358.239 
-    5000     168.0132   202999     2129     1540    69337.927 
-    5100    171.46866   203165     2098     1485    69346.709 
-    5200    174.96078   203316     2195     1500    69335.652 
-    5300    178.41742   203677     2092     1457    69318.016 
-    5400    181.85494   203536     2193     1511    69314.506 
-    5500    185.28806   203519     2160     1468    69302.685 
-    5600    188.73214   203451     2136     1497    69297.977 
-    5700    192.46307   203639     2133     1473    69309.652 
-    5800    196.28858   203401     2102     1484    69312.409 
-    5900    199.73243   203549     2154     1482    69305.761 
-    6000    203.17948   203504     2237     1493    69301.933 
-    6100    206.63827   203295     2292     1553     69303.98 
-    6200    210.16035   203398     2308     1578    69294.087 
-    6300    213.85829   203253     2195     1469    69291.287 
-    6400    217.41527   203136     2264     1534    69278.144 
-    6500    220.92321   203194     2270     1496    69285.834 
-    6600    224.42532   203136     2160     1463    69283.742 
-    6700    227.84795   202981     2185     1477    69278.913 
-    6800    231.24224   203059     2304     1563    69278.805 
-    6900    234.65869   203040     2273     1530    69278.717 
-    7000    238.07526   203124     2246     1533    69274.524 
-    7100    241.66076   203336     2257     1501    69274.076 
-    7200    245.54732   203266     2178     1442    69275.677 
-    7300    249.16416   203180     2280     1533     69270.75 
-    7400    252.61935   203159     2268     1556    69262.828 
-    7500    256.01281   203029     2315     1552    69258.135 
-    7600    259.41597   203100     2282     1543    69254.037 
-    7700     262.8488   203206     2174     1481    69255.565 
-    7800    266.24627   203208     2281     1541    69252.315 
-    7900    269.65259   202953     2300     1550    69256.968 
-    8000    273.05982   202945     2247     1511    69248.828 
-    8100    276.46324   202888     2248     1479    69243.348 
-    8200    279.86606   202955     2258     1503    69247.828 
-    8300    283.26678   202934     2293     1519    69253.879 
-    8400    286.68944   203023     2299     1536    69256.068 
-    8500    290.09772   203225     2306     1585    69254.329 
-    8600     293.5125   203194     2288     1492    69255.792 
-    8700      296.932   203305     2313     1488     69244.98 
-    8800    300.39826   203158     2323     1561    69257.004 
-    8900    304.15209   203044     2200     1421    69261.098 
-    9000    307.71485   203262     2278     1499     69264.67 
-    9100    311.28132   203174     2334     1544    69262.424 
-    9200    314.88339   203056     2270     1475    69261.884 
-    9300    318.38024   203104     2248     1490    69268.254 
-    9400    321.86975   203110     2319     1570    69265.969 
-    9500    325.33233   203403     2275     1517    69255.622 
-    9600    328.91962   203548     2364     1520    69248.019 
-    9700    332.38732   203479     2295     1474    69245.533 
-    9800    335.99396   203592     2376     1535    69249.566 
-    9900    339.83993   203436     2302     1471    69255.631 
-   10000    343.35063   203275     2369     1545    69252.988 
-Loop time of 343.351 on 1 procs for 10000 steps with 203275 particles
-
-MPI task timing breakdown:
-Section |  min time  |  avg time  |  max time  |%varavg| %total
----------------------------------------------------------------
-Move    | 149.03     | 149.03     | 149.03     |   0.0 | 43.40
-Coll    | 78.415     | 78.415     | 78.415     |   0.0 | 22.84
-Sort    | 79.507     | 79.507     | 79.507     |   0.0 | 23.16
-Comm    | 0.076301   | 0.076301   | 0.076301   |   0.0 |  0.02
-Modify  | 1.3387     | 1.3387     | 1.3387     |   0.0 |  0.39
-Output  | 34.979     | 34.979     | 34.979     |   0.0 | 10.19
-Other   |            | 0.009419   |            |       |  0.00
-
-Particle moves    = 2022525320 (2.02B)
-Cells touched     = 2096521442 (2.1B)
-Particle comms    = 0 (0K)
-Boundary collides = 0 (0K)
-Boundary exits    = 705521 (0.706M)
-SurfColl checks   = 4334122 (4.33M)
-SurfColl occurs   = 19591 (19.6K)
-Surf reactions    = 0 (0K)
-Collide attempts  = 19551129 (19.6M)
-Collide occurs    = 13674645 (13.7M)
-Reactions         = 0 (0K)
-Particles stuck   = 0
-Axisymm bad moves = 0
-
-Particle-moves/CPUsec/proc: 5.89055e+06
-Particle-moves/step: 202253
-Cell-touches/particle/step: 1.03659
-Particle comm iterations/step: 1
-Particle fraction communicated: 0
-Particle fraction colliding with boundary: 0
-Particle fraction exiting boundary: 0.000348832
-Surface-checks/particle/step: 0.00214293
-Surface-collisions/particle/step: 9.68641e-06
-Surf-reactions/particle/step: 0
-Collision-attempts/particle/step: 0.00966669
-Collisions/particle/step: 0.00676117
-Reactions/particle/step: 0
-
-Particles: 203275 ave 203275 max 203275 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-Cells:      640000 ave 640000 max 640000 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-GhostCell: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-EmptyCell: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-Surfs:    12 ave 12 max 12 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-GhostSurf: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
+                # compute ID, type, region, mixture, pro

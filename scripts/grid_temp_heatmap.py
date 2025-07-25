@@ -23,46 +23,35 @@ zlim = (box0["zlo"], box0["zhi"])
 slice_frac = 0.1
 delta_z = slice_frac * (zlim[1] - zlim[0])
 
-# target grid size for heatmap
-nx, ny = 300, 200
-x_edges = np.linspace(*xlim, nx + 1)
-y_edges = np.linspace(*ylim, ny + 1)
-
-# infer number of z-slices
-ncells = len(grid[0][1])
-nz_guess = round(ncells ** (1 / 3))
-if nz_guess ** 3 == ncells:
-    nz = nz_guess
-else:
-    nz = 1
-dz = (zlim[1] - zlim[0]) / max(nz, 1)
+# derive native grid spacing from first frame
+xc0 = np.sort(grid[0][1]["xc"].unique())
+yc0 = np.sort(grid[0][1]["yc"].unique())
+dx = np.min(np.diff(xc0))
+dy = np.min(np.diff(yc0))
+x_edges = np.concatenate(([xc0[0] - dx / 2], (xc0[:-1] + xc0[1:]) / 2, [xc0[-1] + dx / 2]))
+y_edges = np.concatenate(([yc0[0] - dy / 2], (yc0[:-1] + yc0[1:]) / 2, [yc0[-1] + dy / 2]))
+nx, ny = len(xc0), len(yc0)
 
 # temperature column name
-temp_col = [c for c in grid[0][1].columns if c != "id"][0]
+temp_col = [c for c in grid[0][1].columns if c.startswith("c_compute_Tgrid")][0]
 
 def temp_hist(df):
-    """Return 2D array of mean Tgrid value for |z| < delta_z, binned on (x,y)."""
-    ids = df["id"].astype(int).to_numpy() - 1
-    ix = ids % nx
-    iy = (ids // nx) % ny
-    iz = ids // (nx * ny) if nz > 1 else np.zeros_like(ix)
-
-    xc = xlim[0] + (ix + 0.5) * (xlim[1] - xlim[0]) / nx
-    yc = ylim[0] + (iy + 0.5) * (ylim[1] - ylim[0]) / ny
-    zc = zlim[0] + (iz + 0.5) * dz
-
+    """Return 2D array of mean Tgrid value for |z| < delta_z, binned on (x,y) using cell centres."""
+    xc = df["xc"].to_numpy()
+    yc = df["yc"].to_numpy()
+    zc = df["zc"].to_numpy()
     mask = np.abs(zc) <= delta_z
     if not mask.any():
         return np.full((ny, nx), np.nan)
 
-    temps = df[temp_col].to_numpy()
-    xs, ys, ts = xc[mask], yc[mask], temps[mask]
+    temps = df[temp_col].to_numpy()[mask]
+    xs, ys = xc[mask], yc[mask]
 
-    sum_t, _, _ = np.histogram2d(xs, ys, bins=[x_edges, y_edges], weights=ts)
+    sum_t, _, _ = np.histogram2d(xs, ys, bins=[x_edges, y_edges], weights=temps)
     cnt_t, _, _ = np.histogram2d(xs, ys, bins=[x_edges, y_edges])
     with np.errstate(invalid="ignore"):
         mean_t = np.divide(sum_t, cnt_t, where=cnt_t > 0)
-    return np.flipud(mean_t.T)
+    return mean_t.T  # shape (ny, nx) for imshow
 
 # precompute vmin/vmax
 print("Computing min/max for color scale...")
@@ -78,11 +67,12 @@ print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 fig, ax = plt.subplots(figsize=(6, 3))
 im = ax.imshow(
     np.zeros((ny, nx)),
-    extent=(*xlim, *ylim),
+    extent=(x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]),
     origin="lower",
     aspect="auto",
     vmin=vmin, vmax=vmax,
-    cmap="inferno"
+    cmap="inferno",
+    interpolation="nearest"
 )
 cbar = fig.colorbar(im, ax=ax, label="T (K)")
 title = ax.set_title("")

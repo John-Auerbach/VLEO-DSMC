@@ -108,8 +108,8 @@ dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y
 
                 # compute ID, type, region, mixture, property (gas temperature per grid cell)
 compute         compute_Tgrid grid all atm temp # *per-grid array
-                # ID, data type, region, every _ steps, filename, columns (cell gas temperature)
-dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id c_compute_Tgrid[*] # compute for all columns (gases) in array
+                # ID, data type, region, every _ steps, filename, columns (cell coords and gas temperature)
+dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_compute_Tgrid[*] # compute for all columns (gases) in array
 
 		# ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
 dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
