@@ -41,7 +41,7 @@ def read_surf(fname):
     v3 = np.column_stack((cols["v3x"], cols["v3y"], cols["v3z"]))
     triangles = [np.array([a, b, c]) for a, b, c in zip(v1, v2, v3)]
 
-    return step, triangles, cols["s_Tsurf"]
+    return step, triangles, cols["s_Tsurf"], cols["f_flux[*]"]
 
 # Load all frames
 files = sorted(glob.glob(dump_glob),
@@ -57,6 +57,7 @@ ntri = len(triangles)
 
 # Temperatures (nt × ntriangles)
 temps = np.array([f[2] for f in frames])
+fluxes = np.array([f[3] for f in frames])
 vmin, vmax = np.percentile(temps, [5, 95])
 
 # Colormap
@@ -64,10 +65,15 @@ cmap = cm.get_cmap("inferno")
 norm = plt.Normalize(vmin, vmax)
 
 # Figure setup
-fig = plt.figure(figsize=(7, 4))
-gs = gridspec.GridSpec(1, 2, width_ratios=[20, 1])
-ax = fig.add_subplot(gs[0], projection='3d')
-cax = fig.add_subplot(gs[1])
+fig = plt.figure(figsize=(12, 4.5))
+gs = gridspec.GridSpec(1, 3, width_ratios=[5, 20, 1], wspace=0.4)
+text_ax = fig.add_subplot(gs[0])
+ax = fig.add_subplot(gs[1], projection='3d')
+cax = fig.add_subplot(gs[2])
+text_ax.set_xlim(0, 1)
+text_ax.set_ylim(0, 1)
+text_ax.axis("off")
+
 collection = Poly3DCollection(triangles, array=temps[0], cmap=cmap, norm=norm)
 collection.set_edgecolor('none')
 ax.add_collection3d(collection)
@@ -77,6 +83,7 @@ ax.set_xlabel("x (m)")
 ax.set_ylabel("y (m)")
 ax.set_zlabel("z (m)")
 title = ax.set_title("")
+text_display = text_ax.text(0, 0.5, "", fontsize=12, va="center", ha="left", family="monospace")
 
 # Fixed axis limits
 ax.set_xlim([-0.5, 0.5])
@@ -86,9 +93,11 @@ ax.set_zlim([-0.5, 0.5])
 # Animation update
 def update(i):
     collection.set_array(temps[i])
-    ax.view_init(elev=30, azim=(360 * i / nt)+180) # complete 1 full rotation from left
+    ax.view_init(elev=30, azim=90 + (360 * i / nt))
     title.set_text(f"t = {t_phys[i]:.2e} s")
-    return collection, title
+    flux_lines = [f"{j:2d}: {fluxes[i][j]:.2e} W/m²" for j in range(ntri)]
+    text_display.set_text("\n".join(flux_lines))
+    return collection, title, text_display
 
 ani = FuncAnimation(fig, update, frames=nt, interval=1000 / fps, blit=False)
 ani.save(outfile, writer=writers["ffmpeg"](fps=fps, bitrate=1800))
