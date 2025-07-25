@@ -2,11 +2,14 @@ import glob, os, re
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, writers
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from matplotlib import cm
+from matplotlib import gridspec
 
 # I/O
 dump_glob = os.path.expanduser("~/AMPT/dumps/surf.*.dat")
 input_sparta = os.path.expanduser("~/AMPT/in.ampt")
-outfile = "surface_temp_anim.mp4"
+outfile = "surface_temp_heatmap.mp4"
 fps = 30
 
 # timestep size from input file
@@ -20,7 +23,7 @@ def get_tstep(path):
 
 dt = get_tstep(input_sparta)
 
-# parse one surf dump (id v1 v2 v3 s_Tsurf → centroid + temp)
+# parse one surf dump: return step, list of triangle vertices, temperature array
 def read_surf(fname):
     with open(fname) as f:
         lines = f.readlines()
@@ -33,44 +36,60 @@ def read_surf(fname):
     data = np.loadtxt(lines[start:])
     cols = {h: data[:, j] for j, h in enumerate(headers)}
 
-    # compute centroid from triangle vertices
-    xc = (cols["v1x"] + cols["v2x"] + cols["v3x"]) / 3.0
-    yc = (cols["v1y"] + cols["v2y"] + cols["v3y"]) / 3.0
-    zc = (cols["v1z"] + cols["v2z"] + cols["v3z"]) / 3.0
+    v1 = np.column_stack((cols["v1x"], cols["v1y"], cols["v1z"]))
+    v2 = np.column_stack((cols["v2x"], cols["v2y"], cols["v2z"]))
+    v3 = np.column_stack((cols["v3x"], cols["v3y"], cols["v3z"]))
+    triangles = [np.array([a, b, c]) for a, b, c in zip(v1, v2, v3)]
 
-    return step, np.column_stack((xc, yc, zc)), cols["s_Tsurf"]
+    return step, triangles, cols["s_Tsurf"]
 
-# load all frames
+# Load all frames
 files = sorted(glob.glob(dump_glob),
                key=lambda s: int(re.search(r"\.(\d+)\.dat$", s).group(1)))
 frames = [read_surf(f) for f in files]
 steps = np.array([f[0] for f in frames])
 t_phys = steps * dt
 
-# geometry (constant)
-xyz = frames[0][1]
-xc, yc, zc = xyz[:, 0], xyz[:, 1], xyz[:, 2]
+# Geometry (constant triangles)
+triangles = frames[0][1]
+nt = len(frames)
+ntri = len(triangles)
 
-# temperatures (nt × nfacets)
-temps = np.array([fr[2] for fr in frames])
-
-# robust color scale (5th to 95th percentile)
+# Temperatures (nt × ntriangles)
+temps = np.array([f[2] for f in frames])
 vmin, vmax = np.percentile(temps, [5, 95])
 
-# figure setup
-fig = plt.figure(figsize=(6, 4))
-ax = fig.add_subplot(111, projection="3d")
-sc = ax.scatter(xc, yc, zc, c=temps[0], cmap="inferno", vmin=vmin, vmax=vmax, s=4)
-fig.colorbar(sc, ax=ax, label="Tsurf (K)")
-ax.set_xlabel("x (m)"); ax.set_ylabel("y (m)"); ax.set_zlabel("z (m)")
+# Colormap
+cmap = cm.get_cmap("inferno")
+norm = plt.Normalize(vmin, vmax)
+
+# Figure setup
+fig = plt.figure(figsize=(7, 4))
+gs = gridspec.GridSpec(1, 2, width_ratios=[20, 1])
+ax = fig.add_subplot(gs[0], projection='3d')
+cax = fig.add_subplot(gs[1])
+collection = Poly3DCollection(triangles, array=temps[0], cmap=cmap, norm=norm)
+collection.set_edgecolor('none')
+ax.add_collection3d(collection)
+
+fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap), cax=cax, label="Tsurf (K)")
+ax.set_xlabel("x (m)")
+ax.set_ylabel("y (m)")
+ax.set_zlabel("z (m)")
 title = ax.set_title("")
 
-# animation callbacks
-def update(i):
-    sc.set_array(temps[i])
-    title.set_text(f"t = {t_phys[i]:.2e} s")
-    return sc, title
+# Fixed axis limits
+ax.set_xlim([-0.5, 0.5])
+ax.set_ylim([-0.5, 0.5])
+ax.set_zlim([-0.5, 0.5])
 
-ani = FuncAnimation(fig, update, frames=len(frames), interval=1000 / fps, blit=False)
+# Animation update
+def update(i):
+    collection.set_array(temps[i])
+    ax.view_init(elev=30, azim=(360 * i / nt)+180) # complete 1 full rotation from left
+    title.set_text(f"t = {t_phys[i]:.2e} s")
+    return collection, title
+
+ani = FuncAnimation(fig, update, frames=nt, interval=1000 / fps, blit=False)
 ani.save(outfile, writer=writers["ffmpeg"](fps=fps, bitrate=1800))
 print(f"wrote {outfile}")
