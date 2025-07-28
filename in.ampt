@@ -61,7 +61,7 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/AMPT_box.surf  group ampt        # create surface group “ampt”
+read_surf	surf/sat_inlet_radiator.surf  group ampt        # create surface group “ampt”
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 20000.0
+variable        Ns_target equal 200000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle

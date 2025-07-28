@@ -62,7 +62,7 @@ vmin, vmax = np.percentile(temps, [0, 100])
 cmap = cm.get_cmap("inferno")
 norm = plt.Normalize(vmin, vmax)
 
-fig = plt.figure(figsize=(9, 4.5))
+fig = plt.figure(figsize=(9, 4.5), dpi=120)
 gs = gridspec.GridSpec(1, 3, width_ratios=[5, 20, 1], wspace=0.01)
 text_ax = fig.add_subplot(gs[0])
 ax = fig.add_subplot(gs[1], projection='3d')
@@ -81,7 +81,13 @@ ax.set_xlabel("x (m)")
 ax.set_ylabel("y (m)")
 ax.set_zlabel("z (m)")
 title = ax.set_title("")
-text_display = text_ax.text(0.18, 0.5, "", fontsize=12, va="center", ha="left", family="monospace")
+
+# auto-adjust font size
+bbox = text_ax.get_position()
+ax_h_in = fig.get_size_inches()[1] * bbox.height
+font_size = min(12, 0.9 * (ax_h_in * 72) / ntri)
+
+text_display = text_ax.text(0.18, 0.5, "", fontsize=font_size, va="center", ha="left", family="monospace")
 
 ax.set_xlim([-0.5, 0.5])
 ax.set_ylim([-0.5, 0.5])

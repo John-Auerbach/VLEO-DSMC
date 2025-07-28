@@ -3,7 +3,7 @@
 # Script:  stl2surf.py
 # Purpose: convert an STL file (binary) into a SPARTA surface file
 #          and warn if surface is not watertight
-# Author:  Steve Plimpton (Sandia), sjplimp at sandia.gov (modified by John Auerbach, Penn State)
+# Author:  Steve Plimpton (Sandia), sjplimp at sandia.gov. MODIFIED BY JOHN AUERBACH (PENN STATE)
 # Syntax:  stl2surf.py stlfile surffile
 #          stlfile = read this stereolithography (STL) file
 #                    in binary format (ASCII also accepted)
@@ -11,6 +11,7 @@
 
 # NOTE: process vertices in text format so no precision or round-off issues
 # NOTE: if the STL is binary, convert it to ASCII text in memory first
+# NOTE: additionally divide coordinates by 1000 (mm → m)
 
 from __future__ import print_function
 
@@ -60,7 +61,7 @@ def load_stl_as_text(path):
   if len(data) < need:
     error("STL file %s truncated (binary STL)" % path)
   for _ in range(ntri):
-    nx, ny, nz, x1, y1, z1, x2, y2, z2, x3, y3, z3, abc = struct.unpack("<12fH", data[offset:offset+50])
+    nx, ny, nz, x1, y1, z1, x2, y2, z2, x3, y3, z3, _attr = struct.unpack("<12fH", data[offset:offset+50])
     offset += 50
     out.append(f"  facet normal {nx} {ny} {nz}")
     out.append("    outer loop")
@@ -94,7 +95,17 @@ for one in tritxt:
     print("Triangle record:")
     print(one)
     error("Invalid triangle vertices")
-  triverts.append(vertices)
+
+  # ----------------------------------------------------------
+  # NEW: divide each coordinate by 1000 (mm → m)
+  scaled = []
+  for vx, vy, vz in vertices:
+    x = float(vx) / 1000.0
+    y = float(vy) / 1000.0
+    z = float(vz) / 1000.0
+    scaled.append(("{:g}".format(x), "{:g}".format(y), "{:g}".format(z)))
+  triverts.append(scaled)
+  # ----------------------------------------------------------
 
 # build list of unique vertices via hash
 # unique: key = vertex 3-tuple, value = index in verts
@@ -122,6 +133,16 @@ for vert3 in triverts:
     verts.append(vert3[2])
     unique[vert3[2]] = v2
   tris.append((v0,v1,v2))
+
+# --- auto‑center model so its centroid is at the origin ---------------
+xs, ys, zs = zip(*[(float(x), float(y), float(z)) for x, y, z in verts])
+cx, cy, cz = (sum(xs) / len(xs), sum(ys) / len(ys), sum(zs) / len(zs))
+
+verts = [("{:g}".format(float(x) - cx),
+          "{:g}".format(float(y) - cy),
+          "{:g}".format(float(z) - cz))
+         for x, y, z in verts]
+# ----------------------------------------------------------------------
 
 # print SPARTA surface file
 
