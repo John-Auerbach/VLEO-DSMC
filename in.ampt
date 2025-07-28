@@ -61,7 +61,7 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/ampt_box.surf  group ampt        # create surface group “ampt”
+read_surf	surf/AMPT_box.surf  group ampt        # create surface group “ampt”
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -74,7 +74,7 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 200000.0
+variable        Ns_target equal 20000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -106,7 +106,7 @@ surf_modify 	ampt collide wall # attach model to facets
                 # ID, data type, mixture, every _ steps, filename, columns (particle data)
 dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
 
-                # compute ID, type, region, mixture, property (gas temperature per grid cell)
+                # ID, type, region, mixture, property (gas temperature per grid cell)
 compute         compute_Tgrid grid all atm temp # *per-grid array
                 # ID, data type, region, every _ steps, filename, columns (cell coords and gas temperature)
 dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_compute_Tgrid[*] # compute for all columns (gases) in array

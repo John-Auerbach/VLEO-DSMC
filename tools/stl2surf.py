@@ -1,15 +1,16 @@
 #!/bin/bin/env python
 
 # Script:  stl2surf.py
-# Purpose: convert an STL file (ASCII text) into a SPARTA surface file
+# Purpose: convert an STL file (binary) into a SPARTA surface file
 #          and warn if surface is not watertight
-# Author:  Steve Plimpton (Sandia), sjplimp at sandia.gov
+# Author:  Steve Plimpton (Sandia), sjplimp at sandia.gov (modified by John Auerbach, Penn State)
 # Syntax:  stl2surf.py stlfile surffile
 #          stlfile = read this stereolithography (STL) file
-#                    in ASCII (text) format (not binary)
+#                    in binary format (ASCII also accepted)
 #          surffile = write this SPARTA surface file
 
 # NOTE: process vertices in text format so no precision or round-off issues
+# NOTE: if the STL is binary, convert it to ASCII text in memory first
 
 from __future__ import print_function
 
@@ -23,7 +24,7 @@ def error(str=None):
 # ----------------------------------------------------------------------
 # main program
 
-import sys,re
+import sys,re,struct
 
 if len(sys.argv) != 3: error()
 
@@ -34,7 +35,44 @@ surffile = sys.argv[2]
 # tritxt = list of text between facet and endfacet
 # triverts = list of 3 vertices per triangle, in text format
 
-stltxt = open(stlfile,"r").read()
+def load_stl_as_text(path):
+  # try ASCII first
+  with open(path, "rb") as f:
+    data = f.read()
+  try:
+    txt = data.decode("utf-8")
+    if txt.lstrip().startswith("solid") and re.search(r"\bfacet\b", txt) and re.search(r"\bvertex\b", txt):
+      return txt
+  except UnicodeDecodeError:
+    pass
+  # binary → synthesize ASCII text
+  if len(data) < 84:
+    error("STL file %s has incorrect format" % path)
+  header = data[:80]
+  try:
+    name = header.decode("ascii", errors="ignore").strip().splitlines()[0]
+  except Exception:
+    name = ""
+  ntri = struct.unpack("<I", data[80:84])[0]
+  offset = 84
+  out = [f"solid {name}"]
+  need = 84 + ntri*50
+  if len(data) < need:
+    error("STL file %s truncated (binary STL)" % path)
+  for _ in range(ntri):
+    nx, ny, nz, x1, y1, z1, x2, y2, z2, x3, y3, z3, abc = struct.unpack("<12fH", data[offset:offset+50])
+    offset += 50
+    out.append(f"  facet normal {nx} {ny} {nz}")
+    out.append("    outer loop")
+    out.append(f"      vertex {x1} {y1} {z1}")
+    out.append(f"      vertex {x2} {y2} {z2}")
+    out.append(f"      vertex {x3} {y3} {z3}")
+    out.append("    endloop")
+    out.append("  endfacet")
+  out.append(f"endsolid {name}")
+  return "\n".join(out) + "\n"
+
+stltxt = load_stl_as_text(stlfile)
 
 match = re.search("^.*\n",stltxt)
 if not match: error("STL file %s has incorrect format" % stlfile)
@@ -89,22 +127,17 @@ for vert3 in triverts:
 
 fp = open(surffile,"w")
 
-if name:
-  print("# SPARTA surface file, from STL file %s with name %s\n" % \
-      (stlfile,name),file=fp)
-else:
-  print("# SPARTA surface file, from STL file\n",stlfile,file=fp)
+fp.write("#surf file\n\n")
+fp.write("%d points\n" % len(verts))
+fp.write("%d triangles\n\n" % len(tris))
 
-print(len(verts),"points",file=fp)
-print(len(tris),"triangles",file=fp)
-
-print("\nPoints\n",file=fp)
+fp.write("Points\n\n")
 for i,vert in enumerate(verts):
-  print(i+1,vert[0],vert[1],vert[2],file=fp)
+  fp.write("%d %s %s %s\n" % (i+1, vert[0], vert[1], vert[2]))
 
-print("\nTriangles\n",file=fp)
+fp.write("\nTriangles\n\n")
 for i,tri in enumerate(tris):
-  print(i+1,tri[0]+1,tri[1]+1,tri[2]+1,file=fp)
+  fp.write("%d %d %d %d\n" % (i+1, tri[0]+1, tri[1]+1, tri[2]+1))
 
 fp.close()
   
