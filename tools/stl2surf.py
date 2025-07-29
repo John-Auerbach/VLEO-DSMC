@@ -96,8 +96,7 @@ for one in tritxt:
     print(one)
     error("Invalid triangle vertices")
 
-  # ----------------------------------------------------------
-  # NEW: divide each coordinate by 1000 (mm → m)
+  # divide each coordinate by 1000 (mm → m)
   scaled = []
   for vx, vy, vz in vertices:
     x = float(vx) / 1000.0
@@ -105,7 +104,6 @@ for one in tritxt:
     z = float(vz) / 1000.0
     scaled.append(("{:g}".format(x), "{:g}".format(y), "{:g}".format(z)))
   triverts.append(scaled)
-  # ----------------------------------------------------------
 
 # build list of unique vertices via hash
 # unique: key = vertex 3-tuple, value = index in verts
@@ -134,7 +132,7 @@ for vert3 in triverts:
     unique[vert3[2]] = v2
   tris.append((v0,v1,v2))
 
-# --- auto‑center model so its centroid is at the origin ---------------
+# auto‑center model so its centroid is at the origin
 xs, ys, zs = zip(*[(float(x), float(y), float(z)) for x, y, z in verts])
 cx, cy, cz = (sum(xs) / len(xs), sum(ys) / len(ys), sum(zs) / len(zs))
 
@@ -142,7 +140,6 @@ verts = [("{:g}".format(float(x) - cx),
           "{:g}".format(float(y) - cy),
           "{:g}".format(float(z) - cz))
          for x, y, z in verts]
-# ----------------------------------------------------------------------
 
 # print SPARTA surface file
 

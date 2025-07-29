@@ -20,7 +20,7 @@ ylim = (box0["ylo"], box0["yhi"])
 zlim = (box0["zlo"], box0["zhi"])
 
 # choose slice thickness about z=0
-slice_frac = 0.1
+slice_frac = 0.05
 delta_z = slice_frac * (zlim[1] - zlim[0])
 
 # derive native grid spacing from first frame

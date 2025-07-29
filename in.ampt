@@ -1,42 +1,54 @@
+# SUPER DUPER IMPORTANT NOTE:
+#
+# The surface of AMPT is partitoned into solid walls and then that one tiny rectangle area 
+# that represents the compressor. The surface is made up of triangles, so I have to assign triangles
+# as being part of solid wall or compressor vent. However when I convert .STL to .surf file, the
+# triangles can be numbered differently if I use a new model. So for now this works with
+# sat_inlet_radiator.surf (triangles 35 and 36), but will need to be modified for different 
+# files bc I am too lazy to figure out how to do it otherwise. idk if i can include that info in .surf 
+# file or have read_surf ignore it. sorry in advance if this code is ever read by anybody else, just swap 
+# the triangle numbers with the new correct ones by looking at xyz positions of vertices in .surf file.
+
+
 # SETUP --------------------------------------------------------------------------------------
 
 shell "bash -c 'rm -f dumps/*.dat'"
 
 shell "mkdir -p dumps"
 
-units           si
-seed            11111
-dimension       3
+units		si
+seed		11111
+dimension	3
 
 # outflow in +x, periodic y,z. will inject at xlo (x=0)
-boundary        o p p
+boundary	o p p
 
 # domain size (m)
-variable        xmin equal -1.1
-variable        xmax equal 1.1
-variable        ymin equal -1.1
-variable 	ymax equal 1.1
+variable	xmin equal -1.1
+variable	xmax equal 1.1
+variable	ymin equal -1.1
+variable	ymax equal 1.1
 variable	zmin equal -1.1
 variable	zmax equal 1.1
 
 variable	Lx equal ${xmax}-${xmin}
-variable        Ly equal ${ymax}-${ymin}
-variable        Lz equal ${zmax}-${zmin}
+variable	Ly equal ${ymax}-${ymin}
+variable	Lz equal ${zmax}-${zmin}
 
-create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
+create_box	${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
 
 
-# test case: n=3.8e20 m^-3, T=200 K, v=7.8 km/s in +x dir
-variable        rho  equal 1.88e-5 # kg/m3
+# test case: 80 km altitude (from NRLMSIS data)
+variable	rho  equal 1.88e-5 # kg/m3
 variable	nrho equal 3.91e20 # m-3
-variable        T    equal 201.35 # K
-variable	vx   equal 7800.0 # m/s
+variable	T    equal 201.35 # K
+variable	vx   equal 7800.0 # m/s in +x dir
 
-variable 	kB equal 1.380649e-23  # J/K
-variable 	d equal 3.7e-10  # m
-variable 	R equal 287.05 # (J / kg*K)
-variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
-variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
+variable	kB equal 1.380649e-23   # J/K
+variable	d equal 3.7e-10         # m
+variable	R equal 287.05          # (J / kg*K)
+variable	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R})    # m
+variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho}))               # m/s
 
 print "MEAN FREE PATH = ${lambda} m"
 print "MEAN MOLEC VEL = ${vbar} m/s"
@@ -51,36 +63,38 @@ variable	dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${m
 print "CELL SIZE MUST BE LESS THAN ${dx} m"
 print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
-print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
+print "TIMESTEP MUST BE < ${dt} s"          # timestep set at end of script
 
 create_grid	100 80 80 
-balance_grid    rcb part
+balance_grid	rcb part
 
-variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
-variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
+variable	diag_freq   equal 100       # dump diagnostics every _ timesteps
+variable	tstep       equal 1.0e-7    # choose small timestep << cell flight time; start 1e-7 s
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/sat_inlet_radiator.surf  group ampt        # create surface group “ampt”
+read_surf	surf/sat_inlet_radiator.surf  group ampt        # create surface group "ampt"
+group		vent surf id 35 36                              # vent triangles 35 & 36
+group		wall surf subtract ampt vent                    # wall = ampt minus vent
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
 # use local species file
-species         species/air.species N2 O2
+species		species/air.species N2 O2
 
 # define inflow gas mixture named atm
-mixture 	atm N2 frac 0.79
+mixture		atm N2 frac 0.79
 mixture		atm O2 frac 0.21
-mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
+mixture		atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 200000.0
-variable        Vol       equal ${Lx}*${Ly}*${Lz}
-variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
-global          fnum ${fnum} # global bc will be queried by each new particle
+variable	Ns_target equal 200000.0
+variable	Vol       equal ${Lx}*${Ly}*${Lz}
+variable	fnum      equal ${nrho}*${Vol}/${Ns_target}
+global		fnum ${fnum}        # global bc will be queried by each new particle
 
 # global useful for stat query later
-global          nrho ${nrho}
+global		nrho ${nrho}
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
@@ -90,35 +104,46 @@ fix		in emit/face atm xlo
 
 # SURFACE COLLISIONS --------------------------------------------------------------------------
 
-                # compute ID, type, surf group, mixture, property (energy flux on surface)
-compute         compute_qwall surf ampt atm etot # etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
+		# compute ID, type, surf group, mixture, property (energy flux on surface)
+compute		compute_qwall surf wall atm etot # etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
 
-                # running‑average every step so flux is never exactly zero (exponential decay)
-fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
-fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
+		# running‑average every step so flux is never exactly zero (exponential decay)
+fix		flux ave/surf wall 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
+fix		fix_Tsurf surf/temp wall 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
 
 
-surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
-surf_modify 	ampt collide wall # attach model to facets
+surf_collide	sc_wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
+surf_collide	sc_sink vanish                        # define collision model “sink”, deletes particles
+
+surf_modify	wall collide sc_wall                  # attach diffuse model to solid facets
+surf_modify	vent collide sc_sink                  # attach sink model to vent facets
+
+# VENT REINJECTION ---------------------------------------------------------------------------
+
+mixture		ventgas N2 frac 0.79
+mixture		ventgas O2 frac 0.21
+mixture		ventgas nrho ${nrho} vstream 500.0 0.0 0.0 temp ${T}
+
+fix		vent_in emit/surf ventgas vent normal yes subsonic 0.10 300
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
-                # ID, data type, mixture, every _ steps, filename, columns (particle data)
-dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+		# ID, data type, mixture, every _ steps, filename, columns (particle data)
+dump		dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
 
-                # ID, type, region, mixture, property (gas temperature per grid cell)
-compute         compute_Tgrid grid all atm temp # *per-grid array
-                # ID, data type, region, every _ steps, filename, columns (cell coords and gas temperature)
-dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_compute_Tgrid[*] # compute for all columns (gases) in array
+		# ID, type, region, mixture, property (gas temperature per grid cell)
+compute		compute_Tgrid grid all atm temp # *per-grid array
+		# ID, data type, region, every _ steps, filename, columns (cell coords and gas temperature)
+dump		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_compute_Tgrid[*] # compute for all columns (gases) in array
 
 		# ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
-dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
+dump		dump_surf surf wall ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
-# cell-averaged (streaming+thermal) temperature
-compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
-stats           ${diag_freq} # print diagnostics every _ timesteps
-stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, particles, collision stats, avg temp
+# cell‑averaged (streaming+thermal) temperature
+compute		Tbox temp
+stats		${diag_freq}
+stats_style	step cpu np nattempt ncoll c_Tbox
 
-timestep        ${tstep}
-collide		    vss atm vss/air.vss # variable soft sphere model
-run             10000
+timestep	${tstep}
+collide		vss atm vss/air.vss # variable soft sphere model
+run		10000

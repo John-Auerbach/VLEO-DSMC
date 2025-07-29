@@ -21,7 +21,7 @@ ylim = (box0['ylo'], box0['yhi'])
 zlim = (box0['zlo'], box0['zhi'])
 
 # choose slice thickness about z=0
-slice_frac = 0.1                                      # _% of box height
+slice_frac = 0.05  # _% of box height
 delta_z = slice_frac * (zlim[1] - zlim[0])
 
 # grid for the heat-map
