@@ -61,7 +61,7 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/sat_inlet_through.surf  group ampt        # create surface group “ampt”
+read_surf	surf/ampt_box.surf  group ampt        # create surface group “ampt”
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
