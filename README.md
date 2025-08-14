@@ -13,16 +13,7 @@ source ~/.bashrc
 sparta -h  # should print help
 ```
 
-## 2. Run Simulation
-
-```bash
-cd ~/AMPT
-sparta < in.ampt
-```
-
-- This creates timestep output in the `dumps/` directory.
-
-## 3. Set Up Python Environment
+## 2. Set Up Python Environment
 
 ```bash
 cd ~/AMPT
@@ -40,13 +31,45 @@ To auto-activate in **VS Code**:
 - Type `Python: Select Interpreter`
 - Choose `.venv/bin/python` from the list
 
-## 4. Load and Cache Dump Data
+## 3. Run Simulations
 
-After running the simulation:
+### Single Altitude Simulation
+
+```bash
+# Generate atmospheric data for specific altitude (70-300 km)
+python3 tools/load_atm_data.py 150
+
+# Run SPARTA simulation
+sparta < in.ampt
+```
+
+### Multi-Altitude Analysis
+
+```bash
+# Edit altitude list in multi_altitude.py (default: 75, 80, 85, 90, 95, 100 km)
+python3 multi_altitude.py
+```
+
+This will:
+- Run SPARTA simulations at each altitude
+- Save results to `dumps/alt_XXkm/` directories  
+- Generate a plot of surface temperature vs altitude for each triangle
+- Save plot as `surface_temps_vs_altitude.png`
+
+## 4. Load and Cache Dump Data (Optional)
+
+After running simulations, you can cache dump data for faster analysis:
+
+```bash
+# Load dumps from default directory (dumps/)
+python3 tools/load_dumps.py
+
+# Load dumps from specific directory
+python3 tools/load_dumps.py dumps/alt_XXkm/
 
 ```
-python scripts/load_dumps.py
-```
 
-- This parses raw dump files in `dumps/` and saves a binary cache as `dumps/traj.pkl`
-- Python analysis scripts will read from `traj.pkl` for fast access
+This will:
+- Parse raw dump files (part.*.dat, grid.*.dat, surf.*.dat) 
+- Save binary cache files (traj.pkl, grid.pkl, surf.pkl) in the same directory
+- Python analysis scripts can read from .pkl files for much faster access

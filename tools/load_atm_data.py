@@ -1,12 +1,23 @@
 #!/usr/bin/env python3
 import numpy as np
 import os
+import sys
 
-# EDIT THIS ALTITUDE VALUE (70-300 km)
-alt = 150.0
+# Get altitude from command line or use default
+if len(sys.argv) > 1:
+    alt = float(sys.argv[1])
+else:
+    alt = 150.0  # Default altitude
+
+print(f"Using altitude: {alt} km")
+
+# Determine correct paths based on script location
+script_dir = os.path.dirname(os.path.abspath(__file__))
+ampt_dir = os.path.dirname(script_dir)  # Parent of tools directory
+data_dir = os.path.join(ampt_dir, 'data')
 
 # Check if NRLMSIS data file exists, if not create it
-data_file = '../data/nrlmsis.dat'
+data_file = os.path.join(data_dir, 'nrlmsis.dat')
 if not os.path.exists(data_file):
     print(f"NRLMSIS data file not found. Generating fresh data...")
     
@@ -43,7 +54,7 @@ if not os.path.exists(data_file):
         data = np.column_stack((alt_km, T, rho, P, P_torr, v, N))
         header = "Altitude_km Temperature_K Density_kg_m3 Pressure_Pa Pressure_Torr Orbital_Velocity_m_s Number_Density_per_m3"
         
-        os.makedirs('../data', exist_ok=True)
+        os.makedirs(data_dir, exist_ok=True)
         np.savetxt(data_file, data, header=header, fmt='%.6e', delimiter=' ')
         print(f"Generated NRLMSIS data and saved to {data_file}")
         
@@ -57,11 +68,11 @@ if not os.path.exists(data_file):
 d = np.loadtxt(data_file)
 
 # Interpolate and write to files (in data directory)
-os.makedirs('../data', exist_ok=True)
-open('../data/rho.dat','w').write(f'{np.interp(alt,d[:,0],d[:,2]):.6e}')
-open('../data/nrho.dat','w').write(f'{np.interp(alt,d[:,0],d[:,6]):.6e}')
-open('../data/T.dat','w').write(f'{np.interp(alt,d[:,0],d[:,1]):.6e}')
-open('../data/vx.dat','w').write(f'{np.interp(alt,d[:,0],d[:,5]):.6e}')
+os.makedirs(data_dir, exist_ok=True)
+open(os.path.join(data_dir, 'rho.dat'),'w').write(f'{np.interp(alt,d[:,0],d[:,2]):.6e}')
+open(os.path.join(data_dir, 'nrho.dat'),'w').write(f'{np.interp(alt,d[:,0],d[:,6]):.6e}')
+open(os.path.join(data_dir, 'T.dat'),'w').write(f'{np.interp(alt,d[:,0],d[:,1]):.6e}')
+open(os.path.join(data_dir, 'vx.dat'),'w').write(f'{np.interp(alt,d[:,0],d[:,5]):.6e}')
 
 print(f'Loaded atmospheric data for {alt} km altitude')
 rho_val = np.interp(alt,d[:,0],d[:,2])

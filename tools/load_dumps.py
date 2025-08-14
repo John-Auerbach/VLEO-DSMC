@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import os
+import sys
 
 def read_sparta_particle_dump(fname):
     step = natoms = None
@@ -110,7 +111,17 @@ def load_all(pattern, reader):
     files = sorted(glob.glob(os.path.expanduser(pattern)))
     return [reader(f) for f in files]
 
-particle_data = load_all("~/AMPT/dumps/part.*.dat", read_sparta_particle_dump)
+# Get dumps directory from command line or use default
+if len(sys.argv) > 1:
+    dumps_dir = sys.argv[1]
+    if not dumps_dir.endswith('/'):
+        dumps_dir += '/'
+else:
+    dumps_dir = "~/AMPT/dumps/"
+
+print(f"Loading dumps from: {os.path.expanduser(dumps_dir)}")
+
+particle_data = load_all(f"{dumps_dir}part.*.dat", read_sparta_particle_dump)
 '''
 Output is list of snapshots containing: 
     integer timestep number, 
@@ -125,7 +136,7 @@ traj = [
   ...
 ]
 '''
-grid_data = load_all("~/AMPT/dumps/grid.*.dat", read_sparta_grid_dump)
+grid_data = load_all(f"{dumps_dir}grid.*.dat", read_sparta_grid_dump)
 '''
 Output is list of snapshots containing: 
     integer timestep number, 
@@ -140,7 +151,7 @@ traj = [
   ...
 ]
 '''
-surf_data = load_all("~/AMPT/dumps/surf.*.dat", read_sparta_surface_dump)
+surf_data = load_all(f"{dumps_dir}surf.*.dat", read_sparta_surface_dump)
 '''
 Output is list of snapshots containing: 
     integer timestep number, 
@@ -155,10 +166,11 @@ traj = [
   ...
 ]
 '''
-pickle.dump(particle_data, open(os.path.expanduser("~/AMPT/dumps/traj.pkl"), "wb"))
-pickle.dump(grid_data, open(os.path.expanduser("~/AMPT/dumps/grid.pkl"), "wb"))
-pickle.dump(surf_data, open(os.path.expanduser("~/AMPT/dumps/surf.pkl"), "wb"))
+pickle.dump(particle_data, open(os.path.expanduser(f"{dumps_dir}traj.pkl"), "wb"))
+pickle.dump(grid_data, open(os.path.expanduser(f"{dumps_dir}grid.pkl"), "wb"))
+pickle.dump(surf_data, open(os.path.expanduser(f"{dumps_dir}surf.pkl"), "wb"))
 
 print(f"particle frames: {len(particle_data)}")
 print(f"grid frames: {len(grid_data)}")
 print(f"surface frames: {len(surf_data)}")
+print(f"Saved pickle files to: {os.path.expanduser(dumps_dir)}")
