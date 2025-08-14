@@ -26,10 +26,10 @@ variable        Lz equal ${zmax}-${zmin}
 create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
 
 # Load atmospheric data from NRLMSIS (run: python3 tools/load_atm_data.py)
-variable        rho  file data/rho.dat
-variable        nrho file data/nrho.dat
-variable        T    file data/T.dat
-variable        vx   file data/vx.dat
+variable        rho  equal 1.88e-5 # kg/m3
+variable	nrho equal 3.91e20 # m-3
+variable        T    equal 201.35 # K
+variable	vx   equal 7800.0 # m/s
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
 
