@@ -5,9 +5,16 @@ from matplotlib.animation import FuncAnimation, writers
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib import cm
 from matplotlib import gridspec
+import argparse
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Create surface temperature heatmap animation')
+parser.add_argument('folder', nargs='?', default='dumps', 
+                   help='Folder containing dump files (default: dumps)')
+args = parser.parse_args()
 
 # I/O
-dump_glob = os.path.expanduser("~/AMPT/dumps/surf.*.dat")
+dump_glob = os.path.expanduser(f"~/AMPT/{args.folder}/surf.*.dat")
 input_sparta = os.path.expanduser("~/AMPT/in.ampt")
 outfile = "surface_temp_heatmap.mp4"
 fps = 25

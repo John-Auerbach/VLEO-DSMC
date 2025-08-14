@@ -39,9 +39,14 @@ To auto-activate in **VS Code**:
 # Generate atmospheric data for specific altitude (70-300 km)
 python3 tools/load_atm_data.py 150
 
-# Run SPARTA simulation
+# Run SPARTA simulation (single core)
 sparta < in.ampt
+
+# OR run with multiple cores for faster execution
+./run_sparta.sh    # Uses 8 cores by default. Modify this to work with your setup.
 ```
+
+**Performance:** Multi-core execution is typically 4-6x faster for DSMC simulations.
 
 ### Multi-Altitude Analysis
 
@@ -64,9 +69,9 @@ This will:
 
 **Performance:** Using `--cores 8` is typically 4-6x faster than single core for DSMC simulations.
 
-## 4. Load and Cache Dump Data (Optional)
+## 4. Load and Cache Dump Data
 
-After running simulations, you can cache dump data for faster analysis:
+After running simulations, you can cache dump data for analysis with the included python scripts:
 
 ```bash
 # Load dumps from default directory (dumps/)
@@ -81,3 +86,23 @@ This will:
 - Parse raw dump files (part.*.dat, grid.*.dat, surf.*.dat) 
 - Save binary cache files (traj.pkl, grid.pkl, surf.pkl) in the same directory
 - Python analysis scripts can read from .pkl files for much faster access
+
+## 5. Visualization Scripts
+
+All visualization scripts default to `dumps/` folder but can analyze specific altitude data:
+
+```bash
+# Default (uses dumps/ folder)
+python3 scripts/animate_particles.py
+python3 scripts/surface_temp_heatmap.py
+python3 scripts/grid_temp_heatmap.py
+python3 scripts/velocity_heatmap.py
+
+# Analyze specific altitude results
+python3 scripts/animate_particles.py dumps/alt_80km
+python3 scripts/surface_temp_heatmap.py dumps/alt_100km
+python3 scripts/grid_temp_heatmap.py dumps/alt_75km
+python3 scripts/velocity_heatmap.py dumps/alt_95km
+```
+
+**Note:** Run `python3 tools/load_dumps.py <folder>` first to cache dump data for faster visualization.

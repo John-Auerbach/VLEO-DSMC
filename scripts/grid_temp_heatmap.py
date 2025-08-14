@@ -2,11 +2,18 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
 import pickle, os, re
+import argparse
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Create grid temperature heatmap animation')
+parser.add_argument('folder', nargs='?', default='dumps', 
+                   help='Folder containing dump files (default: dumps)')
+args = parser.parse_args()
 
 # I/O
-grid_path = os.path.expanduser("~/AMPT/dumps/grid.pkl")
+grid_path = os.path.expanduser(f"~/AMPT/{args.folder}/grid.pkl")
 if not os.path.exists(grid_path):
-    raise FileNotFoundError(f"Pickle file '{grid_path}' not found. Run load_dumps.py first.")
+    raise FileNotFoundError(f"Pickle file '{grid_path}' not found. Run load_dumps.py first on {args.folder}/.")
 
 with open(grid_path, "rb") as f:
     grid = pickle.load(f)
