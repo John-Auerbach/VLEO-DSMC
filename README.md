@@ -46,8 +46,14 @@ sparta < in.ampt
 ### Multi-Altitude Analysis
 
 ```bash
-# Edit altitude list in multi_altitude.py (default: 75, 80, 85, 90, 95, 100 km)
+# Single core (default)
 python3 multi_altitude.py
+
+# Multi-core parallel execution (faster)
+python3 multi_altitude.py --cores 8
+python3 multi_altitude.py -c 4
+
+# Edit altitude list in multi_altitude.py (default: 75, 80, 85, 90, 95, 100 km)
 ```
 
 This will:
@@ -55,6 +61,8 @@ This will:
 - Save results to `dumps/alt_XXkm/` directories  
 - Generate a plot of surface temperature vs altitude for each triangle
 - Save plot as `surface_temps_vs_altitude.png`
+
+**Performance:** Using `--cores 8` is typically 4-6x faster than single core for DSMC simulations.
 
 ## 4. Load and Cache Dump Data (Optional)
 
