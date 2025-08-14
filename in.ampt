@@ -122,6 +122,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, par
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             1000
+run             10000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
