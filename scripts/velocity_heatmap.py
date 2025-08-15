@@ -4,6 +4,8 @@ import numpy as np
 import pickle, os
 import re
 import argparse
+import copy as _copy
+import warnings
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Create velocity heatmap animation')
@@ -28,11 +30,11 @@ ylim = (box0['ylo'], box0['yhi'])
 zlim = (box0['zlo'], box0['zhi'])
 
 # choose slice thickness about z=0
-slice_frac = 0.1                                      # _% of box height
+slice_frac = 0.05                                      # _% of box height
 delta_z = slice_frac * (zlim[1] - zlim[0])
 
 # grid for the heat-map
-nx, ny = 300, 200
+nx, ny = 500, 300
 x_edges = np.linspace(*xlim, nx + 1)
 y_edges = np.linspace(*ylim, ny + 1)
 
@@ -47,29 +49,43 @@ def speed_hist(df):
     # accumulate sum of speeds and counts, then divide
     sum_v, _, _ = np.histogram2d(xs, ys, [x_edges, y_edges], weights=vmag)
     cnt_v, _, _ = np.histogram2d(xs, ys, [x_edges, y_edges])
-    with np.errstate(invalid='ignore'):
-        mean_v = np.divide(sum_v, cnt_v, where=cnt_v > 0)
+    # ensure empty bins are NaN (suppress divide warnings)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        mean_v = np.where(cnt_v > 0, sum_v / cnt_v, np.nan)
     return np.flipud(mean_v.T)  # flip y for imshow’s origin='lower'
 
 # precompute vmin/vmax
 print("Computing min/max for color scale...")
 all_vals = []
-for _, df, _ in traj:
-    img = speed_hist(df)
-    if np.isfinite(img).any():
-        all_vals.extend(img[np.isfinite(img)].flatten())
+# suppress runtime warnings during histogram division (empty bins)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", RuntimeWarning)
+    for _, df, _ in traj:
+        img = speed_hist(df)
+        if np.isfinite(img).any():
+            all_vals.extend(img[np.isfinite(img)].flatten())
 
-vmin = np.percentile(all_vals, 5)
+vmin = 0 #np.percentile(all_vals, 5)
 vmax = np.percentile(all_vals, 95)
 print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 fig, ax = plt.subplots(figsize=(6, 3))
+# use a cmap with black for masked/invalid cells
+import copy as _copy
+# use the reversed colormap so colors are inverted
+_cmap = plt.cm.get_cmap('coolwarm_r')
+try:
+    cmap = _cmap.copy()
+except Exception:
+    cmap = _copy.deepcopy(_cmap)
+cmap.set_bad('black')
+# initialize with a fully-masked array so empty cells show black
 im = ax.imshow(
-    np.zeros((ny, nx)),
+    np.ma.masked_all((ny, nx)),
     extent=(*xlim, *ylim),
     origin='lower',
     aspect='auto',
-    vmin=vmin, vmax=vmax, cmap='coolwarm'
+    vmin=vmin, vmax=vmax, cmap=cmap
 )
 cbar = fig.colorbar(im, ax=ax, label="v (m/s)")
 title = ax.set_title("")
@@ -90,17 +106,18 @@ tstep = extract_tstep_from_input(os.path.expanduser("~/AMPT/in.ampt"))
 
 
 def init():
-    im.set_data(np.zeros((ny, nx)))
+    im.set_data(np.ma.masked_all((ny, nx)))
     return im,
 
 def update(i):
     step, df, _ = traj[i]
     img = speed_hist(df)
-    im.set_data(img)
-    title.set_text(f"speed heatmap |z| ≤ {slice_frac:.2f}H  |  time = {step * tstep:.2e} s")
+    img_masked = np.ma.masked_invalid(img)
+    im.set_data(img_masked)
+    title.set_text(f"speed heatmap |z| \u2264 {slice_frac:.2f}H  |  time = {step * tstep:.2e} s")
     return im, title
 
 ani = FuncAnimation(fig, update, frames=len(traj),
                     init_func=init, blit=False, interval=200)
 
-ani.save("velocity_heatmap.mp4", fps=30, dpi=300)
+ani.save("velocity_heatmap.mp4", fps=30, dpi=500)

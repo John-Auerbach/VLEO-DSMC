@@ -3,6 +3,8 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 import pickle, os, re
 import argparse
+import copy as _copy
+import warnings
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Create grid temperature heatmap animation')
@@ -27,7 +29,7 @@ ylim = (box0["ylo"], box0["yhi"])
 zlim = (box0["zlo"], box0["zhi"])
 
 # choose slice thickness about z=0
-slice_frac = 0.1
+slice_frac = 0.05
 delta_z = slice_frac * (zlim[1] - zlim[0])
 
 # derive native grid spacing from first frame
@@ -56,29 +58,41 @@ def temp_hist(df):
 
     sum_t, _, _ = np.histogram2d(xs, ys, bins=[x_edges, y_edges], weights=temps)
     cnt_t, _, _ = np.histogram2d(xs, ys, bins=[x_edges, y_edges])
-    with np.errstate(invalid="ignore"):
-        mean_t = np.divide(sum_t, cnt_t, where=cnt_t > 0)
+    # produce NaN where count is zero so masked_invalid() will mask these cells
+    with np.errstate(invalid='ignore', divide='ignore'):
+        mean_t = np.where(cnt_t > 0, sum_t / cnt_t, np.nan)
     return mean_t.T  # shape (ny, nx) for imshow
 
 # precompute vmin/vmax
 print("Computing min/max for color scale...")
 all_vals = []
-for _, df, _ in grid:
-    img = temp_hist(df)
-    if np.isfinite(img).any():
-        all_vals.extend(img[np.isfinite(img)])
-vmin = np.percentile(all_vals, 5)
+# suppress runtime warnings during histogram division (empty bins)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", RuntimeWarning)
+    for _, df, _ in grid:
+        img = temp_hist(df)
+        if np.isfinite(img).any():
+            all_vals.extend(img[np.isfinite(img)])
+vmin = 0 #np.percentile(all_vals, 5)
 vmax = np.percentile(all_vals, 95)
 print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 fig, ax = plt.subplots(figsize=(6, 3))
+# use a cmap with black for masked/invalid cells
+_cmap = plt.cm.get_cmap("inferno")
+try:
+    cmap = _cmap.copy()
+except Exception:
+    cmap = _copy.deepcopy(_cmap)
+cmap.set_bad('black')
+# initialize with a fully-masked array so empty cells show black
 im = ax.imshow(
-    np.zeros((ny, nx)),
+    np.ma.masked_all((ny, nx)),
     extent=(x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]),
     origin="lower",
     aspect="auto",
     vmin=vmin, vmax=vmax,
-    cmap="inferno",
+    cmap=cmap,
     interpolation="nearest"
 )
 cbar = fig.colorbar(im, ax=ax, label="T (K)")
@@ -97,14 +111,16 @@ def extract_tstep_from_input(path):
 tstep = extract_tstep_from_input(os.path.expanduser("~/AMPT/in.ampt"))
 
 def init():
-    im.set_data(np.zeros((ny, nx)))
+    im.set_data(np.ma.masked_all((ny, nx)))
     return im,
 
 def update(i):
     step, df, _ = grid[i]
     img = temp_hist(df)
-    im.set_data(img)
-    title.set_text(f"temperature heatmap |z| ≤ {slice_frac:.2f}H  |  time = {step * tstep:.2e} s")
+    # mask invalid/empty bins so they render as black
+    img_masked = np.ma.masked_invalid(img)
+    im.set_data(img_masked)
+    title.set_text(f"temperature heatmap |z| \u2264 {slice_frac:.2f}H  |  time = {step * tstep:.2e} s")
     return im, title
 
 ani = FuncAnimation(fig, update, frames=len(grid), init_func=init, blit=False, interval=200)
