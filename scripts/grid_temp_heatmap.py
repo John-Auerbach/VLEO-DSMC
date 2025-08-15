@@ -6,6 +6,9 @@ import argparse
 import copy as _copy
 import warnings
 
+# Create outputs directory
+os.makedirs('outputs', exist_ok=True)
+
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Create grid temperature heatmap animation')
 parser.add_argument('folder', nargs='?', default='dumps', 
@@ -124,4 +127,4 @@ def update(i):
     return im, title
 
 ani = FuncAnimation(fig, update, frames=len(grid), init_func=init, blit=False, interval=200)
-ani.save("grid_temp_heatmap.mp4", fps=30, dpi=300)
+ani.save("outputs/grid_temp_heatmap.mp4", fps=30, dpi=300)

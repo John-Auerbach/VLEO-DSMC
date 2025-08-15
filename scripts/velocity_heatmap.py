@@ -7,6 +7,9 @@ import argparse
 import copy as _copy
 import warnings
 
+# Create outputs directory
+os.makedirs('outputs', exist_ok=True)
+
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Create velocity heatmap animation')
 parser.add_argument('folder', nargs='?', default='dumps', 
@@ -120,4 +123,4 @@ def update(i):
 ani = FuncAnimation(fig, update, frames=len(traj),
                     init_func=init, blit=False, interval=200)
 
-ani.save("velocity_heatmap.mp4", fps=30, dpi=500)
+ani.save("outputs/velocity_heatmap.mp4", fps=30, dpi=500)

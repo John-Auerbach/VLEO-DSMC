@@ -7,6 +7,9 @@ from matplotlib import cm
 from matplotlib import gridspec
 import argparse
 
+# Create outputs directory
+os.makedirs('outputs', exist_ok=True)
+
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Create surface temperature heatmap animation')
 parser.add_argument('folder', nargs='?', default='dumps', 
@@ -16,7 +19,7 @@ args = parser.parse_args()
 # I/O
 dump_glob = os.path.expanduser(f"~/AMPT/{args.folder}/surf.*.dat")
 input_sparta = os.path.expanduser("~/AMPT/in.ampt")
-outfile = "surface_temp_heatmap.mp4"
+outfile = "outputs/surface_temp_heatmap.mp4"
 fps = 25
 
 # timestep size from input file

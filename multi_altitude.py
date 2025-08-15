@@ -11,7 +11,6 @@ import os
 import subprocess
 import shutil
 import numpy as np
-import matplotlib.pyplot as plt
 import argparse
 
 # Parse command line arguments
@@ -71,20 +70,5 @@ for alt in altitudes:
     
     print(f"Got {len(temps)} surface temps, mean = {np.mean(temps):.1f} K")
 
-# Plot results
-plt.figure(figsize=(10, 6))
-alts = sorted(results.keys())
-for i in range(len(results[alts[0]])):  # For each triangle
-    triangle_temps = [results[alt][i] for alt in alts]
-    plt.plot(alts, triangle_temps, 'o-', label=f'Triangle {i+1}')
-
-plt.xlabel('Altitude (km)')
-plt.ylabel('Surface Temperature (K)')
-plt.title('Surface Temperature vs Altitude')
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
-plt.savefig('surface_temps_vs_altitude.png', dpi=150)
-plt.show()
-
-print(f"\nDone! Results saved for altitudes: {alts}")
+print(f"\nDone! Results saved for altitudes: {sorted(results.keys())}")
+print("Run 'python3 tools/analyze_multi_altitude.py' to plot and export data.")

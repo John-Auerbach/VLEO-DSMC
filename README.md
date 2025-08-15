@@ -46,7 +46,7 @@ sparta < in.ampt
 ./run_sparta.sh    # Uses 8 cores by default. Modify this to work with your setup.
 ```
 
-**Performance:** Multi-core execution is typically 4-6x faster for DSMC simulations.
+**Performance:** Multi-core execution is typically 4-6x faster for DSMC simulations. 
 
 ### Multi-Altitude Analysis
 
@@ -64,10 +64,22 @@ python3 multi_altitude.py -c 4
 This will:
 - Run SPARTA simulations at each altitude
 - Save results to `dumps/alt_XXkm/` directories  
-- Generate a plot of surface temperature vs altitude for each triangle
-- Save plot as `surface_temps_vs_altitude.png`
 
 **Performance:** Using `--cores 8` is typically 4-6x faster than single core for DSMC simulations.
+
+### Analyze Multi-Altitude Results
+
+After running multi-altitude simulations:
+
+```bash
+python3 tools/analyze_multi_altitude.py
+```
+
+This will:
+- Generate a plot of surface temperature vs altitude for each triangle
+- Export data to `multi_altitude_results.csv` spreadsheet
+- Save plot as `surface_temps_vs_altitude.png`
+- All output files are saved to the `outputs/` folder
 
 ## 4. Load and Cache Dump Data
 
@@ -105,4 +117,6 @@ python3 scripts/grid_temp_heatmap.py dumps/alt_75km
 python3 scripts/velocity_heatmap.py dumps/alt_95km
 ```
 
-**Note:** Run `python3 tools/load_dumps.py <folder>` first to cache dump data for faster visualization.
+**Note:** 
+- Run `python3 tools/load_dumps.py <folder>` first to cache dump data for faster visualization
+- All output files (.mp4, .png, .csv) are saved to the `outputs/` folder

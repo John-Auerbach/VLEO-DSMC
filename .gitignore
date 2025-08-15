@@ -1,5 +1,4 @@
 .venv/
 dumps/
-*.mp4
-*.png
+outputs/
 log.sparta

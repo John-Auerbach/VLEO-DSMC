@@ -5,6 +5,9 @@ import pickle
 import os
 import argparse
 
+# Create outputs directory
+os.makedirs('outputs', exist_ok=True)
+
 # Parse command line arguments
 parser = argparse.ArgumentParser(description='Animate particle trajectories')
 parser.add_argument('folder', nargs='?', default='dumps', 
@@ -69,4 +72,4 @@ def update(frame_idx):
     return scat, title
 
 ani = FuncAnimation(fig, update, frames=len(traj), init_func=init, blit=False, interval=200)
-ani.save("particle_anim.mp4", fps=5, dpi=150)
+ani.save("outputs/particle_anim.mp4", fps=5, dpi=150)
