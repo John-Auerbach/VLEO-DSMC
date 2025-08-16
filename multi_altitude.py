@@ -46,6 +46,10 @@ for alt in altitudes:
         if file.endswith('.dat'):
             shutil.move(f'dumps/{file}', f'dumps/alt_{alt}km/{file}')
     
+    # Convert to Parquet for this altitude
+    print(f"Converting {alt}km dumps to Parquet...")
+    os.system(f'python3 tools/load_dumps.py dumps/alt_{alt}km')
+    
     # Get final surface temps
     surf_files = [f for f in os.listdir(f'dumps/alt_{alt}km') if f.startswith('surf.')]
     final_surf = sorted(surf_files, key=lambda x: int(x.split('.')[1]))[-1]

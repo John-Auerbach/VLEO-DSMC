@@ -2,6 +2,8 @@ import glob
 import numpy as np
 import pandas as pd
 import os
+import sys
+import argparse
 
 def read_sparta_particle_dump(fname):
     step = natoms = None
@@ -114,10 +116,13 @@ def load_all(pattern, reader):
         results.append(reader(f))
     return results
 
-def process_and_save_dumps(pattern, reader, prefix):
+def process_and_save_dumps(pattern, reader, prefix, output_dir=None):
     """Process dump files one by one and save as Parquet to avoid memory overload"""
     files = sorted(glob.glob(os.path.expanduser(pattern)))
-    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    if output_dir is None:
+        dumps_dir = os.path.dirname(os.path.expanduser(pattern))
+    else:
+        dumps_dir = os.path.expanduser(output_dir)
     total = len(files)
     
     for i, f in enumerate(files, 1):
@@ -152,23 +157,32 @@ def save_to_parquet(data, prefix):
         box_df.to_parquet(box_path, index=False)
 
 if __name__ == "__main__":
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Convert SPARTA dumps to Parquet format')
+    parser.add_argument('dumps_dir', nargs='?', default='~/AMPT/dumps', 
+                       help='Directory containing dump files (default: ~/AMPT/dumps)')
+    args = parser.parse_args()
+    
+    dumps_path = os.path.expanduser(args.dumps_dir)
+    
+    print(f"Processing dumps from: {dumps_path}")
     print("Processing particle dumps (1/3)...")
-    particle_count = process_and_save_dumps("~/AMPT/dumps/part.*.dat", read_sparta_particle_dump, "particle")
+    particle_count = process_and_save_dumps(f"{dumps_path}/part.*.dat", read_sparta_particle_dump, "particle", dumps_path)
 
     print("\nProcessing grid dumps (2/3)...")
-    grid_count = process_and_save_dumps("~/AMPT/dumps/grid.*.dat", read_sparta_grid_dump, "grid")
+    grid_count = process_and_save_dumps(f"{dumps_path}/grid.*.dat", read_sparta_grid_dump, "grid", dumps_path)
 
     print("\nProcessing surface dumps (3/3)...")
-    surf_count = process_and_save_dumps("~/AMPT/dumps/surf.*.dat", read_sparta_surface_dump, "surf")
+    surf_count = process_and_save_dumps(f"{dumps_path}/surf.*.dat", read_sparta_surface_dump, "surf", dumps_path)
 
     print(f"\nCompleted:")
     print(f"particle frames: {particle_count}")
     print(f"grid frames: {grid_count}")
     print(f"surface frames: {surf_count}")
 
-def load_parquet_data(prefix):
+def load_parquet_data(prefix, dumps_dir="~/AMPT/dumps"):
     """Load parquet data back into the original format - MEMORY EFFICIENT VERSION"""
-    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    dumps_dir = os.path.expanduser(dumps_dir)
     data_files = sorted(glob.glob(os.path.join(dumps_dir, f"{prefix}_[0-9]*.parquet")))
     
     print(f"Loading {len(data_files)} {prefix} timesteps from Parquet...")
@@ -198,9 +212,9 @@ def load_parquet_data(prefix):
     # Convert generator to list (same interface as before)
     return list(data_generator())
 
-def load_parquet_timesteps(prefix):
+def load_parquet_timesteps(prefix, dumps_dir="~/AMPT/dumps"):
     """Get list of available timesteps without loading data"""
-    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    dumps_dir = os.path.expanduser(dumps_dir)
     data_files = glob.glob(os.path.join(dumps_dir, f"{prefix}_[0-9]*.parquet"))
     timesteps = []
     for df_path in data_files:
@@ -208,9 +222,9 @@ def load_parquet_timesteps(prefix):
         timesteps.append(step)
     return sorted(timesteps)
 
-def load_parquet_single(prefix, timestep):
+def load_parquet_single(prefix, timestep, dumps_dir="~/AMPT/dumps"):
     """Load a single timestep from parquet"""
-    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    dumps_dir = os.path.expanduser(dumps_dir)
     
     # Load dataframe
     df_path = os.path.join(dumps_dir, f"{prefix}_{timestep:08d}.parquet")

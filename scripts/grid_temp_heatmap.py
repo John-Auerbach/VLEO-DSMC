@@ -3,16 +3,29 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 import os, re
 import sys
+import argparse
+import copy as _copy
+import warnings
 sys.path.append(os.path.expanduser("~/AMPT/tools"))
 from load_dumps import load_parquet_timesteps, load_parquet_single
 from scipy.ndimage import gaussian_filter
 
-# I/O - Get timesteps without loading data
-timesteps = load_parquet_timesteps("grid")
-print(f"Found {len(timesteps)} grid timesteps")
+# Create outputs directory
+os.makedirs('outputs', exist_ok=True)
+
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Create grid temperature heatmap animation')
+parser.add_argument('folder', nargs='?', default='dumps', 
+                   help='Folder containing dump files (default: dumps)')
+args = parser.parse_args()
+
+# I/O - Get timesteps without loading data from specified folder
+folder_path = os.path.expanduser(f"~/AMPT/{args.folder}")
+timesteps = load_parquet_timesteps("grid", folder_path)
+print(f"Found {len(timesteps)} grid timesteps in {args.folder}")
 
 # Load just the first frame to get grid setup
-first_step, first_df, box0 = load_parquet_single("grid", timesteps[0])
+first_step, first_df, box0 = load_parquet_single("grid", timesteps[0], folder_path)
 xlim = (box0["xlo"], box0["xhi"])
 ylim = (box0["ylo"], box0["yhi"])
 zlim = (box0["zlo"], box0["zhi"])
@@ -47,37 +60,53 @@ def temp_hist(df, smooth=True):
 
     sum_t, _, _ = np.histogram2d(xs, ys, bins=[x_edges, y_edges], weights=temps)
     cnt_t, _, _ = np.histogram2d(xs, ys, bins=[x_edges, y_edges])
-    with np.errstate(invalid="ignore"):
-        mean_t = np.divide(sum_t, cnt_t, where=cnt_t > 0)
+    # produce NaN where count is zero so masked_invalid() will mask these cells
+    with np.errstate(invalid='ignore', divide='ignore'):
+        mean_t = np.where(cnt_t > 0, sum_t / cnt_t, np.nan)
     
     result = mean_t.T  # shape (ny, nx) for imshow
     
     # Apply light Gaussian smoothing to reduce graininess
     if smooth:
-        result = gaussian_filter(result, sigma=0.8, mode='constant', cval=np.nan)
+        # Only smooth finite values, preserve NaNs
+        finite_mask = np.isfinite(result)
+        if finite_mask.any():
+            smooth_result = gaussian_filter(np.nan_to_num(result), sigma=0.8, mode='constant', cval=0)
+            result = np.where(finite_mask, smooth_result, result)
     
     return result
 
 # precompute vmin/vmax
 print("Computing min/max for color scale...")
 all_vals = []
-for step in timesteps:
-    _, df, _ = load_parquet_single("grid", step)
-    img = temp_hist(df)
-    if np.isfinite(img).any():
-        all_vals.extend(img[np.isfinite(img)])
+# suppress runtime warnings during histogram division (empty bins)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore", RuntimeWarning)
+    for step in timesteps:
+        _, df, _ = load_parquet_single("grid", step, folder_path)
+        img = temp_hist(df)
+        if np.isfinite(img).any():
+            all_vals.extend(img[np.isfinite(img)])
 vmin = 0 #np.percentile(all_vals, 5)
 vmax = np.percentile(all_vals, 95)
 print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 fig, ax = plt.subplots(figsize=(6, 3))
+# use a cmap with black for masked/invalid cells
+_cmap = plt.cm.get_cmap("inferno")
+try:
+    cmap = _cmap.copy()
+except Exception:
+    cmap = _copy.deepcopy(_cmap)
+cmap.set_bad('black')
+# initialize with a fully-masked array so empty cells show black
 im = ax.imshow(
-    np.zeros((ny, nx)),
+    np.ma.masked_all((ny, nx)),
     extent=(x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]),
     origin="lower",
     aspect="auto",
     vmin=vmin, vmax=vmax,
-    cmap="inferno",
+    cmap=cmap,
     interpolation="bilinear"  # or "bicubic" for even smoother
 )
 cbar = fig.colorbar(im, ax=ax, label="T (K)")
@@ -96,16 +125,18 @@ def extract_tstep_from_input(path):
 tstep = extract_tstep_from_input(os.path.expanduser("~/AMPT/in.ampt"))
 
 def init():
-    im.set_data(np.zeros((ny, nx)))
+    im.set_data(np.ma.masked_all((ny, nx)))
     return im,
 
 def update(i):
     step = timesteps[i]
-    _, df, _ = load_parquet_single("grid", step)
+    _, df, _ = load_parquet_single("grid", step, folder_path)
     img = temp_hist(df)
-    im.set_data(img)
+    # mask invalid/empty bins so they render as black
+    img_masked = np.ma.masked_invalid(img)
+    im.set_data(img_masked)
     title.set_text(f"temperature heatmap |z| ≤ {slice_frac:.2f}H  |  time = {step * tstep:.2e} s")
     return im, title
 
 ani = FuncAnimation(fig, update, frames=len(timesteps), init_func=init, blit=False, interval=200)
-ani.save("grid_temp_heatmap.mp4", fps=30, dpi=300)
+ani.save("outputs/grid_temp_heatmap.mp4", fps=30, dpi=300)
