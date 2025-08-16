@@ -1,9 +1,7 @@
 import glob
 import numpy as np
 import pandas as pd
-import pickle
 import os
-import sys
 
 def read_sparta_particle_dump(fname):
     step = natoms = None
@@ -109,68 +107,118 @@ def read_sparta_surface_dump(fname):
 
 def load_all(pattern, reader):
     files = sorted(glob.glob(os.path.expanduser(pattern)))
-    return [reader(f) for f in files]
+    results = []
+    total = len(files)
+    for i, f in enumerate(files, 1):
+        print(f"{i:02d}/{total:02d}: {os.path.basename(f)}")
+        results.append(reader(f))
+    return results
 
-# Get dumps directory from command line or use default
-if len(sys.argv) > 1:
-    dumps_dir = sys.argv[1]
-    if not dumps_dir.endswith('/'):
-        dumps_dir += '/'
-else:
-    dumps_dir = "~/AMPT/dumps/"
+def process_and_save_dumps(pattern, reader, prefix):
+    """Process dump files one by one and save as Parquet to avoid memory overload"""
+    files = sorted(glob.glob(os.path.expanduser(pattern)))
+    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    total = len(files)
+    
+    for i, f in enumerate(files, 1):
+        print(f"{i:02d}/{total:02d}: {os.path.basename(f)}")
+        step, df, box = reader(f)
+        
+        # Save dataframe immediately
+        df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
+        df.to_parquet(df_path, index=False)
+        
+        # Save box info
+        box_df = pd.DataFrame([box])
+        box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
+        box_df.to_parquet(box_path, index=False)
+        
+        # Clear from memory immediately
+        del df, box_df
+    
+    return total
 
-print(f"Loading dumps from: {os.path.expanduser(dumps_dir)}")
+def save_to_parquet(data, prefix):
+    """Save trajectory data as individual parquet files per timestep"""
+    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    for step, df, box in data:
+        # Save dataframe
+        df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
+        df.to_parquet(df_path, index=False)
+        
+        # Save box info as separate parquet (small overhead)
+        box_df = pd.DataFrame([box])
+        box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
+        box_df.to_parquet(box_path, index=False)
 
-particle_data = load_all(f"{dumps_dir}part.*.dat", read_sparta_particle_dump)
-'''
-Output is list of snapshots containing: 
-    integer timestep number, 
-    pandas dataframe of all particle positions and velocities,
-    dictionary of simulation bounds; i.e. {'xlo':0.0, 'xhi':5.0, ...}
+if __name__ == "__main__":
+    print("Processing particle dumps (1/3)...")
+    particle_count = process_and_save_dumps("~/AMPT/dumps/part.*.dat", read_sparta_particle_dump, "particle")
 
-Example:
+    print("\nProcessing grid dumps (2/3)...")
+    grid_count = process_and_save_dumps("~/AMPT/dumps/grid.*.dat", read_sparta_grid_dump, "grid")
 
-traj = [
-  (step_0, df_0, box_0),
-  (step_1, df_1, box_1),
-  ...
-]
-'''
-grid_data = load_all(f"{dumps_dir}grid.*.dat", read_sparta_grid_dump)
-'''
-Output is list of snapshots containing: 
-    integer timestep number, 
-    pandas dataframe of all particle positions and velocities,
-    dictionary of simulation bounds; i.e. {'xlo':0.0, 'xhi':5.0, ...}
+    print("\nProcessing surface dumps (3/3)...")
+    surf_count = process_and_save_dumps("~/AMPT/dumps/surf.*.dat", read_sparta_surface_dump, "surf")
 
-Example:
+    print(f"\nCompleted:")
+    print(f"particle frames: {particle_count}")
+    print(f"grid frames: {grid_count}")
+    print(f"surface frames: {surf_count}")
 
-traj = [
-  (step_0, df_0, box_0),
-  (step_1, df_1, box_1),
-  ...
-]
-'''
-surf_data = load_all(f"{dumps_dir}surf.*.dat", read_sparta_surface_dump)
-'''
-Output is list of snapshots containing: 
-    integer timestep number, 
-    pandas dataframe of all particle positions and velocities,
-    dictionary of simulation bounds; i.e. {'xlo':0.0, 'xhi':5.0, ...}
+def load_parquet_data(prefix):
+    """Load parquet data back into the original format - MEMORY EFFICIENT VERSION"""
+    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    data_files = sorted(glob.glob(os.path.join(dumps_dir, f"{prefix}_[0-9]*.parquet")))
+    
+    print(f"Loading {len(data_files)} {prefix} timesteps from Parquet...")
+    if len(data_files) > 50:
+        print(f"WARNING: Loading {len(data_files)} timesteps may use significant RAM.")
+        print(f"Consider using load_parquet_single() for individual timesteps.")
+    
+    # Return a generator that yields one timestep at a time
+    def data_generator():
+        for i, df_path in enumerate(data_files, 1):
+            if i % 10 == 0 or i == len(data_files):
+                print(f"  Loading {i}/{len(data_files)}")
+            
+            # Extract timestep from filename
+            step = int(os.path.basename(df_path).split('_')[1].split('.')[0])
+            
+            # Load dataframe
+            df = pd.read_parquet(df_path)
+            
+            # Load box info
+            box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
+            box_df = pd.read_parquet(box_path)
+            box = box_df.iloc[0].to_dict()
+            
+            yield (step, df, box)
+    
+    # Convert generator to list (same interface as before)
+    return list(data_generator())
 
-Example:
+def load_parquet_timesteps(prefix):
+    """Get list of available timesteps without loading data"""
+    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    data_files = glob.glob(os.path.join(dumps_dir, f"{prefix}_[0-9]*.parquet"))
+    timesteps = []
+    for df_path in data_files:
+        step = int(os.path.basename(df_path).split('_')[1].split('.')[0])
+        timesteps.append(step)
+    return sorted(timesteps)
 
-traj = [
-  (step_0, df_0, box_0),
-  (step_1, df_1, box_1),
-  ...
-]
-'''
-pickle.dump(particle_data, open(os.path.expanduser(f"{dumps_dir}traj.pkl"), "wb"))
-pickle.dump(grid_data, open(os.path.expanduser(f"{dumps_dir}grid.pkl"), "wb"))
-pickle.dump(surf_data, open(os.path.expanduser(f"{dumps_dir}surf.pkl"), "wb"))
-
-print(f"particle frames: {len(particle_data)}")
-print(f"grid frames: {len(grid_data)}")
-print(f"surface frames: {len(surf_data)}")
-print(f"Saved pickle files to: {os.path.expanduser(dumps_dir)}")
+def load_parquet_single(prefix, timestep):
+    """Load a single timestep from parquet"""
+    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    
+    # Load dataframe
+    df_path = os.path.join(dumps_dir, f"{prefix}_{timestep:08d}.parquet")
+    df = pd.read_parquet(df_path)
+    
+    # Load box info
+    box_path = os.path.join(dumps_dir, f"{prefix}_box_{timestep:08d}.parquet")
+    box_df = pd.read_parquet(box_path)
+    box = box_df.iloc[0].to_dict()
+    
+    return timestep, df, box
