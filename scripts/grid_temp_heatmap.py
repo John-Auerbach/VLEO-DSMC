@@ -46,7 +46,7 @@ nx, ny = len(xc0), len(yc0)
 # temperature column name
 temp_col = [c for c in first_df.columns if c.startswith("c_compute_Tgrid")][0]
 
-def temp_hist(df, smooth=True):
+def temp_hist(df):
     """Return 2D array of mean Tgrid value for |z| < delta_z, binned on (x,y) using cell centres."""
     xc = df["xc"].to_numpy()
     yc = df["yc"].to_numpy()
@@ -65,14 +65,6 @@ def temp_hist(df, smooth=True):
         mean_t = np.where(cnt_t > 0, sum_t / cnt_t, np.nan)
     
     result = mean_t.T  # shape (ny, nx) for imshow
-    
-    # Apply light Gaussian smoothing to reduce graininess
-    if smooth:
-        # Only smooth finite values, preserve NaNs
-        finite_mask = np.isfinite(result)
-        if finite_mask.any():
-            smooth_result = gaussian_filter(np.nan_to_num(result), sigma=0.8, mode='constant', cval=0)
-            result = np.where(finite_mask, smooth_result, result)
     
     return result
 

@@ -1,5 +1,5 @@
 SPARTA (20 Jan 2025)
-Running on 1 MPI task(s)
+Running on 8 MPI task(s)
 # SETUP --------------------------------------------------------------------------------------
 
 shell "bash -c 'rm -f dumps/*.dat'"
@@ -47,64 +47,66 @@ variable        T    file data/T.dat
 variable        vx   file data/vx.dat
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
-Loaded NRLMSIS data: rho=0.00000061379 nrho=1276141830708372684 T=179.32939 vx=7844.
+Loaded NRLMSIS data: rho=0.00001708270 nrho=35516553478260857241 T=199.67355 vx=7856.
 
 variable 	kB equal 1.380649e-23  # J/K
 variable 	d equal 3.7e-10  # m
 variable 	R equal 287.05 # (J / kg*K)
 variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
 variable 	lambda equal 1.380649e-23*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
-variable 	lambda equal 1.380649e-23*179.32939/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
-variable 	lambda equal 1.380649e-23*179.32939/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R}) 
-variable 	lambda equal 1.380649e-23*179.32939/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R}) 
-variable 	lambda equal 1.380649e-23*179.32939/(sqrt(2.0)*PI*3.7e-10*3.7e-10*0.00000061379*${R}) 
-variable 	lambda equal 1.380649e-23*179.32939/(sqrt(2.0)*PI*3.7e-10*3.7e-10*0.00000061379*287.05) 
+variable 	lambda equal 1.380649e-23*199.67355/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*199.67355/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*199.67355/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*199.67355/(sqrt(2.0)*PI*3.7e-10*3.7e-10*0.00001708270*${R}) 
+variable 	lambda equal 1.380649e-23*199.67355/(sqrt(2.0)*PI*3.7e-10*3.7e-10*0.00001708270*287.05) 
 variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
 variable	vbar equal sqrt(8*1.380649e-23*${T}/(PI*${rho}/${nrho})) 
-variable	vbar equal sqrt(8*1.380649e-23*179.32939/(PI*${rho}/${nrho})) 
-variable	vbar equal sqrt(8*1.380649e-23*179.32939/(PI*0.00000061379/${nrho})) 
-variable	vbar equal sqrt(8*1.380649e-23*179.32939/(PI*0.00000061379/1276141830708372684)) 
+variable	vbar equal sqrt(8*1.380649e-23*199.67355/(PI*${rho}/${nrho})) 
+variable	vbar equal sqrt(8*1.380649e-23*199.67355/(PI*0.00001708270/${nrho})) 
+variable	vbar equal sqrt(8*1.380649e-23*199.67355/(PI*0.00001708270/35516553478260857241)) 
 
 print "MEAN FREE PATH = ${lambda} m"
-MEAN FREE PATH = 23.1041010567991 m
+MEAN FREE PATH = 0.924318058786514 m
 print "MEAN MOLEC VEL = ${vbar} m/s"
-MEAN MOLEC VEL = 114.492490416389 m/s
+MEAN MOLEC VEL = 120.811734281083 m/s
 
 # grid resolution
 
 variable	dx equal ${lambda}/3 # m
-variable	dx equal 23.1041010567991/3 
+variable	dx equal 0.924318058786514/3 
 variable	mct equal ${lambda}/${vbar} # s
-variable	mct equal 23.1041010567991/${vbar} 
-variable	mct equal 23.1041010567991/114.492490416389 
+variable	mct equal 0.924318058786514/${vbar} 
+variable	mct equal 0.924318058786514/120.811734281083 
 variable	mtt equal ${dx}/${vbar} # s
-variable	mtt equal 7.70136701893303/${vbar} 
-variable	mtt equal 7.70136701893303/114.492490416389 
+variable	mtt equal 0.308106019595505/${vbar} 
+variable	mtt equal 0.308106019595505/120.811734281083 
 variable	dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
-variable	dt equal ((0.201795776935007<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
-variable	dt equal ((0.201795776935007<0.0672652589783357)*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
-variable	dt equal ((0.201795776935007<0.0672652589783357)*0.201795776935007+(${mct}>=${mtt})*${mtt})/3.0 
-variable	dt equal ((0.201795776935007<0.0672652589783357)*0.201795776935007+(0.201795776935007>=${mtt})*${mtt})/3.0 
-variable	dt equal ((0.201795776935007<0.0672652589783357)*0.201795776935007+(0.201795776935007>=0.0672652589783357)*${mtt})/3.0 
-variable	dt equal ((0.201795776935007<0.0672652589783357)*0.201795776935007+(0.201795776935007>=0.0672652589783357)*0.0672652589783357)/3.0 
+variable	dt equal ((0.00765089636604319<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00765089636604319<0.00255029878868107)*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00765089636604319<0.00255029878868107)*0.00765089636604319+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00765089636604319<0.00255029878868107)*0.00765089636604319+(0.00765089636604319>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00765089636604319<0.00255029878868107)*0.00765089636604319+(0.00765089636604319>=0.00255029878868107)*${mtt})/3.0 
+variable	dt equal ((0.00765089636604319<0.00255029878868107)*0.00765089636604319+(0.00765089636604319>=0.00255029878868107)*0.00255029878868107)/3.0 
 
 print "CELL SIZE MUST BE LESS THAN ${dx} m"
-CELL SIZE MUST BE LESS THAN 7.70136701893303 m
+CELL SIZE MUST BE LESS THAN 0.308106019595505 m
 print "MEAN COLL TIME = ${mct} s"
-MEAN COLL TIME = 0.201795776935007 s
+MEAN COLL TIME = 0.00765089636604319 s
 print "MEAN TRANSIT TIME = ${mtt} s"
-MEAN TRANSIT TIME = 0.0672652589783357 s
+MEAN TRANSIT TIME = 0.00255029878868107 s
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
-TIMESTEP MUST BE < 0.0224217529927786 s
+TIMESTEP MUST BE < 0.000850099596227023 s
 
-create_grid	100 100 50
-Created 500000 child grid cells
-  CPU time = 0.278657 secs
-  create/ghost percent = 29.0643 70.9357
+create_grid	350 200 50
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
+Created 3500000 child grid cells
+  CPU time = 3.62011 secs
+  create/ghost percent = 3.33783 96.6622
 balance_grid    rcb part
-Balance grid migrated 0 cells
-  CPU time = 0.233204 secs
-  reassign/sort/migrate/ghost percent = 27.8664 1.50444 6.60055 64.0287
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
+Balance grid migrated 3062500 cells
+  CPU time = 3.92932 secs
+  reassign/sort/migrate/ghost percent = 8.35999 0.506734 16.2939 74.8394
 
 variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
@@ -118,15 +120,16 @@ read_surf	surf/ampt_box.surf  group ampt        # create surface group â€œamptâ€
   -0.1 0.1 zlo zhi
   0.2 min triangle edge length
   0.02 min triangle area
-  1352 0 = cells overlapping surfs, overlap cells with unmarked corner pts
-  122 tiny edges removed
-  497240 1408 1352 = cells outside/inside/overlapping surfs
-  1352 = surf cells with 1,2,etc splits
+  7824 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  96 tiny edges removed
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
+  3480800 11376 7824 = cells outside/inside/overlapping surfs
+  7824 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.316572 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0187635 0.0380956 5.85346 42.9026 51.187 24.4915 0.000157942
-  surf2grid time = 0.135818 secs
-  map/comm1/comm2/comm3/comm4/split percent = 34.2721 0.0103816 37.1945 2.96074 5.17068 8.60213
+  CPU time = 3.69198 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0107596 0.0175796 3.84533 10.2871 85.8392 8.03667 6.7958e-05
+  surf2grid time = 0.379799 secs
+  map/comm1/comm2/comm3/comm4/split percent = 49.1113 0.0142891 14.5855 4.00964 5.58239 10.7581
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -137,31 +140,31 @@ species         species/air.species N2 O2
 mixture 	atm N2 frac 0.79
 mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
-mixture     	atm nrho 1276141830708372684 vstream ${vx} 0.0 0.0 temp ${T}
-mixture     	atm nrho 1276141830708372684 vstream 7844. 0.0 0.0 temp ${T}
-mixture     	atm nrho 1276141830708372684 vstream 7844. 0.0 0.0 temp 179.32939
+mixture     	atm nrho 35516553478260857241 vstream ${vx} 0.0 0.0 temp ${T}
+mixture     	atm nrho 35516553478260857241 vstream 7856. 0.0 0.0 temp ${T}
+mixture     	atm nrho 35516553478260857241 vstream 7856. 0.0 0.0 temp 199.67355
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 10000.0
+variable        Ns_target equal 2000000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        Vol       equal 2.2*${Ly}*${Lz}
 variable        Vol       equal 2.2*2.2*${Lz}
 variable        Vol       equal 2.2*2.2*2.2
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
-variable        fnum      equal 1276141830708372684*${Vol}/${Ns_target}
-variable        fnum      equal 1276141830708372684*10.648/${Ns_target}
-variable        fnum      equal 1276141830708372684*10.648/10000
+variable        fnum      equal 35516553478260857241*${Vol}/${Ns_target}
+variable        fnum      equal 35516553478260857241*10.648/${Ns_target}
+variable        fnum      equal 35516553478260857241*10.648/2000000
 global          fnum ${fnum} # global bc will be queried by each new particle
-global          fnum 1.35883582133828e+15 
+global          fnum 189090130718261 
 
 # global useful for stat query later
 global          nrho ${nrho}
-global          nrho 1276141830708372684
+global          nrho 35516553478260857241
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
-Created 9962 particles
-  CPU time = 0.0139951 secs
+Created 1992486 particles
+  CPU time = 0.155808 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -206,164 +209,164 @@ timestep        1e-07
 collide		    vss atm vss/air.vss # variable soft sphere model
 run             10000
 Memory usage per proc in Mbytes:
-  particles (ave,min,max) = 1.6875 1.6875 1.6875
-  grid      (ave,min,max) = 89.2013 89.2013 89.2013
+  particles (ave,min,max) = 27 27 27
+  grid      (ave,min,max) = 428.326 428.326 428.326
   surf      (ave,min,max) = 0.00151062 0.00151062 0.00151062
-  total     (ave,min,max) = 98.5199 98.5199 98.5199
+  total     (ave,min,max) = 462.004 462.004 462.004
 Step CPU Np Natt Ncoll c_Tbox 
-       0            0     9962        0        0    71342.219 
-     100    1.1364828     9847        0        0    71316.663 
-     200    2.2006086     9973        0        0    71266.748 
-     300     3.297392    10259        0        0    71198.649 
-     400    4.4217719    10565        0        0    71190.929 
-     500    5.4884736    10881        0        0    71190.883 
-     600    6.5624468    11181        0        0    71180.345 
-     700    7.5972113    11467        0        0    71198.219 
-     800    8.6392465    11677        0        0    71148.845 
-     900    9.7060582    11739        0        0     71101.19 
-    1000      10.7778    11583        0        0     71031.39 
-    1100     11.90707    11220        0        0    70985.327 
-    1200    13.004591    10732        0        0    70948.749 
-    1300    14.087405    10291        0        0    70957.459 
-    1400    15.124874    10053        0        0     70948.19 
-    1500    16.178459     9961        0        0    70933.258 
-    1600    17.225615    10074        0        0    70958.428 
-    1700     18.31468    10334        0        0    70972.374 
-    1800    19.464723    10619        0        0    70958.139 
-    1900    20.582384    10914        0        0     70929.87 
-    2000    21.677406    11234        0        0    70924.568 
-    2100    22.779225    11541        0        0    70897.556 
-    2200    23.904235    11724        0        0    70842.466 
-    2300    24.957209    11780        0        0     70769.87 
-    2400    26.051759    11558        0        0    70644.192 
-    2500    27.143799    11252        0        0    70534.917 
-    2600    28.316509    10808        0        0    70477.356 
-    2700    29.402191    10389        0        0    70446.484 
-    2800    30.412617    10126        0        0     70499.79 
-    2900    31.422188    10057        0        0    70500.166 
-    3000    32.397876    10096        0        0    70479.632 
-    3100    33.456464    10143        0        0    70454.989 
-    3200    34.486996    10119        0        0    70430.216 
-    3300    35.521674    10097        0        0    70413.863 
-    3400    36.590426    10074        0        0    70384.411 
-    3500    37.592314    10073        0        0    70382.019 
-    3600    38.584127    10117        0        0    70378.001 
-    3700    39.600121    10141        0        0    70384.742 
-    3800    40.615308    10162        0        0    70377.672 
-    3900    41.588884    10100        0        0    70364.287 
-    4000    42.599165    10023        0        0     70364.74 
-    4100    43.636952    10001        0        0    70353.057 
-    4200    44.687992    10023        0        0    70332.524 
-    4300    45.721866     9984        0        0    70304.551 
-    4400    46.777843    10022        0        0    70291.436 
-    4500    47.819237    10006        0        0    70306.147 
-    4600     48.83428    10086        0        0    70295.681 
-    4700    49.918352    10132        0        0     70280.38 
-    4800    50.922854    10132        0        0     70255.94 
-    4900    52.041745    10125        0        0    70255.198 
-    5000    53.119161    10159        0        0    70263.525 
-    5100    54.216509    10181        0        0    70266.566 
-    5200    55.306752    10187        0        0    70241.976 
-    5300    56.312685    10210        0        0    70249.115 
-    5400    57.346974    10189        0        0    70216.219 
-    5500    58.363463    10197        0        0    70196.807 
-    5600    59.408162    10213        0        0    70161.291 
-    5700    60.545387    10220        0        0    70137.632 
-    5800    61.612999    10168        0        0    70086.885 
-    5900    62.656535    10126        0        0    70058.564 
-    6000     63.66912    10085        0        0    70084.022 
-    6100    64.663793    10084        0        0    70032.673 
-    6200    65.729145    10146        0        0    70022.938 
-    6300    66.741637    10219        0        0    69974.372 
-    6400    67.768661    10200        0        0    69976.574 
-    6500    68.843375    10147        0        0    69952.288 
-    6600      69.8976    10185        0        0    69947.492 
-    6700    70.885182    10195        0        0    69933.871 
-    6800    71.853263    10229        0        0    69958.545 
-    6900    72.792229    10258        0        0    69886.209 
-    7000    73.901458    10274        0        0    69846.287 
-    7100    74.910364    10272        0        0    69808.468 
-    7200    75.917144    10279        0        0    69801.884 
-    7300    76.987755    10286        1        1    69765.161 
-    7400    78.152226    10238        0        0    69760.368 
-    7500    79.200154    10227        0        0    69729.466 
-    7600    80.293376    10200        0        0    69733.733 
-    7700    81.334984    10213        1        1    69712.395 
-    7800    82.389175    10176        0        0    69665.206 
-    7900    83.386028    10170        0        0    69662.151 
-    8000    84.414658    10221        0        0    69665.018 
-    8100    85.545429    10210        0        0    69696.563 
-    8200    86.608904    10177        0        0    69657.656 
-    8300    87.660718    10166        0        0    69616.657 
-    8400    88.648046    10115        0        0    69609.189 
-    8500    89.637836    10147        0        0    69582.981 
-    8600    90.680225    10178        0        0    69614.172 
-    8700    91.683669    10157        0        0    69585.605 
-    8800    92.718717    10180        0        0    69579.634 
-    8900    93.819712    10222        0        0    69566.904 
-    9000    280.02366    10193        0        0    69532.396 
-    9100    282.20687    10207        0        0    69517.694 
-    9200    283.64938    10197        0        0    69532.357 
-    9300    284.97192    10194        0        0    69507.619 
-    9400    286.29905    10202        0        0     69453.12 
-    9500    287.54459    10211        0        0    69422.519 
-    9600    288.66909    10205        0        0     69405.09 
-    9700    289.68053    10217        0        0    69387.345 
-    9800    290.65002    10217        0        0    69399.916 
-    9900    291.65215    10189        0        0     69378.53 
-   10000    292.67736    10164        0        0    69364.307 
-Loop time of 292.677 on 1 procs for 10000 steps with 10164 particles
+       0            0  1992486        0        0    71546.388 
+     100    12.215554  1992808        4        2    71523.919 
+     200    24.478839  1992790       17       10    71500.165 
+     300    36.722056  1992469       37       18    71475.849 
+     400    48.866742  1992660       48       28    71454.501 
+     500    61.021914  1992938       58       35    71429.522 
+     600    73.173265  1993242       85       48    71408.341 
+     700     85.33986  1993136       89       43    71387.449 
+     800    97.557049  1993591      100       55    71366.707 
+     900    109.88718  1994117      118       70    71344.785 
+    1000    122.10583  1995094      120       70    71322.383 
+    1100    134.30794  1995667      118       70    71303.182 
+    1200    146.59579  1995915      132       77    71281.226 
+    1300    158.90554  1996115      125       78    71259.956 
+    1400    172.08836  1995962      140       88    71237.233 
+    1500    185.34497  1996440      168       94    71214.247 
+    1600    198.61725  1997512      200      130    71192.167 
+    1700    211.92917  1997549      255      178    71172.143 
+    1800    225.70201  1999020      332      224    71150.291 
+    1900    238.87335  1999449      505      375    71127.668 
+    2000     252.1304  1999779      723      558    71106.083 
+    2100    264.85508  2000222      996      762    71083.532 
+    2200    277.63706  2001187     1363     1069    71060.786 
+    2300    290.30269  2001478     1729     1371    71036.487 
+    2400     302.9528  2002362     2156     1741    71009.889 
+    2500    315.84698  2003498     2473     2006    70983.421 
+    2600    328.44371  2003915     2841     2312    70958.886 
+    2700    340.85485  2004767     2949     2414    70931.241 
+    2800    353.19461  2005328     2969     2454    70903.706 
+    2900    365.43741  2006137     3081     2519    70874.871 
+    3000     377.8246  2007549     2791     2255    70847.738 
+    3100    390.44024  2008358     2592     2058    70818.777 
+    3200    402.80427  2008925     2243     1815    70790.499 
+    3300    415.08374  2010056     2001     1604    70762.002 
+    3400    427.39832  2010554     1622     1280    70732.592 
+    3500     439.6951  2011162     1342     1057    70700.382 
+    3600    451.97832  2012280     1126      866    70670.924 
+    3700    464.19502  2013442      915      690     70638.91 
+    3800    476.48351  2014362      781      542    70607.412 
+    3900    488.75563  2016089      703      504    70577.327 
+    4000    500.97898  2018152      691      496    70542.815 
+    4100    513.17704  2020158      697      497    70512.597 
+    4200    525.47127  2022027      756      518    70482.581 
+    4300    537.71526  2023971      901      663    70453.091 
+    4400    549.98516  2025758      950      702    70422.677 
+    4500    562.29892  2027581     1089      790    70398.268 
+    4600    574.61989  2029638     1218      896    70375.913 
+    4700    586.92331  2031037     1378     1044    70358.025 
+    4800    599.21744  2031843     1607     1198     70339.03 
+    4900    611.52213  2032947     1777     1352    70323.679 
+    5000    623.83652  2034605     1947     1526    70305.508 
+    5100    636.08935  2035720     2064     1610     70289.11 
+    5200    648.51844  2035782     2186     1732    70275.618 
+    5300    660.77366  2036230     2295     1812    70262.574 
+    5400    673.12731  2036348     2304     1770    70247.697 
+    5500    685.46426  2036689     2353     1854    70235.312 
+    5600    697.81409  2037042     2221     1741    70225.912 
+    5700    710.11853  2037536     2143     1683    70215.122 
+    5800    722.61242  2037692     2142     1644    70208.127 
+    5900    735.07166  2037902     2066     1548    70198.484 
+    6000    747.53509  2038067     1884     1443    70187.125 
+    6100    760.01865  2037995     1825     1364    70179.813 
+    6200    772.36169  2038189     1751     1286    70169.301 
+    6300    784.79218  2038727     1608     1155    70165.267 
+    6400    797.10125  2038897     1543     1091    70158.831 
+    6500    809.46942  2038891     1514     1090     70158.09 
+    6600    821.83933  2038771     1490     1061    70153.354 
+    6700    834.10273  2039064     1374      942    70146.573 
+    6800    846.52361  2039736     1430     1024    70144.284 
+    6900    858.89294  2040110     1522     1066    70141.345 
+    7000    871.56954  2039980     1558     1085    70140.718 
+    7100    883.81603  2040049     1580     1113    70138.425 
+    7200    1238.9591  2040028     1680     1185    70137.586 
+    7300    1251.2733  2039896     1766     1263     70135.46 
+    7400    1262.7494  2040155     1826     1273    70132.764 
+    7500    1274.7245  2039803     1857     1350    70131.016 
+    7600    1287.0109  2040031     1944     1414    70129.066 
+    7700    1298.8292  2039582     2008     1516    70128.833 
+    7800    1311.6947  2039466     1979     1401    70126.024 
+    7900     1323.529  2039272     2127     1572     70125.86 
+    8000    1335.5122  2039519     2130     1561    70128.508 
+    8100    1347.6407  2039607     2093     1499    70129.757 
+    8200    1359.6212  2039892     2035     1431    70130.476 
+    8300    1371.7362  2039205     2105     1540    70129.628 
+    8400    1383.8326  2039024     2040     1431    70128.889 
+    8500    1395.7459  2038931     2150     1547    70127.288 
+    8600    1407.9383  2039149     2109     1483     70126.96 
+    8700    1419.9149  2039942     2058     1470    70129.389 
+    8800    1432.1252  2039632     2022     1401    70131.021 
+    8900     1444.201  2039133     1960     1375     70135.23 
+    9000     1456.031  2039331     1929     1341     70135.37 
+    9100    1468.1211  2039489     1903     1322    70137.842 
+    9200    1480.1172  2039460     1876     1305      70139.1 
+    9300    1492.2183  2039577     1871     1271    70142.873 
+    9400    1504.3688  2039072     1876     1250    70142.476 
+    9500    1516.3906  2039339     1876     1296    70144.336 
+    9600    1528.4795  2039356     1887     1281     70144.09 
+    9700    1540.5728  2038911     1933     1294    70140.447 
+    9800    1552.5094  2038228     1952     1337    70139.139 
+    9900     1564.656  2038757     1869     1261    70141.233 
+   10000    1576.7776  2038293     1886     1277    70141.528 
+Loop time of 1576.78 on 8 procs for 10000 steps with 2038293 particles
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Move    | 11.163     | 11.163     | 11.163     |   0.0 |  3.81
-Coll    | 18.121     | 18.121     | 18.121     |   0.0 |  6.19
-Sort    | 215.91     | 215.91     | 215.91     |   0.0 | 73.77
-Comm    | 0.01743    | 0.01743    | 0.01743    |   0.0 |  0.01
-Modify  | 0.97221    | 0.97221    | 0.97221    |   0.0 |  0.33
-Output  | 46.486     | 46.486     | 46.486     |   0.0 | 15.88
-Other   |            | 0.006685   |            |       |  0.00
+Move    | 398.72     | 401.27     | 402.76     |   5.3 | 25.45
+Coll    | 166.26     | 380.01     | 507.82     | 844.5 | 24.10
+Sort    | 417.05     | 546.2      | 760.72     | 704.3 | 34.64
+Comm    | 22.009     | 24.105     | 27.255     |  28.8 |  1.53
+Modify  | 28.169     | 31.848     | 34.54      |  33.9 |  2.02
+Output  | 193.33     | 193.33     | 193.33     |   0.0 | 12.26
+Other   |            | 0.0142     |            |       |  0.00
 
-Particle moves    = 103567751 (104M)
-Cells touched     = 107301285 (107M)
-Particle comms    = 0 (0K)
+Particle moves    = 20233460445 (20.2B)
+Cells touched     = 22779718753 (22.8B)
+Particle comms    = 8077774 (8.08M)
 Boundary collides = 0 (0K)
-Boundary exits    = 35480 (35.5K)
-SurfColl checks   = 336269 (0.336M)
-SurfColl occurs   = 366 (0.366K)
+Boundary exits    = 7095668 (7.1M)
+SurfColl checks   = 54811105 (54.8M)
+SurfColl occurs   = 173546 (0.174M)
 Surf reactions    = 0 (0K)
-Collide attempts  = 50 (0.05K)
-Collide occurs    = 45 (0.045K)
+Collide attempts  = 14803043 (14.8M)
+Collide occurs    = 10967166 (11M)
 Reactions         = 0 (0K)
 Particles stuck   = 0
 Axisymm bad moves = 0
 
-Particle-moves/CPUsec/proc: 353863
-Particle-moves/step: 10356.8
-Cell-touches/particle/step: 1.03605
+Particle-moves/CPUsec/proc: 1.60402e+06
+Particle-moves/step: 2.02335e+06
+Cell-touches/particle/step: 1.12584
 Particle comm iterations/step: 1
-Particle fraction communicated: 0
+Particle fraction communicated: 0.000399228
 Particle fraction colliding with boundary: 0
-Particle fraction exiting boundary: 0.000342578
-Surface-checks/particle/step: 0.00324685
-Surface-collisions/particle/step: 3.53392e-06
+Particle fraction exiting boundary: 0.00035069
+Surface-checks/particle/step: 0.00270893
+Surface-collisions/particle/step: 8.57718e-06
 Surf-reactions/particle/step: 0
-Collision-attempts/particle/step: 4.82776e-07
-Collisions/particle/step: 4.34498e-07
+Collision-attempts/particle/step: 0.000731612
+Collisions/particle/step: 0.000542031
 Reactions/particle/step: 0
 
-Particles: 10164 ave 10164 max 10164 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-Cells:      500000 ave 500000 max 500000 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-GhostCell: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
+Particles: 254787 ave 255433 max 253707 min
+Histogram: 1 0 0 0 0 3 0 2 1 1
+Cells:      437500 ave 437500 max 437500 min
+Histogram: 8 0 0 0 0 0 0 0 0 0
+GhostCell: 3.0625e+06 ave 3.0625e+06 max 3.0625e+06 min
+Histogram: 8 0 0 0 0 0 0 0 0 0
 EmptyCell: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
+Histogram: 8 0 0 0 0 0 0 0 0 0
 Surfs:    12 ave 12 max 12 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
+Histogram: 8 0 0 0 0 0 0 0 0 0
 GhostSurf: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
+Histogram: 8 0 0 0 0 0 0 0 0 0
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
