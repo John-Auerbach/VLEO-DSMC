@@ -54,7 +54,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	350 200 50 
+create_grid	150 100 50 
 balance_grid    rcb part
 
 variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -75,10 +75,13 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 2000000.0
+variable        Ns_target equal 100000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
+
+variable	parts_per equal ${nrho}/${Ns_target}
+print "particles per particle = ${parts_per}"
 
 # global useful for stat query later
 global          nrho ${nrho}
@@ -122,6 +125,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox # print timestep, runtime, par
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             10000
+run             25000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"

@@ -99,12 +99,11 @@ python3 tools/load_dumps.py dumps/alt_XXkm/ --memory-limit 4GB
 
 This will:
 - Parse raw dump files (part.*.dat, grid.*.dat, surf.*.dat) 
-- Save memory-efficient Parquet files (.parquet) in the same directory
-- **Memory Benefits:** Parquet format uses ~60% less RAM than pickle files
-- **Large Dataset Support:** Can handle 6GB+ datasets without crashes
+- Save memory-efficient Parquet files (.parquet) in the same directory (uses ~60% less RAM than pickle files)
+- Can handle 10GB+ datasets without crashes
 - Python analysis scripts automatically use Parquet files for streaming data access
 
-**Why Parquet?** Large SPARTA simulations can generate 6GB+ of particle data. The old pickle format would cause RAM crashes when loading entire datasets. Parquet enables streaming access, loading only one timestep at a time, dramatically reducing memory usage.
+Large SPARTA simulations can generate GB of particle data. The old pickle format was simpler in that it generated a single usable file for each set of dumps, but would cause RAM crashes when loading entire datasets. Parquet enables streaming access, loading only one timestep at a time, which reduces memory usage.
 
 ## 5. Visualization Scripts
 
@@ -125,7 +124,6 @@ python3 scripts/velocity_heatmap.py dumps/alt_95km
 ```
 
 **Note:** 
-- Run `python3 tools/load_dumps.py <folder>` first to convert dump data to memory-efficient Parquet format
-- **Memory Efficiency:** Scripts now use streaming data access, preventing RAM crashes on large datasets
+- Run `python3 tools/load_dumps.py <folder>` first to convert dump data to Parquet format
+- Scripts now use streaming data access, preventing RAM crashes on large datasets
 - All output files (.mp4, .png, .csv) are saved to the `outputs/` folder
-- For datasets >4GB, Parquet format provides 60% memory savings vs. pickle files
