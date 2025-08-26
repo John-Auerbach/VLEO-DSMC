@@ -2,10 +2,10 @@
 
 ## Table of Contents
 1. [Simulation Overview](#simulation-overview)
-2. [Install SPARTA](#1-install-sparta)
-3. [Set Up Python Environment](#2-set-up-python-environment)
-4. [Run Simulations](#3-run-simulations)
-5. [Convert Dump Data for Memory-Efficient Analysis](#4-convert-dump-data-for-memory-efficient-analysis)
+2. [Installing SPARTA](#1-install-sparta)
+3. [Setting Up Python Environment](#2-set-up-python-environment)
+4. [Running Simulations](#3-run-simulations)
+5. [Converting Dump Data](#4-convert-dump-data-for-memory-efficient-analysis)
 6. [Visualization Scripts](#5-visualization-scripts)
 
 ## Simulation Overview
