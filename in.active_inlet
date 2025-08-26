@@ -32,6 +32,15 @@ variable        T    file data/T.dat
 variable        vx   file data/vx.dat
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
+## Target back-pressure boundary setup (SI units)
+variable        Pback equal 133.322            # 1 Torr in Pa
+variable        Pin   equal ${rho}*${R}*${T}   # upstream static pressure from NRLMSIS
+variable        gamma equal 1.4                # air heat capacity ratio
+variable        Tback equal ${T}*(${Pback}/${Pin})^((${gamma}-1.0)/${gamma})  # isentropic T(P)
+variable        nback equal ${Pback}/${kB}/${Tback}  # target number density at boundary
+
+print "Back-pressure inlet: Pback=${Pback} Pa, Pin=${Pin} Pa, Tback=${Tback} K, nback=${nback} 1/m^3"
+
 
 variable 	kB equal 1.380649e-23  # J/K
 variable 	d equal 3.7e-10  # m
@@ -40,7 +49,9 @@ variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
 variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
 
 print "MEAN FREE PATH = ${lambda} m"
-print "MEAN MOLEC VEL = ${vbar} m/s"
+# continuous inflow at xlo with subsonic back-pressure BC (Fang & Liou)
+# SPARTA will absorb particles at the boundary (x faces are 'o') and re-emit to achieve Pback,Tback
+fix		in emit/face atm xlo subsonic ${Pback} ${Tback}
 
 # grid resolution
 
@@ -62,7 +73,7 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/ampt_box.surf  group ampt        # create surface group “ampt”
+read_surf	surf/sat_inlet_through.surf  group ampt        # create surface group “ampt”
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
