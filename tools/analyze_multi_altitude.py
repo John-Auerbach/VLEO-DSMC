@@ -26,29 +26,29 @@ def load_surface_data(surf_file):
     with open(surf_file) as f:
         lines = f.readlines()
     
-    # Get timestep from header
+    # get timestep from header
     step = int(lines[1].strip())
     
-    # Find data section
+    # find data section
     for i, line in enumerate(lines):
         if 'ITEM: SURFS' in line:
             data_start = i + 1
             break
     
-    # Load surface temperatures
+    # load surface temperatures
     data = np.loadtxt(lines[data_start:])
     if data.ndim == 1:
         data = data.reshape(1, -1)
     
-    # Last column is s_Tsurf
+    # last column is s_Tsurf
     temps = data[:, -1]
     return step, temps
 
 def main():
-    # Create outputs directory
+    # create outputs directory
     os.makedirs('outputs', exist_ok=True)
     
-    # Get timestep from input file
+    # get timestep from input file
     try:
         tstep = extract_tstep_from_input("in.ampt")
     except:
@@ -61,7 +61,7 @@ def main():
         print("No altitude directories found. Run multi_altitude.py first.")
         return
     
-    # Collect all timestep data across altitudes
+    # collect all timestep data across altitudes
     all_data = {}  # {altitude: {timestep: temperatures}}
     all_timesteps = set()
     
@@ -75,7 +75,7 @@ def main():
             print(f"No surface files in {alt_dir}")
             continue
         
-        # Sort by timestep number
+        # sort by timestep number
         surf_files = sorted(surf_files, key=lambda x: int(x.split('.')[-2]))
         
         all_data[alt] = {}
@@ -94,12 +94,11 @@ def main():
         print("No valid results found.")
         return
     
-    # Get sorted lists
+    # get sorted lists
     alts = sorted(all_data.keys())
     timesteps = sorted(all_timesteps)
     
-    # COMMENTED OUT: Static analysis (final timestep only)
-    # Uncomment the section below to generate CSV and PNG for final timestep
+    # uncomment this to generate CSV and PNG for final timestep
     """
     print("Creating static analysis for final timestep...")
     final_results = {}
@@ -145,11 +144,11 @@ def main():
         print("Static plot saved as outputs/surface_temps_vs_altitude.png")
     """
     
-    # Create animated plot showing temperature evolution over time
+    # create animated plot showing temperature evolution over time
     if len(timesteps) > 1:
         print(f"Creating animation..")
         
-        # Determine number of triangles (use first available data)
+        # determine number of triangles
         num_triangles = 0
         for alt in alts:
             for step in timesteps:
@@ -159,10 +158,10 @@ def main():
             if num_triangles > 0:
                 break
         
-        # Set up the animated plot
+        # set up the animated plot
         fig, ax = plt.subplots(figsize=(10, 6))
         
-        # Initialize empty lines for each triangle
+        # initialize empty lines for each triangle
         lines = []
         for i in range(num_triangles):
             line, = ax.plot([], [], 'o-', label=f'Triangle {i+1}')
@@ -173,7 +172,7 @@ def main():
         ax.legend()
         ax.grid(True)
         
-        # Calculate global temperature range for consistent y-axis
+        # calculate global temperature range for consistent y-axis
         all_temps = []
         for alt in alts:
             for step_data in all_data[alt].values():
@@ -208,16 +207,16 @@ def main():
                 
                 line.set_data(alt_list, temp_list)
             
-            # Update title with current time
+            # update title with current time
             title.set_text(f"Surface Temperature vs Altitude | time = {step * tstep:.2e} s")
             
             return lines + [title]
         
-        # Create animation
+        # create animation
         ani = FuncAnimation(fig, update, frames=len(timesteps), init_func=init, 
                           blit=False, interval=200, repeat=True)
         
-        # Save animation at 30fps
+        # save animation at 30fps
         ani.save("outputs/multi_altitude_temp_evolution.mp4", fps=30, dpi=150)
         print("Animation saved as outputs/multi_altitude_temp_evolution.mp4")
         

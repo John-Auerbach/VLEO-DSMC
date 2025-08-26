@@ -129,16 +129,16 @@ def process_and_save_dumps(pattern, reader, prefix, output_dir=None):
         print(f"{i:02d}/{total:02d}: {os.path.basename(f)}")
         step, df, box = reader(f)
         
-        # Save dataframe immediately
+        # save dataframe immediately
         df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
         df.to_parquet(df_path, index=False)
         
-        # Save box info
+        # save box info
         box_df = pd.DataFrame([box])
         box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
         box_df.to_parquet(box_path, index=False)
         
-        # Clear from memory immediately
+        # clear from memory immediately
         del df, box_df
     
     return total
@@ -147,17 +147,17 @@ def save_to_parquet(data, prefix):
     """Save trajectory data as individual parquet files per timestep"""
     dumps_dir = os.path.expanduser("~/AMPT/dumps")
     for step, df, box in data:
-        # Save dataframe
+        # save dataframe
         df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
         df.to_parquet(df_path, index=False)
         
-        # Save box info as separate parquet (small overhead)
+        # save box info as separate parquet (small overhead)
         box_df = pd.DataFrame([box])
         box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
         box_df.to_parquet(box_path, index=False)
 
 if __name__ == "__main__":
-    # Parse command line arguments
+    # parse command line arguments
     parser = argparse.ArgumentParser(description='Convert SPARTA dumps to Parquet format')
     parser.add_argument('dumps_dir', nargs='?', default='~/AMPT/dumps', 
                        help='Directory containing dump files (default: ~/AMPT/dumps)')
@@ -190,26 +190,26 @@ def load_parquet_data(prefix, dumps_dir="~/AMPT/dumps"):
         print(f"WARNING: Loading {len(data_files)} timesteps may use significant RAM.")
         print(f"Consider using load_parquet_single() for individual timesteps.")
     
-    # Return a generator that yields one timestep at a time
     def data_generator():
+        """Return a generator that gives one timestep at a time"""
         for i, df_path in enumerate(data_files, 1):
             if i % 10 == 0 or i == len(data_files):
                 print(f"  Loading {i}/{len(data_files)}")
             
-            # Extract timestep from filename
+            # extract timestep from filename
             step = int(os.path.basename(df_path).split('_')[1].split('.')[0])
             
-            # Load dataframe
+            # load dataframe
             df = pd.read_parquet(df_path)
             
-            # Load box info
+            # load box info
             box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
             box_df = pd.read_parquet(box_path)
             box = box_df.iloc[0].to_dict()
             
             yield (step, df, box)
     
-    # Convert generator to list (same interface as before)
+    # convert generator to list (same interface as before)
     return list(data_generator())
 
 def load_parquet_timesteps(prefix, dumps_dir="~/AMPT/dumps"):

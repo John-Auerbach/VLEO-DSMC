@@ -10,10 +10,10 @@ sys.path.append(os.path.expanduser("~/AMPT/tools"))
 from load_dumps import load_parquet_timesteps, load_parquet_single
 from scipy.ndimage import gaussian_filter
 
-# Create outputs directory
+# create outputs directory
 os.makedirs('outputs', exist_ok=True)
 
-# Parse command line arguments
+# parse command line arguments
 parser = argparse.ArgumentParser(description='Create grid temperature heatmap animation')
 parser.add_argument('folder', nargs='?', default='dumps', 
                    help='Folder containing dump files (default: dumps)')
@@ -24,7 +24,7 @@ folder_path = os.path.expanduser(f"~/AMPT/{args.folder}")
 timesteps = load_parquet_timesteps("grid", folder_path)
 print(f"Found {len(timesteps)} grid timesteps in {args.folder}")
 
-# Load just the first frame to get grid setup
+# load just the first frame to get grid setup
 first_step, first_df, box0 = load_parquet_single("grid", timesteps[0], folder_path)
 xlim = (box0["xlo"], box0["xhi"])
 ylim = (box0["ylo"], box0["yhi"])
