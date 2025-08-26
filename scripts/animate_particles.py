@@ -7,28 +7,28 @@ import sys
 sys.path.append(os.path.expanduser("~/AMPT/tools"))
 from load_dumps import load_parquet_timesteps, load_parquet_single
 
-# Create outputs directory
+# create outputs directory
 os.makedirs('outputs', exist_ok=True)
 
-# Parse command line arguments
+# parse command line arguments
 parser = argparse.ArgumentParser(description='Animate particle trajectories')
 parser.add_argument('folder', nargs='?', default='dumps', 
                    help='Folder containing dump files (default: dumps)')
 args = parser.parse_args()
 
-# Load timestep list (memory efficient)
+# load timestep list (memory efficient)
 folder_path = os.path.expanduser(f"~/AMPT/{args.folder}")
 timesteps = load_parquet_timesteps("particle", folder_path)
 print(f"Found {len(timesteps)} particle timesteps in {args.folder}")
 
-# Get box extents from first frame
+# get box extents from first frame
 first_step, first_df, box0 = load_parquet_single("particle", timesteps[0], folder_path)
 
-# Species color mapping
+# species color mapping
 type_to_color = {1: 0, 2: 1}  # map species type to color index
 colors_cycle = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-# Optional: subsample for speed
+# subsample for speed
 subsample = 5000
 def get_frame_data(df):
     if subsample and len(df) > subsample:
@@ -39,7 +39,7 @@ xlim = (box0['xlo'], box0['xhi'])
 ylim = (box0['ylo'], box0['yhi'])
 zlim = (box0['zlo'], box0['zhi'])
 
-# Set up 3D plot
+# plot
 fig = plt.figure(figsize=(6, 5))
 ax = fig.add_subplot(projection='3d')
 scat = ax.scatter([], [], [], s=2)

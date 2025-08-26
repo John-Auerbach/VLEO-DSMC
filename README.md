@@ -35,9 +35,11 @@ The simulation integrates real atmospheric data using the **NRLMSIS-00 empirical
 - **Density (ρ):** Mass density at specified altitude
 - **Number density (nrho):** Molecular concentration 
 - **Temperature (T):** Atmospheric temperature
-- **Bulk velocity (vx):** Atmospheric wind speed
+- **Bulk velocity (vx):** Free-stream velocity (given by orbital speed at given altitude, not NRLMSIS)
 
 **Altitude range:** 75-100 km (thermosphere/mesopause region below Kármán line; 'very-VLEO')
+- Note that this can be extended to 1000 km, which is the upper altitude limit of NRLMSIS data. However, this simulation assumes 79% N2 / 21% O2, so you would have to account for other gases. To do so, use https://kauai.ccmc.gsfc.nasa.gov/instantrun/nrlmsis/ to inform gas composition at desired altitude range, then apply the molecular data from vss/air.vss and vss/air.species to the in.ampt run file.
+
 
 #### Particle Representation
 - **Target particles:** 2,000,000 computational particles
@@ -114,7 +116,7 @@ You must run `source .venv/bin/activate` **every time you open a new terminal**
 (unless you're using system-wide Python via `apt`, which doesn't require activation)
 I have it set up like this to isolate dependencies and guarantee it will run on any machine with just requirements.txt
 
-To auto-activate in **VS Code**:
+To auto-activate in **VS Code** (not necessary):
 - Press `Ctrl+Shift+P`
 - Type `Python: Select Interpreter`
 - Choose `.venv/bin/python` from the list
