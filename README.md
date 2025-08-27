@@ -68,7 +68,7 @@ The simulation integrates real atmospheric data using the **NRLMSIS-00 empirical
 - **Duration:** 10,000 timesteps (1.0 milliseconds physical time)
 - **Diagnostics:** Data output every 100 timesteps (100 frames total)
 
-#### Scope of Results
+#### Scope of Simulation Model
 - **Rarefied gas dynamics** in the thermosphere
 - **Molecular velocity distributions** (Maxwell-Boltzmann)
 - **Surface heating** from molecular bombardment

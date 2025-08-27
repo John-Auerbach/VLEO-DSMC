@@ -15,11 +15,11 @@ boundary        o p p
 variable        xmin equal -1.1
 variable        xmax equal 1.1
 variable        ymin equal -1.1
-variable 	ymax equal 1.1
-variable	zmin equal -1.1
-variable	zmax equal 1.1
+variable 	    ymax equal 1.1
+variable	    zmin equal -1.1
+variable	    zmax equal 1.1
 
-variable	Lx equal ${xmax}-${xmin}
+variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
 variable        Lz equal ${zmax}-${zmin}
 
@@ -33,21 +33,21 @@ variable        vx   file data/vx.dat
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
 
-variable 	kB equal 1.380649e-23  # J/K
-variable 	d equal 3.7e-10  # m
-variable 	R equal 287.05 # (J / kg*K)
-variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
-variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
+variable 	    kB equal 1.380649e-23  # J/K
+variable 	    d equal 3.7e-10  # m
+variable 	    R equal 287.05 # (J / kg*K)
+variable 	    lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
+variable	    vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
 
 print "MEAN FREE PATH = ${lambda} m"
 print "MEAN MOLEC VEL = ${vbar} m/s"
 
 # grid resolution
 
-variable	dx equal ${lambda}/3 # m
-variable	mct equal ${lambda}/${vbar} # s
-variable	mtt equal ${dx}/${vbar} # s
-variable	dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
+variable	    dx equal ${lambda}/3 # m
+variable	    mct equal ${lambda}/${vbar} # s
+variable	    mtt equal ${dx}/${vbar} # s
+variable	    dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
 
 print "CELL SIZE MUST BE LESS THAN ${dx} m"
 print "MEAN COLL TIME = ${mct} s"
@@ -57,12 +57,13 @@ print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 create_grid	150 100 50 
 balance_grid    rcb part
 
-variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
-variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
+variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
+variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/sat_inlet_through.surf  group ampt        # create surface group “ampt”
+read_surf	    surf/sat_inlet_through.surf  group ampt        # create surface group “ampt”
+read_surf	    surf/inlet.surf  group inlet
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -70,8 +71,8 @@ read_surf	surf/sat_inlet_through.surf  group ampt        # create surface group 
 species         species/air.species N2 O2
 
 # define inflow gas mixture named atm
-mixture 	atm N2 frac 0.79
-mixture		atm O2 frac 0.21
+mixture 	    atm N2 frac 0.79
+mixture		    atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
@@ -80,7 +81,7 @@ variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
 
-variable	parts_per equal ${nrho}/${Ns_target}
+variable	    parts_per equal ${nrho}/${Ns_target}
 print "particles per particle = ${parts_per}"
 
 # global useful for stat query later
@@ -91,6 +92,57 @@ create_particles	atm n 0
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
+
+# ACTIVE COMPRESSOR ---------------------------------------------------------------------------
+
+
+# make compressor boundary at inlet
+# make probe region immediately upstream
+# make the probe region read incoming flux of particles to get nrho_in and vx_in and T_in (running avg)
+# make the boundary absorb and vanish incoming particles travelling in +x direction
+# then make the boundary emit particles in +x with nrho_out, v_out, T_out
+
+# probe region immediately upstream of inlet (thin slab)
+                # ID, type, xlo xhi ylo yhi zlo zhi
+region          inlet_probe block -0.6 -0.55 -0.09 0.09 -0.09 0.09
+
+# define computes for local probe properties (per-region averages)
+                # ID, type, region, mixture, property
+compute         probe_n grid inlet_probe atm density
+compute         probe_vx grid inlet_probe atm vx
+compute         probe_T grid inlet_probe atm temp
+
+# exp decay running average of the probe computes, updates every step
+                # ID, type, region, nevery nrepeat nfreq, columns (compute array), ave style (running)
+fix             probe_n_avg ave/grid inlet_probe 1 1 1 c_probe_n[*] ave running
+fix             probe_vx_avg ave/grid inlet_probe 1 1 1 c_probe_vx[*] ave running
+fix             probe_T_avg ave/grid inlet_probe 1 1 1 c_probe_T[*] ave running
+
+# expose scalar averaged values via variables (use the first cell entry c_compute[1])
+variable        nrho_in equal c_probe_n[1]
+variable        vx_in   equal c_probe_vx[1]
+variable        T_in    equal c_probe_T[1]
+
+# derived combustion/outlet properties
+variable    flow_in     equal ${nrho_in}*${vx_in}
+variable    p_out       equal 133.322                       # 1 Torr to Pa
+variable    gamma       equal 1.4
+variable    cp          equal ${gamma}/(${gamma}-1.0)*${R}    # J/(kg K)
+variable    T_out       equal ${T_in}+${vx_in}*${vx_in}/(2.0*${cp}) # stagnation enthalpy balance
+variable    nrho_out    equal ${p_out}/(${kB}*${T_out})
+variable    v_out       equal ${flow_in}/${nrho_out}
+
+# create vanish collision model for inlet surface (only absorbs particles coming from -x side)
+                # ID, model (collision model name, style)
+surf_collide    inlet_sink vanish
+                # group, action, collision_model (attach model to surf group)
+surf_modify     inlet collide inlet_sink
+
+# emit from inlet surface using computed mixture attributes; preserve species fracs
+                # ID, type, mixture, surf_group, vstream(x y z), temp, nrho (emit parameters)
+fix             inlet_emit emit/surf atm inlet vstream ${v_out} 0.0 0.0 temp ${T_out} nrho ${nrho_out}
+
+
 
 # SURFACE COLLISIONS --------------------------------------------------------------------------
 
