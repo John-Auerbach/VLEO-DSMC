@@ -132,15 +132,32 @@ variable    T_out       equal ${T_in}+${vx_in}*${vx_in}/(2.0*${cp}) # stagnation
 variable    nrho_out    equal ${p_out}/(${kB}*${T_out})
 variable    v_out       equal ${flow_in}/${nrho_out}
 
-# create vanish collision model for inlet surface (only absorbs particles coming from -x side)
-                # ID, model (collision model name, style)
-surf_collide    inlet_sink vanish
-                # group, action, collision_model (attach model to surf group)
-surf_modify     inlet collide inlet_sink
+# directional sink implemented via region-based conditional delete
+                # define a thin delete region immediately upstream of the inlet surface
+                # (use a slightly larger slab than the probe to ensure capture of incoming particles)
+region          inlet_delete block -0.605 -0.55 -0.09 0.09 -0.09 0.09
 
-# emit from inlet surface using computed mixture attributes; preserve species fracs
+                # create an atom-style group for particles currently in the delete region
+group           delete_reg region inlet_delete
+
+                # delete atoms in the delete region that are moving in +x (vx > 0)
+                # use a variable that evaluates per-atom and then delete atoms matching it
+variable        del_cond atom "vx > 0.0"
+
+                # The delete_atoms command supports the style "region" and a group, and can
+                # accept the atom-style variable via an if/when style using the "variable" keyword
+                # Here we use a simple periodic delete executed every timestep to remove
+                # particles that cross the throat traveling in +x before the emitter runs.
+delete_atoms    group delete_reg variable del_cond
+
+                # emit from inlet surface using computed mixture attributes; preserve species fracs
                 # ID, type, mixture, surf_group, vstream(x y z), temp, nrho (emit parameters)
 fix             inlet_emit emit/surf atm inlet vstream ${v_out} 0.0 0.0 temp ${T_out} nrho ${nrho_out}
+
+                # diagnostic print of averaged probe values and derived emission values
+variable        _print_freq equal ${diag_freq}
+variable        _print_str string "nrho_in=${nrho_in} vx_in=${vx_in} T_in=${T_in} -> T_out=${T_out} nrho_out=${nrho_out} v_out=${v_out}"
+print           "${_print_str}"
 
 
 

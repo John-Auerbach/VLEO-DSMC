@@ -1,15 +1,14 @@
-# simple rectangular plane for throat (two triangles)
-# follow formatting of other .surf files
+# rectangular plane for compressor (two triangles)
 
 4 points
 2 triangles
 
 Points
 
-1 -0.60 -0.1 -0.1
-2 -0.60 0.1 -0.1
-3 -0.60 -0.1 0.1
-4 -0.60 0.1 0.1
+1 -0.55 -0.1 -0.1
+2 -0.55 0.1 -0.1
+3 -0.55 -0.1 0.1
+4 -0.55 0.1 0.1
 
 Triangles
 
