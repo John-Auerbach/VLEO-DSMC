@@ -62,7 +62,8 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/sat_inlet_through.surf  group ampt        # create surface group “ampt”
+read_surf	surf/sat_inlet_through.surf  group ampt        # create surface group "ampt"
+read_surf	surf/inlet_box.surf group inlet_box        # watertight thin slab infront of inlet (delete particles in all directions)
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -102,8 +103,12 @@ fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # runni
 fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
 
 
-surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
-surf_modify 	ampt collide wall # attach model to facets
+surf_collide 	wall diffuse s_Tsurf 0.9      # define collision model "wall", random dir, use local facet temp, acc
+surf_modify  	ampt collide wall             # attach model to existing ampt facets
+
+# Inlet plane vanish
+surf_collide	inlet_box_collide vanish
+surf_modify 	inlet_box collide inlet_box_collide
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 

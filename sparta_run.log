@@ -1,0 +1,38 @@
+SPARTA (20 Jan 2025)
+Running on 1 MPI task(s)
+Created orthogonal box = (-1.1 -1.1 -1.1) to (1.1 1.1 1.1)
+Loaded NRLMSIS data: rho=0.00001708270 nrho=35516553478260857241 T=199.67355 vx=7856.
+MEAN FREE PATH = 0.924318058786514 m
+MEAN MOLEC VEL = 120.811734281083 m/s
+CELL SIZE MUST BE LESS THAN 0.308106019595505 m
+MEAN COLL TIME = 0.00765089636604319 s
+MEAN TRANSIT TIME = 0.00255029878868107 s
+TIMESTEP MUST BE < 0.000850099596227023 s
+Created 50000 child grid cells
+  CPU time = 0.0385843 secs
+  create/ghost percent = 37.9793 62.0207
+Balance grid migrated 0 cells
+  CPU time = 0.0211938 secs
+  reassign/sort/migrate/ghost percent = 25.9252 0.530438 2.67842 70.866
+Reading surface file ...
+  40 triangles
+  -0.55 0.45 xlo xhi
+  -0.0999999 0.1 ylo yhi
+  -0.0999999 0.1 zlo zhi
+  0.00141407 min triangle edge length
+  9.89901e-05 min triangle area
+  288 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  49712 0 288 = cells outside/inside/overlapping surfs
+  148 140 = surf cells with 1,2,etc splits
+  10.6195094115906 10.6195094115868 = cell-wise and global flow volume
+  CPU time = 0.0315142 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.188014 0.20532 1.95235 39.1093 58.545 9.38109 0.000996376
+  surf2grid time = 0.012325 secs
+  map/comm1/comm2/comm3/comm4/split percent = 39.4548 0.118272 29.218 2.21396 1.82596 18.0316
+particles per particle = 3.55165534782609e+15
+Creating particles ...
+Created 9973 particles
+  CPU time = 0.00254057 secs
+0 initial grid cell count in group delete_reg
+24 final grid cell count in group delete_reg
+ERROR: Unknown command: delete_atoms    group delete_reg (../input.cpp:244)
