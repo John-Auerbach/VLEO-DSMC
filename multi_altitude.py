@@ -50,6 +50,10 @@ for alt in altitudes:
     print(f"Converting {alt}km dumps to Parquet...")
     os.system(f'python3 tools/load_dumps.py dumps/alt_{alt}km')
     
+    # Calculate drag forces
+    print(f"Calculating drag forces for {alt}km...")
+    os.system(f'python3 tools/calculate_drag.py dumps/alt_{alt}km')
+    
     # Get final surface temps
     surf_files = [f for f in os.listdir(f'dumps/alt_{alt}km') if f.startswith('surf.')]
     final_surf = sorted(surf_files, key=lambda x: int(x.split('.')[1]))[-1]
