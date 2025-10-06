@@ -123,7 +123,7 @@ dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2
                 # per-bdy tallies for mixture atm: n, mflux (mass flux), press (momentum flux)
 compute         bnd boundary atm n mflux press
                 # time-average the compute bnd vector using an exponential running mean -> write file
-fix             bndavg ave/time 1 1 1 c_bnd[*] ave running mode vector file dumps/boundary_running.*
+fix             bndavg ave/time 1 1 1 c_bnd[*] ave running mode vector file dumps/boundary_drag.*
 
 
 # sum of surface forces (direct):
@@ -137,7 +137,7 @@ compute         drag reduce sum f_surfavg[1]
 
 # write total drag (timestep, drag) to a simple file every ${diag_freq} steps for easy plotting
 # use fix ave/time to write the scalar compute c_drag to file (one line per output: timestep value)
-fix             dragout ave/time 1 1 ${diag_freq} c_drag file dumps/drag.dat mode scalar
+fix             dragout ave/time 1 1 ${diag_freq} c_drag file dumps/direct_drag.dat mode scalar
 
 # ----------------------------------------------------------
 
