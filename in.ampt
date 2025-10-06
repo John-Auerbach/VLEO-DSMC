@@ -118,7 +118,7 @@ dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc 
 		# ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
 dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
-# DRAG CALCS (short for caclulator) ------------------------
+# DRAG CALC (short for caclulator) ------------------------
 # boundary method:
                 # per-bdy tallies for mixture atm: n, mflux (mass flux), press (momentum flux)
 compute         bnd boundary atm n mflux press
