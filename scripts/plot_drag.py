@@ -32,20 +32,39 @@ def read_drag(path):
 	return data[:, 0], data[:, 1]
 
 
-def read_flux_file(path):
+def read_pressure_file(path):
 	"""
-	reads a flux data file with timestep, nflux, and momentum flux columns
-	returns (timesteps, nflux, momentum_flux) as float arrays
+	reads a flux data file with timestep, mass flux, and KE flux columns
+	calculates dynamic pressure: P_dynamic = (1/2) * ρ * v² = (1/2) * Φ_m * v = (1/2) * Φ_m * sqrt(2*Φ_KE / Φ_m) = sqrt((Φ_m² * Φ_KE) / 2)
 	"""
 	if not os.path.exists(path):
-		raise FileNotFoundError(f"Flux file not found: {path}")
+		raise FileNotFoundError(f"Pressure file not found: {path}")
 	data = np.loadtxt(path)
 	if data.ndim == 1:
 		# single line
 		data = data.reshape((1, -1))
 	if data.shape[1] < 3:
-		raise ValueError("Expected at least three columns: timestep, nflux, and momentum flux")
-	return data[:, 0], data[:, 1], data[:, 2]
+		raise ValueError("Expected at least three columns: timestep, mass_flux, ke_flux")
+	
+	timesteps = data[:, 0]
+	mass_flux = data[:, 1]  # Φ_m (kg/m²/s)
+	ke_flux = data[:, 2]    # Φ_KE (J/m²/s)
+	
+	# Debug: print flux values
+	print(f"\nDebug for {path}:")
+	print(f"  mass_flux range: [{np.min(mass_flux):.6e}, {np.max(mass_flux):.6e}]")
+	print(f"  ke_flux range: [{np.min(ke_flux):.6e}, {np.max(ke_flux):.6e}]")
+	print(f"  mass_flux mean: {np.mean(mass_flux):.6e}")
+	print(f"  ke_flux mean: {np.mean(ke_flux):.6e}")
+	
+	# Calculate velocity: v = sqrt(2*Φ_KE / Φ_m)
+	# Avoid division by zero
+	with np.errstate(divide='ignore', invalid='ignore'):
+		velocity = np.sqrt(2.0 * ke_flux / mass_flux)
+		# Calculate dynamic pressure: P = sqrt((Φ_m² * Φ_KE) / 2)
+		pressure = np.sqrt((mass_flux**2 * ke_flux) / 2.0)
+	
+	return timesteps, pressure, velocity
 
 
 def read_in_ampt_area(path='in.ampt'):
@@ -86,17 +105,27 @@ def main():
 	t, drag = read_drag(args.file) # timesteps, drag forces
 
 	# boundary-derived drag from separate pressure files
-	xlo_file = 'dumps/xlo_pressure.dat'
-	xhi_file = 'dumps/xhi_pressure.dat'
+	xlo_file = 'dumps/xlo_flux.dat'
+	xhi_file = 'dumps/xhi_flux.dat'
 	
 	# read pressure data from xlo and xhi boundary surfaces
-	t_xlo, p_lo = read_pressure_file(xlo_file)  # timesteps, pressure at xlo
-	t_xhi, p_hi = read_pressure_file(xhi_file)  # timesteps, pressure at xhi
+	t_xlo, p_lo, v_lo = read_pressure_file(xlo_file)  # timesteps, pressure at xlo, velocity at xlo
+	t_xhi, p_hi, v_hi = read_pressure_file(xhi_file)  # timesteps, pressure at xhi, velocity at xhi
 	
 	area = read_in_ampt_area('in.ampt') # cross-sectional area in m^2
 	bdrag = (p_lo - p_hi) * area
 
+	# Calculate average velocities (excluding NaN/inf values from zero flux)
+	v_lo_valid = v_lo[np.isfinite(v_lo)]
+	v_hi_valid = v_hi[np.isfinite(v_hi)]
+	
+	v_lo_avg = np.mean(v_lo_valid) if len(v_lo_valid) > 0 else 0.0
+	v_hi_avg = np.mean(v_hi_valid) if len(v_hi_valid) > 0 else 0.0
+	v_total_avg = (v_lo_avg + v_hi_avg) / 2.0
+
 	print(f"Cross-sectional area (Ly*Lz): {area} m^2")
+	print(f"Average velocity at xlo boundary: {v_lo_avg:.2f} m/s")
+	print(f"Average velocity at xhi boundary: {v_hi_avg:.2f} m/s")
 
 	os.makedirs(os.path.dirname(args.out), exist_ok=True)
 

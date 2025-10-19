@@ -125,23 +125,23 @@ dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc 
 dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # DRAG CALC (short for caclulator) ------------------------
-# boundary method: use mass flux through transparent surfaces
-# For transparent surfaces: mflux = mass flux (kg/m²/s), nflux = particle flux (#/m²/s)
+# boundary method: use mass flux and kinetic energy flux through transparent surface. 
+                    # these can be used to find pressure in front and behind object which gives F_drag
 
-compute         xlo_flux surf xlo_bdy atm nflux mflux                                   # nflux = particle flux, mflux = mass flux
-compute         xlo_nflux_avg reduce ave c_xlo_flux[1]                                  # average particle flux
-compute         xlo_mflux_avg reduce ave c_xlo_flux[2]                                  # average mass flux
-fix             xlo_out ave/time 1 1 1 c_xlo_nflux_avg c_xlo_mflux_avg ave running file dumps/xlo_flux.dat
+compute         xlo_flux surf xlo_bdy atm mflux ke                                      # mflux = mass flux, ke = kinetic energy flux
+compute         xlo_mflux_avg reduce ave c_xlo_flux[1]                                  # average mass flux
+compute         xlo_ke_avg reduce ave c_xlo_flux[2]                                     # average KE flux
+fix             xlo_out ave/time 1 1 1 c_xlo_mflux_avg c_xlo_ke_avg ave running file dumps/xlo_flux.dat
 
-compute         xhi_flux surf xhi_bdy atm nflux mflux                                   # nflux = particle flux, mflux = mass flux
-compute         xhi_nflux_avg reduce ave c_xhi_flux[1]                                  # average particle flux
-compute         xhi_mflux_avg reduce ave c_xhi_flux[2]                                  # average mass flux
-fix             xhi_out ave/time 1 1 1 c_xhi_nflux_avg c_xhi_mflux_avg ave running file dumps/xhi_flux.dat
+compute         xhi_flux surf xhi_bdy atm mflux ke                                      # mflux = mass flux, ke = kinetic energy flux
+compute         xhi_mflux_avg reduce ave c_xhi_flux[1]                                  # average mass flux
+compute         xhi_ke_avg reduce ave c_xhi_flux[2]                                     # average KE flux
+fix             xhi_out ave/time 1 1 1 c_xhi_mflux_avg c_xhi_ke_avg ave running file dumps/xhi_flux.dat
 
 
 # sum of surface forces (direct):
                 # compute per-surface-element force components (fx,fy,fz) for group ampt
-compute         surfF surf ampt all fx fy fz
+compute         surfF surf ampt atm fx fy fz
                 # time-average per-surf forces (running mean)
 fix             surfavg ave/surf ampt 1 1 1 c_surfF[*] ave running
 

@@ -99,12 +99,12 @@ TIMESTEP MUST BE < 0.00188251135700969 s
 
 create_grid	150 100 50
 Created 750000 child grid cells
-  CPU time = 0.451905 secs
-  create/ghost percent = 27.2544 72.7456
+  CPU time = 0.599357 secs
+  create/ghost percent = 29.4516 70.5484
 balance_grid    rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.359905 secs
-  reassign/sort/migrate/ghost percent = 28.2188 1.45513 8.15435 62.1717
+  CPU time = 0.421041 secs
+  reassign/sort/migrate/ghost percent = 26.9789 1.37754 6.04788 65.5957
 
 variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
@@ -123,10 +123,10 @@ read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.445072 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.142224 0.0184276 7.68371 40.3103 51.8453 28.0225 0.000214274
-  surf2grid time = 0.17941 secs
-  map/comm1/comm2/comm3/comm4/split percent = 38.0944 0.00837209 32.8638 2.81754 5.14512 9.7309
+  CPU time = 0.53658 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.175022 0.0165735 5.38319 41.3355 53.0897 22.1969 0
+  surf2grid time = 0.221798 secs
+  map/comm1/comm2/comm3/comm4/split percent = 39.8655 0.00720207 33.8263 2.26693 4.40853 8.06632
 read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
   2 triangles
   -1 -1 xlo xhi
@@ -139,10 +139,10 @@ read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.384423 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0202805 0.0161252 7.47352 39.2581 53.232 28.5831 0
-  surf2grid time = 0.150917 secs
-  map/comm1/comm2/comm3/comm4/split percent = 35.1557 0.0105847 27.5648 4.76278 7.98446 10.3606
+  CPU time = 0.50011 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.163329 0.0081998 5.71116 40.2772 53.8402 29.4629 0
+  surf2grid time = 0.20143 secs
+  map/comm1/comm2/comm3/comm4/split percent = 36.1167 0.00840377 29.5031 2.82485 5.3532 11.618
 read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
   2 triangles
   1 1 xlo xhi
@@ -155,10 +155,10 @@ read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.370025 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.201611 0.014884 7.30465 38.1179 54.3609 30.8207 0
-  surf2grid time = 0.141046 secs
-  map/comm1/comm2/comm3/comm4/split percent = 36.9392 0.0120016 29.1777 3.42856 5.92066 10.4725
+  CPU time = 0.564022 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.129603 0.0109905 5.25033 38.01 56.5991 23.0013 0
+  surf2grid time = 0.214385 secs
+  map/comm1/comm2/comm3/comm4/split percent = 41.3948 0.008452 26.6124 3.64059 6.15762 9.84303
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@ global          nrho 15781995163693812940
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
 Created 99624 particles
-  CPU time = 0.0287528 secs
+  CPU time = 0.034878 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -238,22 +238,23 @@ dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2
 dump    	dump_surf surf ampt 100 dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # DRAG CALC (short for caclulator) ------------------------
-# boundary method:
+# boundary method: use mass flux and kinetic energy flux through transparent surface.
+                    # these can be used to find pressure in front and behind object which gives F_drag
 
-compute         xlo_flux surf xlo_bdy atm nflux press                                   # nflux = particle flux, press = momentum flux
-compute         xlo_nflux_avg reduce ave c_xlo_flux[1]                                  # average particle flux
-compute         xlo_press_avg reduce ave c_xlo_flux[2]                                  # average momentum flux (pressure)
-fix             xlo_out ave/time 1 1 1 c_xlo_nflux_avg c_xlo_press_avg ave running file dumps/xlo_pressure.dat
+compute         xlo_flux surf xlo_bdy atm mflux ke                                      # mflux = mass flux, ke = kinetic energy flux
+compute         xlo_mflux_avg reduce ave c_xlo_flux[1]                                  # average mass flux
+compute         xlo_ke_avg reduce ave c_xlo_flux[2]                                     # average KE flux
+fix             xlo_out ave/time 1 1 1 c_xlo_mflux_avg c_xlo_ke_avg ave running file dumps/xlo_flux.dat
 
-compute         xhi_flux surf xhi_bdy atm nflux press                                   # nflux = particle flux, press = momentum flux
-compute         xhi_nflux_avg reduce ave c_xhi_flux[1]                                  # average particle flux
-compute         xhi_press_avg reduce ave c_xhi_flux[2]                                  # average momentum flux (pressure)
-fix             xhi_out ave/time 1 1 1 c_xhi_nflux_avg c_xhi_press_avg ave running file dumps/xhi_pressure.dat
+compute         xhi_flux surf xhi_bdy atm mflux ke                                      # mflux = mass flux, ke = kinetic energy flux
+compute         xhi_mflux_avg reduce ave c_xhi_flux[1]                                  # average mass flux
+compute         xhi_ke_avg reduce ave c_xhi_flux[2]                                     # average KE flux
+fix             xhi_out ave/time 1 1 1 c_xhi_mflux_avg c_xhi_ke_avg ave running file dumps/xhi_flux.dat
 
 
 # sum of surface forces (direct):
                 # compute per-surface-element force components (fx,fy,fz) for group ampt
-compute         surfF surf ampt all fx fy fz
+compute         surfF surf ampt atm fx fy fz
                 # time-average per-surf forces (running mean)
 fix             surfavg ave/surf ampt 1 1 1 c_surfF[*] ave running
 
@@ -283,28 +284,28 @@ Memory usage per proc in Mbytes:
   total     (ave,min,max) = 155.624 155.624 155.624
 Step CPU Np Natt Ncoll c_Tbox c_drag 
        0            0    99624        0        0    71528.144            0 
-     100    2.3890691   100039        0        0    71502.178    2.6568524 
-     200    5.0811231   100559        0        0    71476.154    2.6490132 
-     300      7.71422   100043        0        0    71459.235    2.5566174 
-     400    10.385411    99720        0        0    71425.019     2.543004 
-     500    11.527221   100501        1        1    71395.921    2.5975977 
-     600    14.281516   100483        2        1    71394.205    2.6155181 
-     700    17.383865    99864        0        0    71367.404    2.6220258 
-     800    20.365907   100019        1        1     71310.87    2.6566567 
-     900    23.269798   100490        2        0    71292.317    2.6837286 
-    1000    26.055292   100166        2        2    71268.632    2.7291069 
-Loop time of 26.0553 on 1 procs for 1000 steps with 100166 particles
+     100    2.9320531   100039        0        0    71502.178    2.6568524 
+     200    6.1804311   100559        0        0    71476.154    2.6490132 
+     300    9.1451342   100043        0        0    71459.235    2.5566174 
+     400    12.030295    99720        0        0    71425.019     2.543004 
+     500    14.756374   100501        1        1    71395.921    2.5975977 
+     600    17.519753   100483        2        1    71394.205    2.6155181 
+     700    20.332023    99864        0        0    71367.404    2.6220258 
+     800    21.472072   100019        1        1     71310.87    2.6566567 
+     900    24.346112   100490        2        0    71292.317    2.6837286 
+    1000    27.130151   100166        2        2    71268.632    2.7291069 
+Loop time of 27.1302 on 1 procs for 1000 steps with 100166 particles
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Move    | 6.1715     | 6.1715     | 6.1715     |   0.0 | 23.69
-Coll    | 4.8333     | 4.8333     | 4.8333     |   0.0 | 18.55
-Sort    | 6.8062     | 6.8062     | 6.8062     |   0.0 | 26.12
-Comm    | 0.0040684  | 0.0040684  | 0.0040684  |   0.0 |  0.02
-Modify  | 0.19284    | 0.19284    | 0.19284    |   0.0 |  0.74
-Output  | 8.0457     | 8.0457     | 8.0457     |   0.0 | 30.88
-Other   |            | 0.001637   |            |       |  0.01
+Move    | 7.8724     | 7.8724     | 7.8724     |   0.0 | 29.02
+Coll    | 4.9677     | 4.9677     | 4.9677     |   0.0 | 18.31
+Sort    | 5.4353     | 5.4353     | 5.4353     |   0.0 | 20.03
+Comm    | 0.0040023  | 0.0040023  | 0.0040023  |   0.0 |  0.01
+Modify  | 0.20383    | 0.20383    | 0.20383    |   0.0 |  0.75
+Output  | 8.6453     | 8.6453     | 8.6453     |   0.0 | 31.87
+Other   |            | 0.001682   |            |       |  0.01
 
 Particle moves    = 100198819 (100M)
 Cells touched     = 105648362 (106M)
@@ -320,7 +321,7 @@ Reactions         = 0 (0K)
 Particles stuck   = 0
 Axisymm bad moves = 0
 
-Particle-moves/CPUsec/proc: 3.84562e+06
+Particle-moves/CPUsec/proc: 3.69326e+06
 Particle-moves/step: 100199
 Cell-touches/particle/step: 1.05439
 Particle comm iterations/step: 1
