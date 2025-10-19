@@ -35,7 +35,11 @@ def read_drag(path):
 def read_pressure_file(path):
 	"""
 	reads a flux data file with timestep, mass flux, and KE flux columns
-	calculates dynamic pressure: P_dynamic = (1/2) * ρ * v² = (1/2) * Φ_m * v = (1/2) * Φ_m * sqrt(2*Φ_KE / Φ_m) = sqrt((Φ_m² * Φ_KE) / 2)
+	calculates dynamic pressure using:
+	  Φ_m  = ρ v           (kg/m^2/s)
+	  Φ_ke = 1/2 ρ v^3     (J/m^2/s)
+	  v    = sqrt(2 Φ_ke / Φ_m)
+	  q    = 1/2 ρ v^2 = 1/2 Φ_m v = sqrt(Φ_m Φ_ke / 2)
 	"""
 	if not os.path.exists(path):
 		raise FileNotFoundError(f"Pressure file not found: {path}")
@@ -61,8 +65,8 @@ def read_pressure_file(path):
 	# Avoid division by zero
 	with np.errstate(divide='ignore', invalid='ignore'):
 		velocity = np.sqrt(2.0 * ke_flux / mass_flux)
-		# Calculate dynamic pressure: P = sqrt((Φ_m² * Φ_KE) / 2)
-		pressure = np.sqrt((mass_flux**2 * ke_flux) / 2.0)
+		# Calculate dynamic pressure: q = sqrt(Φ_m * Φ_KE / 2)
+		pressure = np.sqrt((mass_flux * ke_flux) / 2.0)
 	
 	return timesteps, pressure, velocity
 

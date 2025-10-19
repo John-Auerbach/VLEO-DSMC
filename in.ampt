@@ -77,7 +77,7 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 100000.0
+variable        Ns_target equal 200000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -161,6 +161,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag # print timestep, runti
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             1000
+run             10000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
