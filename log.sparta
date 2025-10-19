@@ -99,12 +99,12 @@ TIMESTEP MUST BE < 0.00188251135700969 s
 
 create_grid	150 100 50
 Created 750000 child grid cells
-  CPU time = 0.420532 secs
-  create/ghost percent = 26.8579 73.1421
+  CPU time = 0.451905 secs
+  create/ghost percent = 27.2544 72.7456
 balance_grid    rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.342107 secs
-  reassign/sort/migrate/ghost percent = 26.3394 1.53725 7.05303 65.0703
+  CPU time = 0.359905 secs
+  reassign/sort/migrate/ghost percent = 28.2188 1.45513 8.15435 62.1717
 
 variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
@@ -123,10 +123,42 @@ read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.44125 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0212888 0.0183711 7.31492 40.1663 52.4791 28.0879 0.000270163
-  surf2grid time = 0.177234 secs
-  map/comm1/comm2/comm3/comm4/split percent = 37.5233 0.0079368 31.1989 2.96729 5.66714 10.8427
+  CPU time = 0.445072 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.142224 0.0184276 7.68371 40.3103 51.8453 28.0225 0.000214274
+  surf2grid time = 0.17941 secs
+  map/comm1/comm2/comm3/comm4/split percent = 38.0944 0.00837209 32.8638 2.81754 5.14512 9.7309
+read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
+  2 triangles
+  -1 -1 xlo xhi
+  -1 1 ylo yhi
+  -1 1 zlo zhi
+  2 min triangle edge length
+  2 min triangle area
+  2024 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  156 tiny edges removed
+  745800 2176 2024 = cells outside/inside/overlapping surfs
+  2024 = surf cells with 1,2,etc splits
+  10.608 10.608 = cell-wise and global flow volume
+  CPU time = 0.384423 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0202805 0.0161252 7.47352 39.2581 53.232 28.5831 0
+  surf2grid time = 0.150917 secs
+  map/comm1/comm2/comm3/comm4/split percent = 35.1557 0.0105847 27.5648 4.76278 7.98446 10.3606
+read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
+  2 triangles
+  1 1 xlo xhi
+  -1 1 ylo yhi
+  -1 1 zlo zhi
+  2 min triangle edge length
+  2 min triangle area
+  2024 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  234 tiny edges removed
+  745800 2176 2024 = cells outside/inside/overlapping surfs
+  2024 = surf cells with 1,2,etc splits
+  10.608 10.608 = cell-wise and global flow volume
+  CPU time = 0.370025 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.201611 0.014884 7.30465 38.1179 54.3609 30.8207 0
+  surf2grid time = 0.141046 secs
+  map/comm1/comm2/comm3/comm4/split percent = 36.9392 0.0120016 29.1777 3.42856 5.92066 10.4725
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -167,7 +199,7 @@ global          nrho 15781995163693812940
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
 Created 99624 particles
-  CPU time = 0.027297 secs
+  CPU time = 0.0287528 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -181,8 +213,13 @@ compute         compute_qwall surf ampt atm etot # etot = kinetic + internal ene
 fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
 fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
 
+
 surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model "wall", random dir, use local facet temp, acc
 surf_modify 	ampt collide wall # attach model to facets
+
+surf_collide    trans transparent                  # define transparent collision model for boundary surfaces
+surf_modify     xlo_bdy collide trans              # attach transparent model to xlo_bdy
+surf_modify     xhi_bdy collide trans              # attach transparent model to xhi_bdy
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
@@ -201,47 +238,113 @@ dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2
 dump    	dump_surf surf ampt 100 dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # DRAG CALC (short for caclulator) ------------------------
-# boundary method: P = pflux [kg/(m^2*s)]* vx, F_d = (P_xlo - P_xhi)*A -> done in plot_drag.py
+# boundary method:
 
-# sample within 0.1m of boundaries
-variable        dx_sample equal 0.2
-region          xlo_region block ${xmin} $(v_xmin+v_dx_sample) ${ymin} ${ymax} ${zmin} ${zmax}
-region          xlo_region block -1.1 $(v_xmin+v_dx_sample) ${ymin} ${ymax} ${zmin} ${zmax}
-region          xlo_region block -1.1 -0.90000000000000013323 ${ymin} ${ymax} ${zmin} ${zmax}
-region          xlo_region block -1.1 -0.90000000000000013323 -1.1 ${ymax} ${zmin} ${zmax}
-region          xlo_region block -1.1 -0.90000000000000013323 -1.1 1.1 ${zmin} ${zmax}
-region          xlo_region block -1.1 -0.90000000000000013323 -1.1 1.1 -1.1 ${zmax}
-region          xlo_region block -1.1 -0.90000000000000013323 -1.1 1.1 -1.1 1.1
-region          xhi_region block $(v_xmax-v_dx_sample) ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
-region          xhi_region block 0.90000000000000013323 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
-region          xhi_region block 0.90000000000000013323 1.1 ${ymin} ${ymax} ${zmin} ${zmax}
-region          xhi_region block 0.90000000000000013323 1.1 -1.1 ${ymax} ${zmin} ${zmax}
-region          xhi_region block 0.90000000000000013323 1.1 -1.1 1.1 ${zmin} ${zmax}
-region          xhi_region block 0.90000000000000013323 1.1 -1.1 1.1 -1.1 ${zmax}
-region          xhi_region block 0.90000000000000013323 1.1 -1.1 1.1 -1.1 1.1
+compute         xlo_flux surf xlo_bdy atm nflux press                                   # nflux = particle flux, press = momentum flux
+compute         xlo_nflux_avg reduce ave c_xlo_flux[1]                                  # average particle flux
+compute         xlo_press_avg reduce ave c_xlo_flux[2]                                  # average momentum flux (pressure)
+fix             xlo_out ave/time 1 1 1 c_xlo_nflux_avg c_xlo_press_avg ave running file dumps/xlo_pressure.dat
 
-                # group ID grid region region-ID rflag
-group           xlo_group grid region xlo_region center
-0 initial grid cell count in group xlo_group
-70000 final grid cell count in group xlo_group
-group           xhi_group grid region xhi_region center
-0 initial grid cell count in group xhi_group
-70000 final grid cell count in group xhi_group
-
-# pxrho [kg/(m^2*s)] * u [m/s] = pressure [Pa = kg/(m*s^2)]
-compute         xlo_grid grid xlo_group atm pxrho u
-compute         xlo_pxrho_avg reduce ave c_xlo_grid[1]
-compute         xlo_u_avg reduce ave c_xlo_grid[2]
-fix             xlo_out ave/time 1 1 1 c_xlo_pxrho_avg c_xlo_u_avg ave running file dumps/xlo_pressure.dat
-
-compute         xhi_grid grid xhi_group atm pxrho u
-compute         xhi_pxrho_avg reduce ave c_xhi_grid[1]
-compute         xhi_u_avg reduce ave c_xhi_grid[2]
-fix             xhi_out ave/time 1 1 1 c_xhi_pxrho_avg c_xhi_u_avg ave running file dumps/xhi_pressure.dat
+compute         xhi_flux surf xhi_bdy atm nflux press                                   # nflux = particle flux, press = momentum flux
+compute         xhi_nflux_avg reduce ave c_xhi_flux[1]                                  # average particle flux
+compute         xhi_press_avg reduce ave c_xhi_flux[2]                                  # average momentum flux (pressure)
+fix             xhi_out ave/time 1 1 1 c_xhi_nflux_avg c_xhi_press_avg ave running file dumps/xhi_pressure.dat
 
 
-# direct method: sum of surface forces:
+# sum of surface forces (direct):
                 # compute per-surface-element force components (fx,fy,fz) for group ampt
 compute         surfF surf ampt all fx fy fz
                 # time-average per-surf forces (running mean)
-fix             surfavg ave/surf ampt 1 1 1 c_surfF[*
+fix             surfavg ave/surf ampt 1 1 1 c_surfF[*] ave running
+
+                # reduce (sum) per-surf averaged fx -> global c_drag[1]
+compute         drag reduce sum f_surfavg[1]
+
+# write total drag (timestep, drag) to a simple file every 1 step
+# use fix ave/time to write the scalar compute c_drag to file (one line per output: timestep value)
+fix             dragout ave/time 1 1 1 c_drag file dumps/direct_drag.dat mode scalar
+
+# ----------------------------------------------------------
+
+# cell-averaged (streaming+thermal) temperature
+compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
+stats           ${diag_freq} # print diagnostics every _ timesteps
+stats           100 
+stats_style     step cpu np nattempt ncoll c_Tbox c_drag # print timestep, runtime, particles, collision stats, avg temp, total drag
+
+timestep        ${tstep}
+timestep        1e-07
+collide		    vss atm vss/air.vss # variable soft sphere model
+run             1000
+Memory usage per proc in Mbytes:
+  particles (ave,min,max) = 11.8125 11.8125 11.8125
+  grid      (ave,min,max) = 132.364 132.364 132.364
+  surf      (ave,min,max) = 0.00201416 0.00201416 0.00201416
+  total     (ave,min,max) = 155.624 155.624 155.624
+Step CPU Np Natt Ncoll c_Tbox c_drag 
+       0            0    99624        0        0    71528.144            0 
+     100    2.3890691   100039        0        0    71502.178    2.6568524 
+     200    5.0811231   100559        0        0    71476.154    2.6490132 
+     300      7.71422   100043        0        0    71459.235    2.5566174 
+     400    10.385411    99720        0        0    71425.019     2.543004 
+     500    11.527221   100501        1        1    71395.921    2.5975977 
+     600    14.281516   100483        2        1    71394.205    2.6155181 
+     700    17.383865    99864        0        0    71367.404    2.6220258 
+     800    20.365907   100019        1        1     71310.87    2.6566567 
+     900    23.269798   100490        2        0    71292.317    2.6837286 
+    1000    26.055292   100166        2        2    71268.632    2.7291069 
+Loop time of 26.0553 on 1 procs for 1000 steps with 100166 particles
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Move    | 6.1715     | 6.1715     | 6.1715     |   0.0 | 23.69
+Coll    | 4.8333     | 4.8333     | 4.8333     |   0.0 | 18.55
+Sort    | 6.8062     | 6.8062     | 6.8062     |   0.0 | 26.12
+Comm    | 0.0040684  | 0.0040684  | 0.0040684  |   0.0 |  0.02
+Modify  | 0.19284    | 0.19284    | 0.19284    |   0.0 |  0.74
+Output  | 8.0457     | 8.0457     | 8.0457     |   0.0 | 30.88
+Other   |            | 0.001637   |            |       |  0.01
+
+Particle moves    = 100198819 (100M)
+Cells touched     = 105648362 (106M)
+Particle comms    = 0 (0K)
+Boundary collides = 0 (0K)
+Boundary exits    = 35193 (35.2K)
+SurfColl checks   = 1648326 (1.65M)
+SurfColl occurs   = 59248 (59.2K)
+Surf reactions    = 0 (0K)
+Collide attempts  = 490 (0.49K)
+Collide occurs    = 332 (0.332K)
+Reactions         = 0 (0K)
+Particles stuck   = 0
+Axisymm bad moves = 0
+
+Particle-moves/CPUsec/proc: 3.84562e+06
+Particle-moves/step: 100199
+Cell-touches/particle/step: 1.05439
+Particle comm iterations/step: 1
+Particle fraction communicated: 0
+Particle fraction colliding with boundary: 0
+Particle fraction exiting boundary: 0.000351232
+Surface-checks/particle/step: 0.0164506
+Surface-collisions/particle/step: 0.000591304
+Surf-reactions/particle/step: 0
+Collision-attempts/particle/step: 4.89028e-06
+Collisions/particle/step: 3.31341e-06
+Reactions/particle/step: 0
+
+Particles: 100166 ave 100166 max 100166 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Cells:      750000 ave 750000 max 750000 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+GhostCell: 0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+EmptyCell: 0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Surfs:    16 ave 16 max 16 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+GhostSurf: 0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"

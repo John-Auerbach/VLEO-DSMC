@@ -32,27 +32,20 @@ def read_drag(path):
 	return data[:, 0], data[:, 1]
 
 
-def read_pressure_file(path):
+def read_flux_file(path):
 	"""
-	reads a pressure data file with timestep, pxrho, and velocity columns
-	calculates pressure: p = pxrho * u
-	  pxrho [kg/(m^2*s)] * u [m/s] = pressure [Pa = kg/(m*s^2)]
-	returns (timesteps, pressures) as float arrays
+	reads a flux data file with timestep, nflux, and momentum flux columns
+	returns (timesteps, nflux, momentum_flux) as float arrays
 	"""
 	if not os.path.exists(path):
-		raise FileNotFoundError(f"Pressure file not found: {path}")
+		raise FileNotFoundError(f"Flux file not found: {path}")
 	data = np.loadtxt(path)
 	if data.ndim == 1:
 		# single line
 		data = data.reshape((1, -1))
 	if data.shape[1] < 3:
-		raise ValueError("Expected at least three columns: timestep, pxrho, velocity")
-	timesteps = data[:, 0]
-	pxrho = data[:, 1]  # momentum density [kg/(m^2*s)]
-	u = data[:, 2]      # x-velocity [m/s]
-	# Pressure = momentum flux * velocity
-	pressure = pxrho * u  # [kg/(m*s^2)] = Pa
-	return timesteps, pressure
+		raise ValueError("Expected at least three columns: timestep, nflux, and momentum flux")
+	return data[:, 0], data[:, 1], data[:, 2]
 
 
 def read_in_ampt_area(path='in.ampt'):
