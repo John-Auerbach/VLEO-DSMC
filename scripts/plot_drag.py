@@ -2,7 +2,7 @@
 """plot drag vs timestep from dumps/direct_drag.dat
 
 Usage:
-  python3 tools/plot_drag.py [--show] [--out png] [--csv out.csv]
+  python3 scripts/plot_drag.py [--show] [--out png] [--csv out.csv]
 
 """
 import argparse

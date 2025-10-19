@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Analyze multi-altitude SPARTA results: create time animation
-Usage: python3 tools/analyze_multi_altitude_temp.py
+Usage: python3 scripts/analyze_multi_altitude_temp.py
 """
 
 import os

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Analyze multi-altitude SPARTA results: animate direct drag vs altitude
-Usage: python3 tools/analyze_multi_altitude_drag.py
+Usage: python3 scripts/analyze_multi_altitude_drag.py
 """
 
 import os
