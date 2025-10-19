@@ -15,11 +15,11 @@ boundary        o p p
 variable        xmin equal -1.1
 variable        xmax equal 1.1
 variable        ymin equal -1.1
-variable 	ymax equal 1.1
-variable	zmin equal -1.1
-variable	zmax equal 1.1
+variable 	    ymax equal 1.1
+variable	    zmin equal -1.1
+variable	    zmax equal 1.1
 
-variable	Lx equal ${xmax}-${xmin}
+variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
 variable        Lz equal ${zmax}-${zmin}
 
@@ -62,7 +62,7 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/ampt_box.surf  group ampt        # create surface group “ampt”
+read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -101,8 +101,7 @@ compute         compute_qwall surf ampt atm etot # etot = kinetic + internal ene
 fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
 fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
 
-
-surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model “wall”, random dir, use local facet temp, acc
+surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model "wall", random dir, use local facet temp, acc
 surf_modify 	ampt collide wall # attach model to facets
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
@@ -119,14 +118,31 @@ dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc 
 dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # DRAG CALC (short for caclulator) ------------------------
-# boundary method:
-                # per-bdy tallies for mixture atm: n, mflux (mass flux), press (momentum flux)
-compute         bnd boundary atm n mflux press
-                # time-average the compute bnd vector using an exponential running mean -> write file
-fix             bndavg ave/time 1 1 1 c_bnd[*] ave running mode vector file dumps/boundary_drag.dat
+# boundary method: P = pflux [kg/(m^2*s)]* vx, F_d = (P_xlo - P_xhi)*A -> done in plot_drag.py
+
+# sample region must be larger than particle travel distance per timestep
+# particles travel ~0.78m per timestep at orbital velocity
+variable        dx_sample equal 1.0
+region          xlo_region block ${xmin} $(v_xmin+v_dx_sample) ${ymin} ${ymax} ${zmin} ${zmax}
+region          xhi_region block $(v_xmax-v_dx_sample) ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
+
+                # group ID grid region region-ID rflag
+group           xlo_group grid region xlo_region center
+group           xhi_group grid region xhi_region center
+
+# pxrho [kg/(m^2*s)] * u [m/s] = pressure [Pa = kg/(m*s^2)]
+compute         xlo_grid grid xlo_group atm pxrho u
+compute         xlo_pxrho_avg reduce ave c_xlo_grid[1]
+compute         xlo_u_avg reduce ave c_xlo_grid[2]
+fix             xlo_out ave/time 1 1 1 c_xlo_pxrho_avg c_xlo_u_avg ave running file dumps/xlo_pressure.dat
+
+compute         xhi_grid grid xhi_group atm pxrho u
+compute         xhi_pxrho_avg reduce ave c_xhi_grid[1]
+compute         xhi_u_avg reduce ave c_xhi_grid[2]
+fix             xhi_out ave/time 1 1 1 c_xhi_pxrho_avg c_xhi_u_avg ave running file dumps/xhi_pressure.dat
 
 
-# sum of surface forces (direct):
+# direct method: sum of surface forces:
                 # compute per-surface-element force components (fx,fy,fz) for group ampt
 compute         surfF surf ampt all fx fy fz
                 # time-average per-surf forces (running mean)
@@ -135,9 +151,9 @@ fix             surfavg ave/surf ampt 1 1 1 c_surfF[*] ave running
                 # reduce (sum) per-surf averaged fx -> global c_drag[1]
 compute         drag reduce sum f_surfavg[1]
 
-# write total drag (timestep, drag) to a simple file every ${diag_freq} steps for easy plotting
+# write total drag (timestep, drag) to a simple file every 1 step
 # use fix ave/time to write the scalar compute c_drag to file (one line per output: timestep value)
-fix             dragout ave/time 1 1 ${diag_freq} c_drag file dumps/direct_drag.dat mode scalar
+fix             dragout ave/time 1 1 1 c_drag file dumps/direct_drag.dat mode scalar
 
 # ----------------------------------------------------------
 

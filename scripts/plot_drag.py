@@ -32,60 +32,27 @@ def read_drag(path):
 	return data[:, 0], data[:, 1]
 
 
-def read_boundary(path):
+def read_pressure_file(path):
 	"""
-	parses boundary file with blocks: timestep nrows, then nrows lines of 'row val1 val2 val3'.
-	extracts pressure at xlo boundary (row=1) and xhi boundary (row=2) from val3 column:
-
-	(example file format where val1 = c_bnd[1] = n, val2 = c_bnd[2] = mflux, val3 = c_bnd[3] = mom flux / pressure)
-	# header comments
-	12500 6          # timestep nrows
-	1 val1 val2 val3  # row=1 (xlo boundary data)
-	2 val1 val2 val3  # row=2 (xhi boundary data) 
-	3 val1 val2 val3  # row=3 (ylo boundary data)
-	4 val1 val2 val3  # row=4 (yhi boundary data)
-	5 val1 val2 val3  # row=5 (zlo boundary data)
-	6 val1 val2 val3  # row=6 (zhi boundary data)
-	12600 6          # next timestep block
-	1 val1 val2 val3
-	...
-
-	returns (timesteps, pressure_xlo, pressure_xhi) as arrays.
+	reads a pressure data file with timestep, pxrho, and velocity columns
+	calculates pressure: p = pxrho * u
+	  pxrho [kg/(m^2*s)] * u [m/s] = pressure [Pa = kg/(m*s^2)]
+	returns (timesteps, pressures) as float arrays
 	"""
-	f = open(path, 'r')
-	lines = [l.strip() for l in f if l.strip()]  # read all non-blank lines
-	f.close()
-	# skip header lines starting with '#'
-	idx = 0
-	while lines[idx].startswith('#'):  # find first data line
-		idx += 1
-	ts = []
-	press_xlo = []
-	press_xhi = []
-	while idx < len(lines):
-		parts = lines[idx].split() # 12500 6 -> ["12500", "6"]
-		t = float(parts[0])  # timestep
-		nrows = int(parts[1])  # number of boundary rows to read
-		idx += 1
-		# read nrows lines
-		p_lo = None
-		p_hi = None
-		for i in range(nrows):
-			parts = lines[idx+i].split()
-			row = int(parts[0])  # boundary id (1=xlo, 2=xhi, 3=ylo, 4=yhi, 5=zlo, 6=zhi)
-			# values: c_bnd[1], c_bnd[2], c_bnd[3]
-			val1 = float(parts[1])  # n
-			val2 = float(parts[2])  # mflux
-			val3 = float(parts[3])  # press
-			if row == 1:  # xlo boundary
-				p_lo = val3
-			if row == 2:  # xhi boundary
-				p_hi = val3
-		idx += nrows  # move to next timestep block
-		ts.append(t)
-		press_xlo.append(p_lo)
-		press_xhi.append(p_hi)
-	return np.array(ts), np.array(press_xlo), np.array(press_xhi)
+	if not os.path.exists(path):
+		raise FileNotFoundError(f"Pressure file not found: {path}")
+	data = np.loadtxt(path)
+	if data.ndim == 1:
+		# single line
+		data = data.reshape((1, -1))
+	if data.shape[1] < 3:
+		raise ValueError("Expected at least three columns: timestep, pxrho, velocity")
+	timesteps = data[:, 0]
+	pxrho = data[:, 1]  # momentum density [kg/(m^2*s)]
+	u = data[:, 2]      # x-velocity [m/s]
+	# Pressure = momentum flux * velocity
+	pressure = pxrho * u  # [kg/(m*s^2)] = Pa
+	return timesteps, pressure
 
 
 def read_in_ampt_area(path='in.ampt'):
@@ -125,20 +92,24 @@ def main():
 
 	t, drag = read_drag(args.file) # timesteps, drag forces
 
-	# boundary-derived drag
-	# find a boundary file
-	bfile = 'dumps/boundary_drag.dat'
-	tb, p_lo, p_hi = read_boundary(bfile) # timesteps, pressure_xlo, pressure_xhi
+	# boundary-derived drag from separate pressure files
+	xlo_file = 'dumps/xlo_pressure.dat'
+	xhi_file = 'dumps/xhi_pressure.dat'
+	
+	# read pressure data from xlo and xhi boundary surfaces
+	t_xlo, p_lo = read_pressure_file(xlo_file)  # timesteps, pressure at xlo
+	t_xhi, p_hi = read_pressure_file(xhi_file)  # timesteps, pressure at xhi
+	
 	area = read_in_ampt_area('in.ampt') # cross-sectional area in m^2
-	bdrag = (p_hi - p_lo) * area
-	# interpolate boundary drag onto direct-drag timesteps
-	bdrag_interp = np.interp(t, tb, bdrag)
+	bdrag = (p_lo - p_hi) * area
+
+	print(f"Cross-sectional area (Ly*Lz): {area} m^2")
 
 	os.makedirs(os.path.dirname(args.out), exist_ok=True)
 
 	fig, ax = plt.subplots(figsize=(8,4))
 	ax.plot(t, drag, '-o', markersize=3, label='direct surf-sum')
-	ax.plot(t, bdrag_interp, '-s', markersize=3, label='boundary-derived')
+	ax.plot(t, bdrag, '-s', markersize=3, label='boundary-derived')
 	ax.set_xlabel('Timestep')
 	ax.set_ylabel('Drag (N)')
 	ax.set_title('Drag vs Timestep')
