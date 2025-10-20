@@ -99,12 +99,12 @@ TIMESTEP MUST BE < 0.00188251135700969 s
 
 create_grid	150 100 50
 Created 750000 child grid cells
-  CPU time = 0.590345 secs
-  create/ghost percent = 28.9922 71.0078
+  CPU time = 0.387143 secs
+  create/ghost percent = 28.7186 71.2814
 balance_grid    rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.419194 secs
-  reassign/sort/migrate/ghost percent = 26.8296 1.31422 5.3906 66.4656
+  CPU time = 0.313715 secs
+  reassign/sort/migrate/ghost percent = 28.3936 1.68945 7.27663 62.6403
 
 variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
@@ -123,42 +123,42 @@ read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.567256 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.124998 0.0151729 5.757 42.358 51.7449 24.6823 0.000210151
-  surf2grid time = 0.240278 secs
-  map/comm1/comm2/comm3/comm4/split percent = 41.2851 0.00664815 33.6835 2.37101 4.11729 7.68278
+  CPU time = 0.413685 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0135437 0.0118724 6.52473 41.8159 51.634 30.5191 0
+  surf2grid time = 0.172986 secs
+  map/comm1/comm2/comm3/comm4/split percent = 38.484 0.00813169 31.9985 3.09859 5.58082 9.11342
 read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
   2 triangles
   -1 -1 xlo xhi
-  -1 1 ylo yhi
-  -1 1 zlo zhi
-  2 min triangle edge length
-  2 min triangle area
+  -1.1 1.1 ylo yhi
+  -1.1 1.1 zlo zhi
+  2.2 min triangle edge length
+  2.42 min triangle area
   2024 0 = cells overlapping surfs, overlap cells with unmarked corner pts
   156 tiny edges removed
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.484608 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.135787 0.0156942 6.29457 38.9987 54.5552 26.795 0
-  surf2grid time = 0.188991 secs
-  map/comm1/comm2/comm3/comm4/split percent = 38.8483 0.00895689 30.1745 2.56419 5.03831 9.54174
+  CPU time = 0.384792 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0130117 0.0119584 7.35693 37.7677 54.8504 30.4892 0
+  surf2grid time = 0.145327 secs
+  map/comm1/comm2/comm3/comm4/split percent = 36.1069 0.00885905 28.5818 3.76461 6.60163 10.9319
 read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
   2 triangles
-  1 1 xlo xhi
-  -1 1 ylo yhi
-  -1 1 zlo zhi
-  2 min triangle edge length
-  2 min triangle area
+  0.7 0.7 xlo xhi
+  -1.1 1.1 ylo yhi
+  -1.1 1.1 zlo zhi
+  2.2 min triangle edge length
+  2.42 min triangle area
   2024 0 = cells overlapping surfs, overlap cells with unmarked corner pts
   234 tiny edges removed
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.550475 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.155488 0.0126903 5.13284 36.5766 58.1223 23.3395 0.000173246
-  surf2grid time = 0.201345 secs
-  map/comm1/comm2/comm3/comm4/split percent = 39.3637 0.00947303 28.336 2.65209 5.96635 10.7106
+  CPU time = 0.388401 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0133819 0.0123383 7.13284 38.3447 54.4968 31.2741 0
+  surf2grid time = 0.148931 secs
+  map/comm1/comm2/comm3/comm4/split percent = 36.0685 0.0227323 28.0841 3.86145 6.7286 11.2113
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -174,7 +174,7 @@ mixture     	atm nrho 15781995163693812940 vstream 7853. 0.0 0.0 temp ${T}
 mixture     	atm nrho 15781995163693812940 vstream 7853. 0.0 0.0 temp 193.33846
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 100000.0
+variable        Ns_target equal 200000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        Vol       equal 2.2*${Ly}*${Lz}
 variable        Vol       equal 2.2*2.2*${Lz}
@@ -182,15 +182,15 @@ variable        Vol       equal 2.2*2.2*2.2
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 variable        fnum      equal 15781995163693812940*${Vol}/${Ns_target}
 variable        fnum      equal 15781995163693812940*10.648/${Ns_target}
-variable        fnum      equal 15781995163693812940*10.648/100000
+variable        fnum      equal 15781995163693812940*10.648/200000
 global          fnum ${fnum} # global bc will be queried by each new particle
-global          fnum 1.68046684503012e+15 
+global          fnum 840233422515059 
 
 variable	parts_per equal ${nrho}/${Ns_target}
 variable	parts_per equal 15781995163693812940/${Ns_target}
-variable	parts_per equal 15781995163693812940/100000
+variable	parts_per equal 15781995163693812940/200000
 print "particles per particle = ${parts_per}"
-particles per particle = 157819951636938
+particles per particle = 78909975818469.1
 
 # global useful for stat query later
 global          nrho ${nrho}
@@ -198,8 +198,8 @@ global          nrho 15781995163693812940
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
-Created 99624 particles
-  CPU time = 0.0372188 secs
+Created 199248 particles
+  CPU time = 0.053448 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -276,76 +276,43 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag # print timestep, runti
 timestep        ${tstep}
 timestep        1e-07
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             1000
+run             10000
 Memory usage per proc in Mbytes:
-  particles (ave,min,max) = 11.8125 11.8125 11.8125
+  particles (ave,min,max) = 21.9375 21.9375 21.9375
   grid      (ave,min,max) = 132.364 132.364 132.364
   surf      (ave,min,max) = 0.00201416 0.00201416 0.00201416
-  total     (ave,min,max) = 155.624 155.624 155.624
+  total     (ave,min,max) = 165.749 165.749 165.749
 Step CPU Np Natt Ncoll c_Tbox c_drag 
-       0            0    99624        0        0    71528.144            0 
-     100    3.0065801   100039        0        0    71502.178    2.6568524 
-     200     6.004843   100559        0        0    71476.154    2.6490132 
-     300    8.7464032   100043        0        0    71459.235    2.5566174 
-     400    11.718746    99720        0        0    71425.019     2.543004 
-     500    13.084141   100501        1        1    71395.921    2.5975977 
-     600    15.985901   100483        2        1    71394.205    2.6155181 
-     700    18.767329    99864        0        0    71367.404    2.6220258 
-     800    21.728137   100019        1        1     71310.87    2.6566567 
-     900    24.609043   100490        2        0    71292.317    2.6837286 
-    1000    27.559474   100166        2        2    71268.632    2.7291069 
-Loop time of 27.5595 on 1 procs for 1000 steps with 100166 particles
-
-MPI task timing breakdown:
-Section |  min time  |  avg time  |  max time  |%varavg| %total
----------------------------------------------------------------
-Move    | 6.7241     | 6.7241     | 6.7241     |   0.0 | 24.40
-Coll    | 4.9426     | 4.9426     | 4.9426     |   0.0 | 17.93
-Sort    | 7.1808     | 7.1808     | 7.1808     |   0.0 | 26.06
-Comm    | 0.004657   | 0.004657   | 0.004657   |   0.0 |  0.02
-Modify  | 0.21797    | 0.21797    | 0.21797    |   0.0 |  0.79
-Output  | 8.4876     | 8.4876     | 8.4876     |   0.0 | 30.80
-Other   |            | 0.001778   |            |       |  0.01
-
-Particle moves    = 100198819 (100M)
-Cells touched     = 105648362 (106M)
-Particle comms    = 0 (0K)
-Boundary collides = 0 (0K)
-Boundary exits    = 35193 (35.2K)
-SurfColl checks   = 1648326 (1.65M)
-SurfColl occurs   = 59248 (59.2K)
-Surf reactions    = 0 (0K)
-Collide attempts  = 490 (0.49K)
-Collide occurs    = 332 (0.332K)
-Reactions         = 0 (0K)
-Particles stuck   = 0
-Axisymm bad moves = 0
-
-Particle-moves/CPUsec/proc: 3.63573e+06
-Particle-moves/step: 100199
-Cell-touches/particle/step: 1.05439
-Particle comm iterations/step: 1
-Particle fraction communicated: 0
-Particle fraction colliding with boundary: 0
-Particle fraction exiting boundary: 0.000351232
-Surface-checks/particle/step: 0.0164506
-Surface-collisions/particle/step: 0.000591304
-Surf-reactions/particle/step: 0
-Collision-attempts/particle/step: 4.89028e-06
-Collisions/particle/step: 3.31341e-06
-Reactions/particle/step: 0
-
-Particles: 100166 ave 100166 max 100166 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-Cells:      750000 ave 750000 max 750000 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-GhostCell: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-EmptyCell: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-Surfs:    16 ave 16 max 16 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-GhostSurf: 0 ave 0 max 0 min
-Histogram: 1 0 0 0 0 0 0 0 0 0
-
-shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
+       0            0   199248        0        0    71488.922            0 
+     100     3.776155   199525        0        0    71463.646    2.5910121 
+     200     7.801116   199353        0        0    71430.997    2.7736392 
+     300    11.570429   199550        0        0    71410.244    2.6569774 
+     400    15.710616   199435        1        1    71385.845    2.6880405 
+     500     17.83043   199538        1        1    71366.806    2.6099288 
+     600    21.731521   199493        2        1    71338.938    2.6544084 
+     700    25.749333   199416        1        1    71315.866    2.6803211 
+     800    29.813681   199681        1        1    71288.627    2.6279155 
+     900     33.78125   199766        4        3    71269.392    2.5897548 
+    1000    37.918396   199837        4        3    71243.772    2.6079793 
+    1100    41.960652   199835        4        2    71220.282    2.5737062 
+    1200    45.929728   199996        9        3    71200.385     2.566209 
+    1300    48.130221   199902        5        4    71168.345    2.5990163 
+    1400    52.114679   200019        7        7    71151.289    2.5894412 
+    1500    56.186641   200158        2        2    71131.918    2.5919364 
+    1600    60.319037   200211        8        2    71107.439    2.5907397 
+    1700    64.435358   200278        9        5    71082.235    2.5856814 
+    1800    68.520661   200396        7        4    71057.896    2.5951205 
+    1900    72.681531   200615        6        2    71036.638    2.6007068 
+    2000    75.020801   200608        8        5    71010.786    2.6041639 
+    2100    79.105303   200681        3        2    70988.381    2.6104599 
+    2200    83.833153   200661        5        3    70967.619    2.6017736 
+    2300    89.327574   200821        8        4    70947.128    2.6073217 
+    2400    94.504104   200978        4        2    70932.945    2.5867797 
+    2500    98.822238   201000        5        3    70917.232    2.5736388 
+    2600    103.45884   201033        5        3    70892.388    2.5872289 
+    2700    105.88353   201383        3        0    70880.531    2.5780664 
+    2800    110.45998   201420        6        1    70852.634    2.5792892 
+    2900    115.33061   201322        8        3    70841.487    2.5679412 
+    3000    119.90178   201145        7        5    70831.333    2.5532866 
+    3100      124.339   201106       10        5    70810.297    2.5501552 
+    3200    128.54786   20

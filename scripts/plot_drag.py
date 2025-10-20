@@ -32,14 +32,11 @@ def read_drag(path):
 	return data[:, 0], data[:, 1]
 
 
-def read_pressure_file(path):
+def read_flux_file(path):
 	"""
-	reads a flux data file with timestep, mass flux, and KE flux columns
-	calculates dynamic pressure using:
-	  Φ_m  = ρ v           (kg/m^2/s)
-	  Φ_ke = 1/2 ρ v^3     (J/m^2/s)
-	  v    = sqrt(2 Φ_ke / Φ_m)
-	  q    = 1/2 ρ v^2 = 1/2 Φ_m v = sqrt(Φ_m Φ_ke / 2)
+	Read a flux data file with timestep, mass flux (Φ_m), and KE flux (Φ_ke) columns.
+	Also derive an effective normal speed v_n = sqrt(2 Φ_ke / Φ_m).
+	Returns: timesteps, mass_flux (Φ_m), ke_flux (Φ_ke), velocity (v_n).
 	"""
 	if not os.path.exists(path):
 		raise FileNotFoundError(f"Pressure file not found: {path}")
@@ -65,10 +62,8 @@ def read_pressure_file(path):
 	# Avoid division by zero
 	with np.errstate(divide='ignore', invalid='ignore'):
 		velocity = np.sqrt(2.0 * ke_flux / mass_flux)
-		# Calculate dynamic pressure: q = sqrt(Φ_m * Φ_KE / 2)
-		pressure = np.sqrt((mass_flux * ke_flux) / 2.0)
-	
-	return timesteps, pressure, velocity
+
+	return timesteps, mass_flux, ke_flux, velocity
 
 
 def read_in_ampt_area(path='in.ampt'):
@@ -112,12 +107,33 @@ def main():
 	xlo_file = 'dumps/xlo_flux.dat'
 	xhi_file = 'dumps/xhi_flux.dat'
 	
-	# read pressure data from xlo and xhi boundary surfaces
-	t_xlo, p_lo, v_lo = read_pressure_file(xlo_file)  # timesteps, pressure at xlo, velocity at xlo
-	t_xhi, p_hi, v_hi = read_pressure_file(xhi_file)  # timesteps, pressure at xhi, velocity at xhi
+	# read flux data from xlo and xhi boundary surfaces, derive momentum flux Π = Φ_m * v
+	t_xlo, m_lo, ke_lo, v_lo = read_flux_file(xlo_file)
+	t_xhi, m_hi, ke_hi, v_hi = read_flux_file(xhi_file)
 	
 	area = read_in_ampt_area('in.ampt') # cross-sectional area in m^2
-	bdrag = (p_lo - p_hi) * area
+	# Momentum-flux-based boundary drag: F ≈ (Π_lo - Π_hi) * A, where Π = Φ_m * v
+	pi_lo = m_lo * v_lo
+	pi_hi = m_hi * v_hi
+	bdrag = (pi_lo - pi_hi) * area
+
+	# Compute average rho and vx at each plane from fluxes (Φ_m = ρ v)
+	mask_lo = np.isfinite(m_lo) & np.isfinite(v_lo) & (m_lo > 0) & (v_lo > 0)
+	mask_hi = np.isfinite(m_hi) & np.isfinite(v_hi) & (m_hi > 0) & (v_hi > 0)
+
+	if np.any(mask_lo):
+		vx_lo_avg = float(np.mean(v_lo[mask_lo]))
+		rho_lo_avg = float(np.mean(m_lo[mask_lo] / v_lo[mask_lo]))
+	else:
+		vx_lo_avg = float('nan')
+		rho_lo_avg = float('nan')
+
+	if np.any(mask_hi):
+		vx_hi_avg = float(np.mean(v_hi[mask_hi]))
+		rho_hi_avg = float(np.mean(m_hi[mask_hi] / v_hi[mask_hi]))
+	else:
+		vx_hi_avg = float('nan')
+		rho_hi_avg = float('nan')
 
 	# Calculate average velocities (excluding NaN/inf values from zero flux)
 	v_lo_valid = v_lo[np.isfinite(v_lo)]
@@ -128,14 +144,18 @@ def main():
 	v_total_avg = (v_lo_avg + v_hi_avg) / 2.0
 
 	print(f"Cross-sectional area (Ly*Lz): {area} m^2")
-	print(f"Average velocity at xlo boundary: {v_lo_avg:.2f} m/s")
-	print(f"Average velocity at xhi boundary: {v_hi_avg:.2f} m/s")
+	print("xlo boundary averages:")
+	print(f"  rho: {rho_lo_avg:.3e} kg/m³")
+	print(f"  vx: {vx_lo_avg:.1f} m/s")
+	print("xhi boundary averages:")
+	print(f"  rho: {rho_hi_avg:.3e} kg/m³")
+	print(f"  vx: {vx_hi_avg:.1f} m/s")
 
 	os.makedirs(os.path.dirname(args.out), exist_ok=True)
 
 	fig, ax = plt.subplots(figsize=(8,4))
 	ax.plot(t, drag, '-o', markersize=3, label='direct surf-sum')
-	ax.plot(t, bdrag, '-s', markersize=3, label='boundary-derived')
+	ax.plot(t, bdrag, '-s', markersize=3, label='boundary momentum-flux')
 	ax.set_xlabel('Timestep')
 	ax.set_ylabel('Drag (N)')
 	ax.set_title('Drag vs Timestep')
