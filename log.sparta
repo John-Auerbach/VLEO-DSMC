@@ -47,64 +47,64 @@ variable        T    file data/T.dat
 variable        vx   file data/vx.dat
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
-Loaded NRLMSIS data: rho=0.00000759080 nrho=15781995163693812940 T=193.33846 vx=7853.
+Loaded NRLMSIS data: rho=7.590801364413e-06 nrho=1.578200e+20 T=193.338461 vx=7853.3
 
 variable 	kB equal 1.380649e-23  # J/K
 variable 	d equal 3.7e-10  # m
 variable 	R equal 287.05 # (J / kg*K)
 variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
 variable 	lambda equal 1.380649e-23*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
-variable 	lambda equal 1.380649e-23*193.33846/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
-variable 	lambda equal 1.380649e-23*193.33846/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R}) 
-variable 	lambda equal 1.380649e-23*193.33846/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R}) 
-variable 	lambda equal 1.380649e-23*193.33846/(sqrt(2.0)*PI*3.7e-10*3.7e-10*0.00000759080*${R}) 
-variable 	lambda equal 1.380649e-23*193.33846/(sqrt(2.0)*PI*3.7e-10*3.7e-10*0.00000759080*287.05) 
+variable 	lambda equal 1.380649e-23*193.338461/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*193.338461/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*193.338461/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R}) 
+variable 	lambda equal 1.380649e-23*193.338461/(sqrt(2.0)*PI*3.7e-10*3.7e-10*7.590801364413e-06*${R}) 
+variable 	lambda equal 1.380649e-23*193.338461/(sqrt(2.0)*PI*3.7e-10*3.7e-10*7.590801364413e-06*287.05) 
 variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
 variable	vbar equal sqrt(8*1.380649e-23*${T}/(PI*${rho}/${nrho})) 
-variable	vbar equal sqrt(8*1.380649e-23*193.33846/(PI*${rho}/${nrho})) 
-variable	vbar equal sqrt(8*1.380649e-23*193.33846/(PI*0.00000759080/${nrho})) 
-variable	vbar equal sqrt(8*1.380649e-23*193.33846/(PI*0.00000759080/15781995163693812940)) 
+variable	vbar equal sqrt(8*1.380649e-23*193.338461/(PI*${rho}/${nrho})) 
+variable	vbar equal sqrt(8*1.380649e-23*193.338461/(PI*7.590801364413e-06/${nrho})) 
+variable	vbar equal sqrt(8*1.380649e-23*193.338461/(PI*7.590801364413e-06/1.578200e+20)) 
 
 print "MEAN FREE PATH = ${lambda} m"
-MEAN FREE PATH = 2.01413287839467 m
+MEAN FREE PATH = 2.01413252678084 m
 print "MEAN MOLEC VEL = ${vbar} m/s"
-MEAN MOLEC VEL = 118.879783227093 m/s
+MEAN MOLEC VEL = 375.93090753192 m/s
 
 # grid resolution
 
 variable	dx equal ${lambda}/3 # m
-variable	dx equal 2.01413287839467/3 
+variable	dx equal 2.01413252678084/3 
 variable	mct equal ${lambda}/${vbar} # s
-variable	mct equal 2.01413287839467/${vbar} 
-variable	mct equal 2.01413287839467/118.879783227093 
+variable	mct equal 2.01413252678084/${vbar} 
+variable	mct equal 2.01413252678084/375.93090753192 
 variable	mtt equal ${dx}/${vbar} # s
-variable	mtt equal 0.671377626131557/${vbar} 
-variable	mtt equal 0.671377626131557/118.879783227093 
+variable	mtt equal 0.671377508926947/${vbar} 
+variable	mtt equal 0.671377508926947/375.93090753192 
 variable	dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
-variable	dt equal ((0.0169426022130872<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
-variable	dt equal ((0.0169426022130872<0.00564753407102906)*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
-variable	dt equal ((0.0169426022130872<0.00564753407102906)*0.0169426022130872+(${mct}>=${mtt})*${mtt})/3.0 
-variable	dt equal ((0.0169426022130872<0.00564753407102906)*0.0169426022130872+(0.0169426022130872>=${mtt})*${mtt})/3.0 
-variable	dt equal ((0.0169426022130872<0.00564753407102906)*0.0169426022130872+(0.0169426022130872>=0.00564753407102906)*${mtt})/3.0 
-variable	dt equal ((0.0169426022130872<0.00564753407102906)*0.0169426022130872+(0.0169426022130872>=0.00564753407102906)*0.00564753407102906)/3.0 
+variable	dt equal ((0.00535771995977697<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00535771995977697<0.00178590665325899)*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00535771995977697<0.00178590665325899)*0.00535771995977697+(${mct}>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00535771995977697<0.00178590665325899)*0.00535771995977697+(0.00535771995977697>=${mtt})*${mtt})/3.0 
+variable	dt equal ((0.00535771995977697<0.00178590665325899)*0.00535771995977697+(0.00535771995977697>=0.00178590665325899)*${mtt})/3.0 
+variable	dt equal ((0.00535771995977697<0.00178590665325899)*0.00535771995977697+(0.00535771995977697>=0.00178590665325899)*0.00178590665325899)/3.0 
 
 print "CELL SIZE MUST BE LESS THAN ${dx} m"
-CELL SIZE MUST BE LESS THAN 0.671377626131557 m
+CELL SIZE MUST BE LESS THAN 0.671377508926947 m
 print "MEAN COLL TIME = ${mct} s"
-MEAN COLL TIME = 0.0169426022130872 s
+MEAN COLL TIME = 0.00535771995977697 s
 print "MEAN TRANSIT TIME = ${mtt} s"
-MEAN TRANSIT TIME = 0.00564753407102906 s
+MEAN TRANSIT TIME = 0.00178590665325899 s
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
-TIMESTEP MUST BE < 0.00188251135700969 s
+TIMESTEP MUST BE < 0.000595302217752997 s
 
 create_grid	150 100 50
 Created 750000 child grid cells
-  CPU time = 0.387143 secs
-  create/ghost percent = 28.7186 71.2814
+  CPU time = 0.430697 secs
+  create/ghost percent = 29.593 70.407
 balance_grid    rcb part
 Balance grid migrated 0 cells
-  CPU time = 0.313715 secs
-  reassign/sort/migrate/ghost percent = 28.3936 1.68945 7.27663 62.6403
+  CPU time = 0.317788 secs
+  reassign/sort/migrate/ghost percent = 27.1797 1.54888 6.17144 65.1
 
 variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
@@ -123,10 +123,10 @@ read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.413685 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0135437 0.0118724 6.52473 41.8159 51.634 30.5191 0
-  surf2grid time = 0.172986 secs
-  map/comm1/comm2/comm3/comm4/split percent = 38.484 0.00813169 31.9985 3.09859 5.58082 9.11342
+  CPU time = 0.400361 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.146078 0.0242372 6.32705 41.3772 52.1255 28.318 0.000238204
+  surf2grid time = 0.165658 secs
+  map/comm1/comm2/comm3/comm4/split percent = 38.7734 0.00849141 32.9087 2.87456 4.82254 8.96793
 read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
   2 triangles
   -1 -1 xlo xhi
@@ -139,10 +139,10 @@ read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.384792 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0130117 0.0119584 7.35693 37.7677 54.8504 30.4892 0
-  surf2grid time = 0.145327 secs
-  map/comm1/comm2/comm3/comm4/split percent = 36.1069 0.00885905 28.5818 3.76461 6.60163 10.9319
+  CPU time = 0.395964 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0131263 0.0113801 7.59992 38.5979 53.7776 28.6334 0.000240849
+  surf2grid time = 0.152834 secs
+  map/comm1/comm2/comm3/comm4/split percent = 34.434 0.0098279 27.3565 3.16692 7.01743 14.4706
 read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
   2 triangles
   0.7 0.7 xlo xhi
@@ -155,10 +155,10 @@ read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
   745800 2176 2024 = cells outside/inside/overlapping surfs
   2024 = surf cells with 1,2,etc splits
   10.608 10.608 = cell-wise and global flow volume
-  CPU time = 0.388401 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0133819 0.0123383 7.13284 38.3447 54.4968 31.2741 0
-  surf2grid time = 0.148931 secs
-  map/comm1/comm2/comm3/comm4/split percent = 36.0685 0.0227323 28.0841 3.86145 6.7286 11.2113
+  CPU time = 0.382807 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0159441 0.01283 7.61898 38.6035 53.7488 31.5799 0.000249127
+  surf2grid time = 0.147777 secs
+  map/comm1/comm2/comm3/comm4/split percent = 36.2398 0.012907 29.5411 3.59604 6.02593 10.3974
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -169,9 +169,9 @@ species         species/air.species N2 O2
 mixture 	atm N2 frac 0.79
 mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
-mixture     	atm nrho 15781995163693812940 vstream ${vx} 0.0 0.0 temp ${T}
-mixture     	atm nrho 15781995163693812940 vstream 7853. 0.0 0.0 temp ${T}
-mixture     	atm nrho 15781995163693812940 vstream 7853. 0.0 0.0 temp 193.33846
+mixture     	atm nrho 1.578200e+20 vstream ${vx} 0.0 0.0 temp ${T}
+mixture     	atm nrho 1.578200e+20 vstream 7853.3 0.0 0.0 temp ${T}
+mixture     	atm nrho 1.578200e+20 vstream 7853.3 0.0 0.0 temp 193.338461
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
 variable        Ns_target equal 200000.0
@@ -180,26 +180,26 @@ variable        Vol       equal 2.2*${Ly}*${Lz}
 variable        Vol       equal 2.2*2.2*${Lz}
 variable        Vol       equal 2.2*2.2*2.2
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
-variable        fnum      equal 15781995163693812940*${Vol}/${Ns_target}
-variable        fnum      equal 15781995163693812940*10.648/${Ns_target}
-variable        fnum      equal 15781995163693812940*10.648/200000
+variable        fnum      equal 1.578200e+20*${Vol}/${Ns_target}
+variable        fnum      equal 1.578200e+20*10.648/${Ns_target}
+variable        fnum      equal 1.578200e+20*10.648/200000
 global          fnum ${fnum} # global bc will be queried by each new particle
-global          fnum 840233422515059 
+global          fnum 8.4023368e+15 
 
 variable	parts_per equal ${nrho}/${Ns_target}
-variable	parts_per equal 15781995163693812940/${Ns_target}
-variable	parts_per equal 15781995163693812940/200000
+variable	parts_per equal 1.578200e+20/${Ns_target}
+variable	parts_per equal 1.578200e+20/200000
 print "particles per particle = ${parts_per}"
-particles per particle = 78909975818469.1
+particles per particle = 789100000000000
 
 # global useful for stat query later
 global          nrho ${nrho}
-global          nrho 15781995163693812940
+global          nrho 1.578200e+20
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
 Created 199248 particles
-  CPU time = 0.053448 secs
+  CPU time = 0.071476 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -283,36 +283,36 @@ Memory usage per proc in Mbytes:
   surf      (ave,min,max) = 0.00201416 0.00201416 0.00201416
   total     (ave,min,max) = 165.749 165.749 165.749
 Step CPU Np Natt Ncoll c_Tbox c_drag 
-       0            0   199248        0        0    71488.922            0 
-     100     3.776155   199525        0        0    71463.646    2.5910121 
-     200     7.801116   199353        0        0    71430.997    2.7736392 
-     300    11.570429   199550        0        0    71410.244    2.6569774 
-     400    15.710616   199435        1        1    71385.845    2.6880405 
-     500     17.83043   199538        1        1    71366.806    2.6099288 
-     600    21.731521   199493        2        1    71338.938    2.6544084 
-     700    25.749333   199416        1        1    71315.866    2.6803211 
-     800    29.813681   199681        1        1    71288.627    2.6279155 
-     900     33.78125   199766        4        3    71269.392    2.5897548 
-    1000    37.918396   199837        4        3    71243.772    2.6079793 
-    1100    41.960652   199835        4        2    71220.282    2.5737062 
-    1200    45.929728   199996        9        3    71200.385     2.566209 
-    1300    48.130221   199902        5        4    71168.345    2.5990163 
-    1400    52.114679   200019        7        7    71151.289    2.5894412 
-    1500    56.186641   200158        2        2    71131.918    2.5919364 
-    1600    60.319037   200211        8        2    71107.439    2.5907397 
-    1700    64.435358   200278        9        5    71082.235    2.5856814 
-    1800    68.520661   200396        7        4    71057.896    2.5951205 
-    1900    72.681531   200615        6        2    71036.638    2.6007068 
-    2000    75.020801   200608        8        5    71010.786    2.6041639 
-    2100    79.105303   200681        3        2    70988.381    2.6104599 
-    2200    83.833153   200661        5        3    70967.619    2.6017736 
-    2300    89.327574   200821        8        4    70947.128    2.6073217 
-    2400    94.504104   200978        4        2    70932.945    2.5867797 
-    2500    98.822238   201000        5        3    70917.232    2.5736388 
-    2600    103.45884   201033        5        3    70892.388    2.5872289 
-    2700    105.88353   201383        3        0    70880.531    2.5780664 
-    2800    110.45998   201420        6        1    70852.634    2.5792892 
-    2900    115.33061   201322        8        3    70841.487    2.5679412 
-    3000    119.90178   201145        7        5    70831.333    2.5532866 
-    3100      124.339   201106       10        5    70810.297    2.5501552 
-    3200    128.54786   20
+       0            0   199248        0        0     71494.37            0 
+     100    3.3458848   199525        6        6    71469.179     26.73046 
+     200    6.9996288   199353       12       10     71437.88    27.550044 
+     300    10.724231   199550       40       28    71415.457    26.259743 
+     400    14.582575   199433       72       60    71390.049    26.933275 
+     500    18.416255   199535      115       89    71369.521    26.949043 
+     600    22.229622   199493      160      125    71339.169    27.002601 
+     700    24.276212   199412      228      183    71314.858    26.994107 
+     800    28.221045   199693      307      244        71281    26.753546 
+     900    32.123277   199770      310      243    71259.187    26.476524 
+    1000    36.082046   199849      370      295    71230.411    26.447076 
+    1100    40.002275   199859      424      335    71203.952    25.715511 
+    1200    43.983448   200020      484      368     71175.64     25.83346 
+    1300    48.067764   199922      503      397    71141.075     25.80056 
+    1400    52.017056   200039      542      413    71115.544    25.887413 
+    1500    54.106778   200194      550      441     71092.38    25.585032 
+    1600    58.131157   200264      569      438    71063.273    25.483526 
+    1700    62.100159   200320      592      450    71032.598    25.456139 
+    1800    66.205263   200482      653      508    71008.627    25.530015 
+    1900    70.429847   200687      668      512    70982.973    25.434404 
+    2000    74.401023   200737      609      489    70956.317     25.51559 
+    2100     78.50025   200792      637      492    70927.864    25.426505 
+    2200    82.599985   200816      705      552    70895.745    25.615983 
+    2300    84.770404   200957      678      520    70870.674    25.680829 
+    2400    88.893395   201106      683      533    70847.683     25.82516 
+    2500    93.010187   201185      722      557    70817.479    26.016516 
+    2600    97.044532   201225      716      551     70789.36    25.973311 
+    2700    101.25604   201523      690      537    70762.823    26.017734 
+    2800    105.42151   201556      712      547    70712.219    26.223405 
+    2900    109.45755   201579      761      578    70673.828    26.143102 
+    3000    113.56943   201613      713      576    70635.436    26.070622 
+    3100    115.81417   201624      649      508    70599.525    26.070192 
+    3200    119.89761   201723      731      5

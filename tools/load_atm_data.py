@@ -69,10 +69,11 @@ d = np.loadtxt(data_file)
 
 # interpolate and write to files (in data directory)
 os.makedirs(data_dir, exist_ok=True)
-open(os.path.join(data_dir, 'rho.dat'),'w').write(f'{np.interp(alt,d[:,0],d[:,2]):.12f}')
-open(os.path.join(data_dir, 'nrho.dat'),'w').write(f'{np.interp(alt,d[:,0],d[:,6]):.0f}')
-open(os.path.join(data_dir, 'T.dat'),'w').write(f'{np.interp(alt,d[:,0],d[:,1]):.6f}')
-open(os.path.join(data_dir, 'vx.dat'),'w').write(f'{np.interp(alt,d[:,0],d[:,5]):.1f}')
+# Write in scientific notation to avoid truncation of large integers by SPARTA's parser
+open(os.path.join(data_dir, 'rho.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,2]):.12e}\n")
+open(os.path.join(data_dir, 'nrho.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,6]):.6e}\n")
+open(os.path.join(data_dir, 'T.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,1]):.6f}\n")
+open(os.path.join(data_dir, 'vx.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,5]):.1f}\n")
 
 print(f'Loaded atmospheric data for {alt} km altitude')
 rho_val = np.interp(alt,d[:,0],d[:,2])
