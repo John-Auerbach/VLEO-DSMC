@@ -69,7 +69,7 @@ d = np.loadtxt(data_file)
 
 # interpolate and write to files (in data directory)
 os.makedirs(data_dir, exist_ok=True)
-# Write in scientific notation to avoid truncation of large integers by SPARTA's parser
+# SCIENTIFIC NOTATION to avoid truncation of large integers by SPARTA's parser
 open(os.path.join(data_dir, 'rho.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,2]):.12e}\n")
 open(os.path.join(data_dir, 'nrho.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,6]):.6e}\n")
 open(os.path.join(data_dir, 'T.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,1]):.6f}\n")

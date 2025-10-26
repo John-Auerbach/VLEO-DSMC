@@ -20,7 +20,7 @@ parser.add_argument('--cores', '-c', type=int, default=1,
 args = parser.parse_args()
 
 # EDIT THESE ALTITUDES
-altitudes = [75, 80, 85, 90, 95, 100]
+altitudes = [70, 80, 90, 100, 110, 120, 130, 140, 150]
 
 results = {}
 

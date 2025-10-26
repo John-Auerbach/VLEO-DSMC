@@ -77,7 +77,7 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 200000.0
+variable        Ns_target equal 100000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -131,12 +131,12 @@ dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2
 compute         xlo_flux surf xlo_bdy atm mflux ke                                      # mflux = mass flux, ke = kinetic energy flux
 compute         xlo_mflux_avg reduce ave c_xlo_flux[1]                                  # average mass flux
 compute         xlo_ke_avg reduce ave c_xlo_flux[2]                                     # average KE flux
-fix             xlo_out ave/time 1 1 1 c_xlo_mflux_avg c_xlo_ke_avg ave running file dumps/xlo_flux.dat
+fix             xlo_out ave/time 1 1 100 c_xlo_mflux_avg c_xlo_ke_avg ave running file dumps/xlo_flux.dat
 
 compute         xhi_flux surf xhi_bdy atm mflux ke                                      # mflux = mass flux, ke = kinetic energy flux
 compute         xhi_mflux_avg reduce ave c_xhi_flux[1]                                  # average mass flux
 compute         xhi_ke_avg reduce ave c_xhi_flux[2]                                     # average KE flux
-fix             xhi_out ave/time 1 1 1 c_xhi_mflux_avg c_xhi_ke_avg ave running file dumps/xhi_flux.dat
+fix             xhi_out ave/time 1 1 100 c_xhi_mflux_avg c_xhi_ke_avg ave running file dumps/xhi_flux.dat
 
 
 # sum of surface forces (direct):
@@ -150,7 +150,7 @@ compute         drag reduce sum f_surfavg[1]
 
 # write total drag (timestep, drag) to a simple file every 1 step
 # use fix ave/time to write the scalar compute c_drag to file (one line per output: timestep value)
-fix             dragout ave/time 1 1 1 c_drag file dumps/direct_drag.dat mode scalar
+fix             dragout ave/time 1 1 100 c_drag file dumps/direct_drag.dat mode scalar
 
 # ----------------------------------------------------------
 
@@ -161,6 +161,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag # print timestep, runti
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             10000
+run             5000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"

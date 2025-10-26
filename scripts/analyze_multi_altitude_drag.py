@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Analyze multi-altitude SPARTA results: animate direct drag vs altitude
-Usage: python3 scripts/analyze_multi_altitude_drag.py
+Usage:
+    python3 scripts/analyze_multi_altitude_drag.py
+    python3 scripts/analyze_multi_altitude_drag.py --csv   # CSV only to outputs/, no plot
 """
 
 import os
@@ -10,6 +12,7 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import argparse
 
 
 def load_direct_drag(drag_file):
@@ -27,6 +30,10 @@ def load_direct_drag(drag_file):
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--csv', action='store_true', help='If set, save CSV to outputs/ and skip plotting')
+    args = ap.parse_args()
+
     os.makedirs('outputs', exist_ok=True)
 
     # Find altitude directories
@@ -60,6 +67,17 @@ def main():
         for ti, val in zip(t, drag):
             i = timesteps.index(int(ti))
             D[i, j] = val
+
+    # If CSV requested, save and exit (no plot)
+    if args.csv:
+        # wide format: first column is timestep, subsequent columns one per altitude (in ascending order)
+        header_cols = ['timestep'] + [f'alt_{a}km' for a in alts]
+        header = ','.join(header_cols)
+        M = np.column_stack([np.array(timesteps, dtype=int)] + [D[:, j] for j in range(len(alts))])
+        out_csv = os.path.join('outputs', 'drag_vs_altitude.csv')
+        np.savetxt(out_csv, M, delimiter=',', header=header, comments='', fmt='%g')
+        print(f'Saved CSV to {out_csv}')
+        return
 
     # animation: one moving line of drag vs altitude
     fig, ax = plt.subplots(figsize=(8,6))
