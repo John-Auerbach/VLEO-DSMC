@@ -162,13 +162,13 @@ def main():
 	fig, ax = plt.subplots(figsize=(10,6))
 	ax.plot(t, drag, '-o', markersize=3, label='Total Direct Drag', linewidth=2)
 	if ram_drag is not None:
-		ax.plot(t, ram_drag, '-^', markersize=3, label='Ram Drag', alpha=0.7)
+		ax.plot(t, ram_drag, '-^', markersize=3, label='Ram Drag (direct)', alpha=0.7)
 	if skin_friction is not None:
-		ax.plot(t, skin_friction, '-v', markersize=3, label='Skin Friction', alpha=0.7)
+		ax.plot(t, skin_friction, '-v', markersize=3, label='Skin Friction (direct)', alpha=0.7)
 	ax.plot(t, bdrag, '-s', markersize=3, label='Boundary Momentum-Flux', alpha=0.7)
 	ax.set_xlabel('Timestep')
 	ax.set_ylabel('Drag (N)')
-	ax.set_title('Drag Components vs Timestep')
+	ax.set_title('Drag vs Timestep')
 	ax.grid(True, alpha=0.3)
 	ax.legend()
 	fig.tight_layout()
