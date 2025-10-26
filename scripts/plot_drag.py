@@ -17,9 +17,9 @@ import numpy as np
 
 def read_drag(path):
 	"""
-	reads dumps/direct_drag.dat: timestep and c_drag columns
+	reads dumps/direct_drag.dat: timestep, total_drag, ram_drag, skin_friction columns
 	c_drag is running-averaged total x-force on ampt surface group in newtons
-	returns (timesteps, drag_forces) as float arrays
+	returns (timesteps, total_drag, ram_drag, skin_friction) as float arrays
 	"""
 	if not os.path.exists(path):
 		raise FileNotFoundError(f"Drag file not found: {path}")
@@ -29,7 +29,13 @@ def read_drag(path):
 		data = data.reshape((1, -1))
 	if data.shape[1] < 2:
 		raise ValueError("Expected at least two columns: timestep and drag")
-	return data[:, 0], data[:, 1]
+	
+	timesteps = data[:, 0]
+	total_drag = data[:, 1]
+	ram_drag = data[:, 2] if data.shape[1] > 2 else None
+	skin_friction = data[:, 3] if data.shape[1] > 3 else None
+	
+	return timesteps, total_drag, ram_drag, skin_friction
 
 
 def read_flux_file(path):
@@ -101,7 +107,7 @@ def main():
 	p.add_argument('--show', action='store_true')
 	args = p.parse_args()
 
-	t, drag = read_drag(args.file) # timesteps, drag forces
+	t, drag, ram_drag, skin_friction = read_drag(args.file) # timesteps, drag forces
 
 	# boundary-derived drag from separate pressure files
 	xlo_file = 'dumps/xlo_flux.dat'
@@ -153,12 +159,16 @@ def main():
 
 	os.makedirs(os.path.dirname(args.out), exist_ok=True)
 
-	fig, ax = plt.subplots(figsize=(8,4))
-	ax.plot(t, drag, '-o', markersize=3, label='direct surf-sum')
-	ax.plot(t, bdrag, '-s', markersize=3, label='boundary momentum-flux')
+	fig, ax = plt.subplots(figsize=(10,6))
+	ax.plot(t, drag, '-o', markersize=3, label='Total Direct Drag', linewidth=2)
+	if ram_drag is not None:
+		ax.plot(t, ram_drag, '-^', markersize=3, label='Ram Drag', alpha=0.7)
+	if skin_friction is not None:
+		ax.plot(t, skin_friction, '-v', markersize=3, label='Skin Friction', alpha=0.7)
+	ax.plot(t, bdrag, '-s', markersize=3, label='Boundary Momentum-Flux', alpha=0.7)
 	ax.set_xlabel('Timestep')
 	ax.set_ylabel('Drag (N)')
-	ax.set_title('Drag vs Timestep')
+	ax.set_title('Drag Components vs Timestep')
 	ax.grid(True, alpha=0.3)
 	ax.legend()
 	fig.tight_layout()
@@ -166,7 +176,17 @@ def main():
 	print(f"Saved plot to {args.out}")
 
 	if args.csv:
-		np.savetxt(args.csv, np.column_stack((t, drag)), header='timestep,drag', delimiter=',', comments='')
+		csv_data = [t, drag]
+		csv_header = 'timestep,total_drag'
+		if ram_drag is not None:
+			csv_data.append(ram_drag)
+			csv_header += ',ram_drag'
+		if skin_friction is not None:
+			csv_data.append(skin_friction)
+			csv_header += ',skin_friction'
+		csv_data.append(bdrag)
+		csv_header += ',boundary_drag'
+		np.savetxt(args.csv, np.column_stack(csv_data), header=csv_header, delimiter=',', comments='')
 		print(f"Saved CSV to {args.csv}")
 
 	if args.show:

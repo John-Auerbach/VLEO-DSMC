@@ -82,7 +82,7 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 100000.0
+variable        Ns_target equal 2000000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -148,24 +148,32 @@ fix             xhi_out ave/time 1 1 100 c_xhi_mflux_avg c_xhi_ke_avg ave runnin
 
 
 # sum of surface forces (direct):
-                # compute per-surface-element force components (fx,fy,fz) for group ampt
+                # compute per-surface-element force components (fx,fy,fz) for all ampt surfaces
 compute         surfF surf ampt atm fx fy fz
                 # time-average per-surf forces (running mean)
 fix             surfavg ave/surf ampt 1 1 1 c_surfF[*] ave running
-
-                # reduce (sum) per-surf averaged fx -> global c_drag[1]
+                # reduce (sum) per-surf averaged fx -> global total drag
 compute         drag reduce sum f_surfavg[1]
 
-# write total drag (timestep, drag) to a simple file every 1 step
-# use fix ave/time to write the scalar compute c_drag to file (one line per output: timestep value)
-fix             dragout ave/time 1 1 100 c_drag file dumps/direct_drag.dat mode scalar
+# compute forces for x-normal surfaces (ram drag)
+compute         surfF_xnorm surf ampt_xnorm atm fx fy fz
+fix             surfavg_xnorm ave/surf ampt_xnorm 1 1 1 c_surfF_xnorm[*] ave running
+compute         drag_xnorm reduce sum f_surfavg_xnorm[1]
+
+# compute forces for y/z-normal surfaces (skin friction)
+compute         surfF_walls surf ampt_yznorm atm fx fy fz
+fix             surfavg_walls ave/surf ampt_yznorm 1 1 1 c_surfF_walls[*] ave running
+compute         drag_walls reduce sum f_surfavg_walls[1]
+
+# write drag components (timestep, total_drag, ram_drag, skin_friction) to file
+fix             dragout ave/time 1 1 100 c_drag c_drag_xnorm c_drag_walls file dumps/direct_drag.dat mode scalar
 
 # ----------------------------------------------------------
 
 # cell-averaged (streaming+thermal) temperature
 compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
 stats           ${diag_freq} # print diagnostics every _ timesteps
-stats_style     step cpu np nattempt ncoll c_Tbox c_drag # print timestep, runtime, particles, collision stats, avg temp, total drag
+stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls # print timestep, runtime, particles, collision stats, avg temp, drag components
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
