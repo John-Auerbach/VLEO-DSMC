@@ -63,8 +63,13 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
 read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
+group       ampt_xnorm surf id 1:4              # front/back
+group       ampt_yznorm surf id 5:12             # walls
+
 read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
 read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
+
+
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -103,9 +108,12 @@ compute         compute_qwall surf ampt atm etot # etot = kinetic + internal ene
 fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
 fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
 
-
-surf_collide 	wall diffuse s_Tsurf 0.9           # define collision model "wall", random dir, use local facet temp, acc
-surf_modify 	ampt collide wall # attach model to facets
+# Define collision models
+surf_collide 	wall_diffuse diffuse s_Tsurf 0.9   # diffuse model for front/back, random dir, use local facet temp, acc
+surf_collide    wall_specular specular noslip      # specular model for walls
+# Apply to respective surface groups
+surf_modify 	ampt_xnorm collide wall_diffuse    # attach model to facets
+surf_modify 	ampt_yznorm collide wall_specular 
 
 surf_collide    trans transparent                  # define transparent collision model for boundary surfaces
 surf_modify     xlo_bdy collide trans              # attach transparent model to xlo_bdy
