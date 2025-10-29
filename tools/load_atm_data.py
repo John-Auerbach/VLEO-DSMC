@@ -2,6 +2,7 @@
 import numpy as np
 import os
 import sys
+import matplotlib.pyplot as plt
 
 # get altitude from command line or use default
 if len(sys.argv) > 1:
@@ -32,13 +33,13 @@ if not os.path.exists(data_file):
         k_B = 1.380649e-23 # J/K
         R = 287.05 # specific gas constant, air (J / kg*K)
         
-        lat = 0
-        lon = 0
+        lat = 40.7934
+        lon = 77.8600
         altitudes = np.linspace(70, 300, 100) * 1e3 # m
         alt_km = altitudes * 1e-3 # km
         
         # load NRLMSIS Data
-        utc = datetime.datetime(2020, 1, 1, 12, 0)
+        utc = datetime.datetime(2011, 4, 10, 12, 0)
         times = np.array([utc], dtype='datetime64')
         
         atmosphere = pymsis.calculate(times, [lon], [lat], alt_km)
@@ -49,6 +50,13 @@ if not os.path.exists(data_file):
         P_torr = P / 133.322
         v = np.sqrt(mu_E / (R_E + altitudes))
         N = P / (k_B * T)
+
+        plt.figure(figsize=(8, 5))
+        plt.plot(alt_km, rho)
+        plt.xlabel('Altitude (km)')
+        plt.ylabel('Density (kg/m³)')
+        plt.title('Density vs Altitude')
+        plt.grid(True)
         
         # save data to file
         data = np.column_stack((alt_km, T, rho, P, P_torr, v, N))

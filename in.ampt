@@ -62,7 +62,7 @@ variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; 
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
+read_surf	surf/thin_plate.surf  group ampt        # create surface group "ampt"
 group       ampt_xnorm surf id 1:4              # front/back
 group       ampt_yznorm surf id 5:12             # walls
 
@@ -82,7 +82,7 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 200000.0
+variable        Ns_target equal 2000000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -136,15 +136,17 @@ dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2
 # boundary method: use mass flux and kinetic energy flux through transparent surface. 
                     # these can be used to find pressure in front and behind object which gives F_drag
 
-compute         xlo_flux surf xlo_bdy atm mflux ke                                      # mflux = mass flux, ke = kinetic energy flux
+compute         xlo_flux surf xlo_bdy atm mflux ke nflux                                # mflux = mass flux, ke = kinetic energy flux, nflux = num flux
 compute         xlo_mflux_avg reduce ave c_xlo_flux[1]                                  # average mass flux
 compute         xlo_ke_avg reduce ave c_xlo_flux[2]                                     # average KE flux
-fix             xlo_out ave/time 1 1 100 c_xlo_mflux_avg c_xlo_ke_avg ave running file dumps/xlo_flux.dat
+compute         xlo_nflux_avg reduce ave c_xlo_flux[3]                                  # average num flux
+fix             xlo_out ave/time 1 1 100 c_xlo_mflux_avg c_xlo_ke_avg c_xlo_nflux_avg ave running file dumps/xlo_flux.dat
 
-compute         xhi_flux surf xhi_bdy atm mflux ke                                      # mflux = mass flux, ke = kinetic energy flux
-compute         xhi_mflux_avg reduce ave c_xhi_flux[1]                                  # average mass flux
-compute         xhi_ke_avg reduce ave c_xhi_flux[2]                                     # average KE flux
-fix             xhi_out ave/time 1 1 100 c_xhi_mflux_avg c_xhi_ke_avg ave running file dumps/xhi_flux.dat
+compute         xhi_flux surf xhi_bdy atm mflux ke nflux
+compute         xhi_mflux_avg reduce ave c_xhi_flux[1]
+compute         xhi_ke_avg reduce ave c_xhi_flux[2]
+compute         xhi_nflux_avg reduce ave c_xhi_flux[3]
+fix             xhi_out ave/time 1 1 100 c_xhi_mflux_avg c_xhi_ke_avg c_xhi_nflux_avg ave running file dumps/xhi_flux.dat
 
 
 # sum of surface forces (direct):
@@ -177,6 +179,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_wal
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             5000
+run             2000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"

@@ -56,20 +56,20 @@ def read_flux_file(path):
 	timesteps = data[:, 0]
 	mass_flux = data[:, 1]  # Φ_m (kg/m²/s)
 	ke_flux = data[:, 2]    # Φ_KE (J/m²/s)
+	n_flux = data[:, 3]    # Φ_N
 	
 	# Debug: print flux values
-	print(f"\nDebug for {path}:")
-	print(f"  mass_flux range: [{np.min(mass_flux):.6e}, {np.max(mass_flux):.6e}]")
-	print(f"  ke_flux range: [{np.min(ke_flux):.6e}, {np.max(ke_flux):.6e}]")
+	print(f"\n{path}:")
 	print(f"  mass_flux mean: {np.mean(mass_flux):.6e}")
 	print(f"  ke_flux mean: {np.mean(ke_flux):.6e}")
-	
+	print(f"  n_flux mean: {np.mean(n_flux):.6e}")
+
 	# Calculate velocity: v = sqrt(2*Φ_KE / Φ_m)
 	# Avoid division by zero
 	with np.errstate(divide='ignore', invalid='ignore'):
 		velocity = np.sqrt(2.0 * ke_flux / mass_flux)
 
-	return timesteps, mass_flux, ke_flux, velocity
+	return timesteps, mass_flux, ke_flux, velocity, n_flux
 
 
 def read_in_ampt_area(path='in.ampt'):
@@ -114,8 +114,8 @@ def main():
 	xhi_file = 'dumps/xhi_flux.dat'
 	
 	# read flux data from xlo and xhi boundary surfaces, derive momentum flux Π = Φ_m * v
-	t_xlo, m_lo, ke_lo, v_lo = read_flux_file(xlo_file)
-	t_xhi, m_hi, ke_hi, v_hi = read_flux_file(xhi_file)
+	t_xlo, m_lo, ke_lo, v_lo, n_lo = read_flux_file(xlo_file)
+	t_xhi, m_hi, ke_hi, v_hi, n_hi = read_flux_file(xhi_file)
 	
 	area = read_in_ampt_area('in.ampt') # cross-sectional area in m^2
 	# Momentum-flux-based boundary drag: F ≈ (Π_lo - Π_hi) * A, where Π = Φ_m * v
@@ -130,16 +130,20 @@ def main():
 	if np.any(mask_lo):
 		vx_lo_avg = float(np.mean(v_lo[mask_lo]))
 		rho_lo_avg = float(np.mean(m_lo[mask_lo] / v_lo[mask_lo]))
+		nrho_lo_avg = float(np.mean(n_lo[mask_lo] / v_lo[mask_lo]))
 	else:
 		vx_lo_avg = float('nan')
 		rho_lo_avg = float('nan')
+		nrho_lo_avg = float('nan')
 
 	if np.any(mask_hi):
 		vx_hi_avg = float(np.mean(v_hi[mask_hi]))
 		rho_hi_avg = float(np.mean(m_hi[mask_hi] / v_hi[mask_hi]))
+		nrho_hi_avg = float(np.mean(n_hi[mask_hi] / v_hi[mask_hi]))
 	else:
 		vx_hi_avg = float('nan')
 		rho_hi_avg = float('nan')
+		nrho_hi_avg = float('nan')
 
 	# Calculate average velocities (excluding NaN/inf values from zero flux)
 	v_lo_valid = v_lo[np.isfinite(v_lo)]
@@ -153,9 +157,11 @@ def main():
 	print("xlo boundary averages:")
 	print(f"  rho: {rho_lo_avg:.3e} kg/m³")
 	print(f"  vx: {vx_lo_avg:.1f} m/s")
+	print(f"  nrho: {nrho_lo_avg:.3e} 1/m³")
 	print("xhi boundary averages:")
 	print(f"  rho: {rho_hi_avg:.3e} kg/m³")
 	print(f"  vx: {vx_hi_avg:.1f} m/s")
+	print(f"  nrho: {nrho_hi_avg:.3e} 1/m³")
 
 	os.makedirs(os.path.dirname(args.out), exist_ok=True)
 
