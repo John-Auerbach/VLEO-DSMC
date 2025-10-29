@@ -82,7 +82,7 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 2000000.0
+variable        Ns_target equal 100000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -132,6 +132,27 @@ dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc 
 		# ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
 dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
+# Measure simulated flow properties ---------------------------------
+
+compute         prop_grid grid all atm nrho massrho pxrho
+compute         vol_grid  property/grid all vol
+
+# Use grid-style variables to multiply density by volume for each cell
+variable        nrho_vol grid c_prop_grid[1]*c_vol_grid
+variable        rho_vol  grid c_prop_grid[2]*c_vol_grid
+variable        px_vol   grid c_prop_grid[3]*c_vol_grid
+
+compute         sum_vol      reduce sum c_vol_grid
+compute         sum_nrho_vol reduce sum v_nrho_vol
+compute         sum_rho_vol  reduce sum v_rho_vol
+compute         sum_px_vol   reduce sum v_px_vol
+
+variable        nrho_avg equal c_sum_nrho_vol/c_sum_vol
+variable        rho_avg  equal c_sum_rho_vol/c_sum_vol
+variable        ux_avg   equal c_sum_px_vol/c_sum_rho_vol
+
+fix             boxprops ave/time 1 1 100 v_ux_avg v_rho_avg v_nrho_avg ave running file dumps/box_props.dat
+
 # DRAG CALC (short for caclulator) ------------------------
 # boundary method: use mass flux and kinetic energy flux through transparent surface. 
                     # these can be used to find pressure in front and behind object which gives F_drag
@@ -179,6 +200,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_wal
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             2000
+run             1000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
