@@ -84,15 +84,29 @@ def plot_streamlines(x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, spe
     fig, ax = plt.subplots(figsize=(7, 3.5))
     cmap = plt.colormaps['viridis'].copy()
     cmap.set_bad('black')
+    ax.set_aspect('auto')
 
     extent = (x_edges[0], x_edges[-1], y_edges[0], y_edges[-1])
     img = ax.imshow(speed_plot, extent=extent, origin='lower', cmap=cmap, aspect='auto')
-    ax.streamplot(X, Y, u_plot, v_plot, color='white', density=1.0, linewidth=0.8, arrowsize=1.0)
+
+    ax.streamplot(
+        X,
+        Y,
+        u_plot,
+        v_plot,
+        color='white',
+        density=1.0,
+        linewidth=0.8,
+        arrowsize=1.0,
+        broken_streamlines=False,
+    )
 
     ax.set_xlabel('x (m)')
     ax.set_ylabel('y (m)')
     time_text = f"time = {step * dt:.2e} s" if dt is not None else f"step = {step}"
     ax.set_title(f"streamlines |z| ≤ {SLICE_FRAC:.2f}H | {time_text}")
+    ax.set_xlim(x_edges[0], x_edges[-1])
+    ax.set_ylim(y_edges[0], y_edges[-1])
     fig.colorbar(img, ax=ax, label='|u| (m/s)')
     fig.tight_layout()
 

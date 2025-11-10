@@ -100,39 +100,40 @@ TIMESTEP MUST BE < 0.00059583542245651 s
 create_grid	150 100 50
 WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
 Created 750000 child grid cells
-  CPU time = 1.94532 secs
-  create/ghost percent = 3.42788 96.5721
+  CPU time = 1.74644 secs
+  create/ghost percent = 1.96736 98.0326
 balance_grid    rcb part
 WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
 Balance grid migrated 702941 cells
-  CPU time = 1.62983 secs
-  reassign/sort/migrate/ghost percent = 5.67101 0.357808 10.0275 83.9436
+  CPU time = 1.60898 secs
+  reassign/sort/migrate/ghost percent = 5.63074 0.260892 9.76297 84.3454
 
 variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/thin_plate.surf  group ampt        # create surface group "ampt"
+read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
   12 triangles
-  0 0.01 xlo xhi
+  -0.5 0.5 xlo xhi
   -0.1 0.1 ylo yhi
   -0.1 0.1 zlo zhi
-  0.01 min triangle edge length
-  0.001 min triangle area
-  120 = cells with surfs
-  340 = total surfs in all grid cells
-  8 = max surfs in one grid cell
-  0.227273 = min surf-size/cell-size ratio
-  120 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  0.2 min triangle edge length
+  0.02 min triangle area
+  2024 = cells with surfs
+  2716 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  4.54545 = min surf-size/cell-size ratio
+  2024 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  78 tiny edges removed
 WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
-  749880 0 120 = cells outside/inside/overlapping surfs
-  120 = surf cells with 1,2,etc splits
-  10.6476 10.6476 = cell-wise and global flow volume
-  CPU time = 1.44525 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0137739 0.0500203 2.39276 1.87941 95.664 4.75759 0.000173811
-  surf2grid time = 0.0271622 secs
-  map/comm1/comm2/comm3/comm4/split percent = 21.0692 0 0 0 0 56.8307
+  745800 2176 2024 = cells outside/inside/overlapping surfs
+  2024 = surf cells with 1,2,etc splits
+  10.608 10.608 = cell-wise and global flow volume
+  CPU time = 1.47993 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.150147 0.0554206 2.15333 1.57666 96.0644 4.36773 0.0421409
+  surf2grid time = 0.0233335 secs
+  map/comm1/comm2/comm3/comm4/split percent = 22.779 0 0 0 0 56.0804
 group       ampt_xnorm surf id 1:4              # front/back
 0 = initial surface count in group ampt_xnorm
 4 = final surface count in group ampt_xnorm
@@ -147,19 +148,20 @@ read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
   -1.1 1.1 zlo zhi
   2.2 min triangle edge length
   2.42 min triangle area
-  5120 = cells with surfs
-  5534 = total surfs in all grid cells
-  8 = max surfs in one grid cell
-  0.227273 = min surf-size/cell-size ratio
-  120 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  7024 = cells with surfs
+  7910 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  4.54545 = min surf-size/cell-size ratio
+  2024 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  156 tiny edges removed
 WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
-  749880 0 120 = cells outside/inside/overlapping surfs
-  120 = surf cells with 1,2,etc splits
-  10.6476 10.6476 = cell-wise and global flow volume
-  CPU time = 1.67285 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.160917 1.61666 2.18925 2.03695 93.9962 4.2719 0.00255617
-  surf2grid time = 0.0340752 secs
-  map/comm1/comm2/comm3/comm4/split percent = 21.3583 0 0 0 0 56.8029
+  745800 2176 2024 = cells outside/inside/overlapping surfs
+  2024 = surf cells with 1,2,etc splits
+  10.608 10.608 = cell-wise and global flow volume
+  CPU time = 1.664 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0355202 0.0360308 2.00664 1.51115 96.4107 5.74067 0.00170415
+  surf2grid time = 0.0251455 secs
+  map/comm1/comm2/comm3/comm4/split percent = 22.0664 0 0 0 0 55.3254
 read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
   2 triangles
   0.7 0.7 xlo xhi
@@ -167,15 +169,16 @@ read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
   -1.1 1.1 zlo zhi
   2.2 min triangle edge length
   2.42 min triangle area
-  120 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  2024 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  234 tiny edges removed
 WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
-  749880 0 120 = cells outside/inside/overlapping surfs
-  120 = surf cells with 1,2,etc splits
-  10.6476 10.6476 = cell-wise and global flow volume
-  CPU time = 1.71252 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0466449 0.0365009 2.10117 3.73183 94.0838 6.62011 0.0290071
-  surf2grid time = 0.0639086 secs
-  map/comm1/comm2/comm3/comm4/split percent = 25.2049 0.116684 17.3065 8.60111 11.1123 19.8067
+  745800 2176 2024 = cells outside/inside/overlapping surfs
+  2024 = surf cells with 1,2,etc splits
+  10.608 10.608 = cell-wise and global flow volume
+  CPU time = 1.73609 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.299877 0.932237 1.84564 3.4215 93.5008 3.74129 0.002239
+  surf2grid time = 0.0594001 secs
+  map/comm1/comm2/comm3/comm4/split percent = 26.744 0.111867 16.9798 8.78762 10.4241 18.0834
 
 
 
@@ -193,7 +196,7 @@ mixture     	atm nrho 1.564147e+20 vstream 7853.3 0.0 0.0 temp ${T}
 mixture     	atm nrho 1.564147e+20 vstream 7853.3 0.0 0.0 temp 190.251112
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 200000.0
+variable        Ns_target equal 2000000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        Vol       equal 2.2*${Ly}*${Lz}
 variable        Vol       equal 2.2*2.2*${Lz}
@@ -201,15 +204,15 @@ variable        Vol       equal 2.2*2.2*2.2
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 variable        fnum      equal 1.564147e+20*${Vol}/${Ns_target}
 variable        fnum      equal 1.564147e+20*10.648/${Ns_target}
-variable        fnum      equal 1.564147e+20*10.648/200000
+variable        fnum      equal 1.564147e+20*10.648/2000000
 global          fnum ${fnum} # global bc will be queried by each new particle
-global          fnum 8.327518628e+15 
+global          fnum 832751862800000 
 
 variable	parts_per equal ${nrho}/${Ns_target}
 variable	parts_per equal 1.564147e+20/${Ns_target}
-variable	parts_per equal 1.564147e+20/200000
+variable	parts_per equal 1.564147e+20/2000000
 print "particles per particle = ${parts_per}"
-particles per particle = 782073500000000
+particles per particle = 78207350000000
 
 # global useful for stat query later
 global          nrho ${nrho}
@@ -217,8 +220,8 @@ global          nrho 1.564147e+20
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
-Created 199992 particles
-  CPU time = 0.023823 secs
+Created 1992486 particles
+  CPU time = 0.109161 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		in emit/face atm xlo
@@ -337,105 +340,105 @@ timestep        1e-07
 collide		    vss atm vss/air.vss # variable soft sphere model
 run             5000
 Memory usage per proc in Mbytes:
-  particles (ave,min,max) = 1.6875 1.6875 1.6875
+  particles (ave,min,max) = 13.5 13.5 13.5
   grid      (ave,min,max) = 89.3644 89.3644 89.3644
   surf      (ave,min,max) = 0.00201416 0.00201416 0.00201416
-  total     (ave,min,max) = 95.7554 95.7554 95.7554
+  total     (ave,min,max) = 107.568 107.568 107.568
 Step CPU Np Natt Ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls 
-       0            0   199992        0        0    71495.281            0            0            0 
-     100    2.4490985   199892        3        3    71481.585    19.059566    19.059566            0 
-     200     4.926121   200092       29       23    71462.876    20.118553    19.724517    0.3940357 
-     300    7.7809625   199881       88       70     71441.83    21.666746    21.403619   0.26312683 
-     400     10.33188   199975      131      108    71413.863    22.727944    22.530434   0.19750917 
-     500    13.447778   200065      153      116    71394.428       22.817    22.614367   0.20263248 
-     600    16.002175   200070      256      188    71377.443    22.614918    22.426683   0.18823534 
-     700    19.061591   200163      309      240     71359.52    21.968881    21.807498   0.16138294 
-     800    21.570478   200083      331      263    71328.325    21.789698    21.598605   0.19109307 
-     900    24.504695   200119      410      308    71302.402    21.942279    21.760418   0.18186087 
-    1000    27.068241   200297      451      345    71278.656    22.069151    21.844541   0.22460988 
-    1100    29.966929   200256      484      366    71258.596    21.842082    21.607781   0.23430113 
-    1200     32.75095   200315      509      395    71238.673     21.46816    21.224287   0.24387365 
-    1300    35.653479   200383      532      404    71217.493    21.201123    20.968668   0.23245517 
-    1400    38.178606   200496      564      426    71197.441    21.238344    20.997224   0.24111976 
-    1500    41.043738   200426      617      484    71181.886    20.950121    20.689149   0.26097206 
-    1600    43.542392   200595      610      481    71164.226    20.772478    20.456522   0.31595597 
-    1700    46.300831   200677      626      488    71136.667    20.842434    20.545053   0.29738125 
-    1800    48.871083   200755      653      505    71109.333    20.844136    20.524486   0.31965012 
-    1900    51.644151   200863      703      544    71088.837    20.886613    20.579823   0.30679063 
-    2000    54.125407   200963      671      499    71057.397    20.822765    20.495689   0.32707576 
-    2100    56.824417   201158      674      540    71035.423    20.595374    20.256164   0.33920977 
-    2200    59.664748   201438      638      484    71007.093    20.655382    20.318308   0.33707394 
-    2300    62.361713   201585      628      489    70983.843    20.484303    20.113358    0.3709453 
-    2400    65.144649   201661      674      530    70951.052    20.371401    19.992255   0.37914559 
-    2500    67.936487   201920      693      546    70940.745    20.404009    20.018097     0.385912 
-    2600     70.83328   202070      680      522    70922.824    20.465236    20.075432   0.38980396 
-    2700    73.322261   201783      650      503     70904.67    20.398189    20.005154   0.39303462 
-    2800    76.168084   201676      695      539    70878.444    20.351254    19.972717   0.37853747 
-    2900    78.720423   201972      650      486    70854.584    20.351621    19.984094   0.36752645 
-    3000    81.710964   202084      671      536    70821.255    20.400544    20.022664   0.37787997 
-    3100     84.30108   202157      704      545    70796.444    20.393854    20.016888   0.37696592 
-    3200    87.244308   202359      744      573    70774.128    20.372395    20.004948   0.36744718 
-    3300    89.812647   202138      747      564    70752.648    20.420746    20.056897   0.36384944 
-    3400    92.841424   202235      720      548    70746.746    20.442987    20.076066   0.36692114 
-    3500    95.339412   202246      717      531    70745.872     20.41763    20.056943   0.36068671 
-    3600    98.330515   202227      732      554    70737.008      20.4445    20.080336   0.36416425 
-    3700    100.92251   202133      719      556    70736.487    20.439726    20.077758   0.36196757 
-    3800    103.96972   202315      760      581    70742.704    20.342278    19.982385   0.35989306 
-    3900    106.44821   202092      736      551    70745.193    20.267055    19.909759    0.3572956 
-    4000    109.35921   202136      725      548     70738.31    20.283915    19.920623     0.363292 
-    4100    111.87549   202129      752      571    70742.792    20.291083    19.925127    0.3659557 
-    4200    114.70566   202017      743      565    70740.702    20.233459    19.869411   0.36404818 
-    4300    117.18651   201780      719      557    70746.881      20.1842    19.805975   0.37822438 
-    4400    119.92666   201948      679      509    70756.461    20.091537     19.71973   0.37180739 
-    4500    122.59661   201835      744      553    70761.767     20.09503    19.670581   0.42444857 
-    4600    125.67084   201809      750      551    70765.396     20.05807    19.634092   0.42397748 
-    4700    129.12059   201769      692      510    70769.331    20.001747    19.577295   0.42445201 
-    4800    131.87466   201667      712      528    70767.015    20.011412    19.590556   0.42085556 
-    4900    135.52539   201547      742      562    70765.313    20.013859    19.591996   0.42186355 
-    5000    138.59014   201512      768      565    70758.869    19.941115    19.517403   0.42371159 
-Loop time of 138.59 on 16 procs for 5000 steps with 201512 particles
+       0            0  1992486        0        0    71491.289            0            0            0 
+     100    8.9089607  1992933     1268     1039    71473.087    29.298275    21.362759    7.9355164 
+     200    18.482458  1992881     5680     4627    71447.731    29.449091    21.159175    8.2899162 
+     300    27.884395  1992727     5648     4425    71423.561    29.759906    20.875226    8.8846792 
+     400    37.447266  1992849     5704     4379    71398.144    30.257996    20.828623    9.4293724 
+     500    47.381925  1992702     6082     4669     71371.41    30.540008    20.822034    9.7179738 
+     600    57.340576  1992255     6156     4614    71346.624     30.32036     20.54663    9.7737305 
+     700    67.418427  1992339     6489     4706    71321.257    30.461106    20.487284    9.9738219 
+     800    77.292263  1992833     6446     4753    71295.588    30.480597    20.207933    10.272664 
+     900    87.191114  1993152     6709     4825    71271.019    30.501167    20.100654    10.400513 
+    1000     96.88757  1993801     6929     4938    71247.342      30.4987    20.005466    10.493234 
+    1100    106.66918  1994184     6980     4905    71221.073    30.438963    19.909061    10.529902 
+    1200    116.71307  1994858     7079     4969     71193.65    30.315516    19.735799    10.579717 
+    1300    126.83131  1995199     7172     4974     71167.76    30.409129    19.730445    10.678684 
+    1400    136.49784  1996089     7400     5163    71139.783     30.48444    19.708643    10.775797 
+    1500    146.47462  1996959     7618     5203    71112.415    30.429326    19.643863    10.785463 
+    1600    156.50261  1998166     7614     5171    71083.837    30.342651    19.552108    10.790544 
+    1700    166.20331  1999221     7844     5318    71054.711    30.386523    19.550821    10.835702 
+    1800    182.88795  1999556     8077     5471    71023.983    30.451218    19.526785    10.924433 
+    1900    193.77146  2000487     8025     5516    70994.985    30.503322     19.50501    10.998312 
+    2000    203.60987  2000990     8324     5665    70961.627    30.474185    19.432996     11.04119 
+    2100    215.51878  2002431     8340     5554    70929.355    30.497403    19.414204    11.083199 
+    2200    224.97869  2003530     8631     5781    70895.879    30.511276    19.369425    11.141852 
+    2300    234.76785  2004751     8778     5831    70861.602    30.524247    19.401472    11.122775 
+    2400    247.11769  2005821     8965     5971    70824.173    30.586465    19.436626    11.149839 
+    2500    259.65234  2006705     9069     6019    70791.478    30.612206    19.417288    11.194918 
+    2600    269.56437  2008379     9093     6024    70755.719    30.712247    19.443929    11.268318 
+    2700    279.15754  2009748     9316     6187    70715.632    30.752538    19.466056    11.286483 
+    2800    288.50865  2009050     9393     6168    70662.187    30.745981    19.428137    11.317845 
+    2900    298.34299  2012501     9588     6252    70610.638    30.831125    19.444841    11.386284 
+    3000    308.78523  2014962     9846     6476    70568.996    30.918118    19.492408    11.425711 
+    3100    318.22183  2017181     9797     6330    70529.913    30.942397    19.488607     11.45379 
+    3200     328.4695  2019269     9871     6256    70493.537    30.968827    19.440082    11.528745 
+    3300     338.2617  2021169    10197     6576    70458.155    30.962817    19.437586    11.525231 
+    3400    347.87369  2023455    10277     6491     70430.47      30.9743    19.438224    11.536075 
+    3500    357.73027  2025227    10270     6663    70404.117    30.946295    19.406108    11.540187 
+    3600    367.45427  2026640    10194     6439     70379.14    30.934241    19.364312    11.569928 
+    3700    377.48876  2028357    10257     6471    70354.533    30.940815    19.323099    11.617715 
+    3800    387.15837  2029827    10307     6457    70332.298      30.9088    19.287149    11.621651 
+    3900    397.00902  2030425    10598     6657     70313.02    30.915805     19.25562    11.660184 
+    4000    406.53773  2031561    10820     6751    70297.327    30.953167    19.269263    11.683904 
+    4100    417.57301  2032131    10690     6657    70280.373    30.914403    19.250389    11.664013 
+    4200    427.23303  2033667    10709     6742    70266.185    30.927427    19.240424    11.687003 
+    4300    437.20087  2034464    10954     6806    70257.561    30.951556    19.234248    11.717308 
+    4400     446.9649  2033909    10750     6699    70246.586    30.940767    19.227992    11.712776 
+    4500    456.51865  2034666    11143     6943    70237.307    30.941024     19.22468    11.716344 
+    4600    466.06689  2034736    10822     6645    70225.456    30.950817     19.20946    11.741356 
+    4700     476.6428  2035279    10966     6727    70214.486    30.943477    19.194055    11.749422 
+    4800    486.48458  2036041    10941     6712    70204.779    30.917634    19.159847    11.757787 
+    4900    496.74139  2037240    11163     6864    70192.684     30.94161    19.156885    11.784725 
+    5000     507.1313  2037205    10991     6715    70186.657    30.949451    19.145463    11.803988 
+Loop time of 507.131 on 16 procs for 5000 steps with 2037205 particles
 
 MPI task timing breakdown:
 Section |  min time  |  avg time  |  max time  |%varavg| %total
 ---------------------------------------------------------------
-Move    | 19.112     | 19.947     | 20.769     |  11.7 | 14.39
-Coll    | 14.113     | 15.144     | 16.183     |  16.8 | 10.93
-Sort    | 36.686     | 39.305     | 41.828     |  27.1 | 28.36
-Comm    | 8.6697     | 9.6201     | 10.472     |  16.3 |  6.94
-Modify  | 19.593     | 21.338     | 23.408     |  24.5 | 15.40
-Output  | 33.213     | 33.222     | 33.232     |   0.1 | 23.97
-Other   |            | 0.01464    |            |       |  0.01
+Move    | 179.58     | 187.16     | 192.87     |  31.0 | 36.91
+Coll    | 27.287     | 28.665     | 29.46      |  12.5 |  5.65
+Sort    | 124.88     | 132.33     | 137.46     |  27.9 | 26.09
+Comm    | 25.985     | 31.381     | 38.244     |  72.2 |  6.19
+Modify  | 49.569     | 53.94      | 60.02      |  40.5 | 10.64
+Output  | 73.619     | 73.641     | 73.65      |   0.1 | 14.52
+Other   |            | 0.01478    |            |       |  0.00
 
-Particle moves    = 1006683691 (1.01B)
-Cells touched     = 1061397793 (1.06B)
-Particle comms    = 1122838 (1.12M)
+Particle moves    = 10059756491 (10.1B)
+Cells touched     = 10607145825 (10.6B)
+Particle comms    = 11509489 (11.5M)
 Boundary collides = 0 (0K)
-Boundary exits    = 355583 (0.356M)
-SurfColl checks   = 17586047 (17.6M)
-SurfColl occurs   = 720227 (0.72M)
+Boundary exits    = 3524338 (3.52M)
+SurfColl checks   = 184015713 (184M)
+SurfColl occurs   = 7197713 (7.2M)
 Surf reactions    = 0 (0K)
-Collide attempts  = 2900984 (2.9M)
-Collide occurs    = 2219693 (2.22M)
+Collide attempts  = 43104965 (43.1M)
+Collide occurs    = 28613270 (28.6M)
 Reactions         = 0 (0K)
 Particles stuck   = 0
 Axisymm bad moves = 0
 
-Particle-moves/CPUsec/proc: 453984
-Particle-moves/step: 201337
-Cell-touches/particle/step: 1.05435
+Particle-moves/CPUsec/proc: 1.23979e+06
+Particle-moves/step: 2.01195e+06
+Cell-touches/particle/step: 1.05441
 Particle comm iterations/step: 1
-Particle fraction communicated: 0.00111538
+Particle fraction communicated: 0.00114411
 Particle fraction colliding with boundary: 0
-Particle fraction exiting boundary: 0.000353222
-Surface-checks/particle/step: 0.0174693
-Surface-collisions/particle/step: 0.000715445
+Particle fraction exiting boundary: 0.00035034
+Surface-checks/particle/step: 0.0182923
+Surface-collisions/particle/step: 0.000715496
 Surf-reactions/particle/step: 0
-Collision-attempts/particle/step: 0.00288172
-Collisions/particle/step: 0.00220496
+Collision-attempts/particle/step: 0.00428489
+Collisions/particle/step: 0.00284433
 Reactions/particle/step: 0
 
-Particles: 12594.5 ave 12893 max 12327 min
-Histogram: 2 0 1 3 4 2 0 2 1 1
+Particles: 127325 ave 129575 max 124447 min
+Histogram: 2 3 1 1 0 1 0 0 3 5
 Cells:      46875 ave 46875 max 46875 min
 Histogram: 16 0 0 0 0 0 0 0 0 0
 GhostCell: 703125 ave 703125 max 703125 min
