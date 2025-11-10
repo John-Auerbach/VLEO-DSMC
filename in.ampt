@@ -82,7 +82,7 @@ mixture		atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 1000000.0
+variable        Ns_target equal 200000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -102,7 +102,7 @@ fix		in emit/face atm xlo
 # SURFACE COLLISIONS --------------------------------------------------------------------------
 
                 # compute ID, type, surf group, mixture, property (energy flux on surface)
-compute         compute_qwall surf ampt atm etot # etot = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
+compute         compute_qwall surf ampt atm ke # ke = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
 
                 # running‑average every step so flux is never exactly zero (exponential decay)
 fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
@@ -128,6 +128,11 @@ dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y
 compute         compute_Tgrid grid all atm temp # *per-grid array
                 # ID, data type, region, every _ steps, filename, columns (cell coords and gas temperature)
 dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_compute_Tgrid[*] # compute for all columns (gases) in array
+
+                # Per-grid mass-weighted velocity components for streamline plotting
+compute         compute_flow grid all atm u v w
+                # Dump per-cell centers and velocity components each diagnostics step
+dump            dump_flow grid all ${diag_freq} dumps/flow.*.dat id xlo ylo zlo xc yc zc c_compute_flow[*]
 
 		# ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
 dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
@@ -157,17 +162,17 @@ fix             boxprops ave/time 1 1 100 v_ux_avg v_rho_avg v_nrho_avg ave runn
 # boundary method: use mass flux and kinetic energy flux through transparent surface. 
                     # these can be used to find pressure in front and behind object which gives F_drag
 
-compute         xlo_flux surf xlo_bdy atm mflux etot nflux                                # mflux = mass flux, etot = energy flux, nflux = num flux
+compute         xlo_flux surf xlo_bdy atm mflux ke nflux                                # mflux = mass flux, ke = kinetic energy flux, nflux = num flux
 compute         xlo_mflux_avg reduce ave c_xlo_flux[1]                                  # average mass flux
-compute         xlo_etot_avg reduce ave c_xlo_flux[2]                                     # average etot flux
+compute         xlo_ke_avg reduce ave c_xlo_flux[2]                                     # average ke flux
 compute         xlo_nflux_avg reduce ave c_xlo_flux[3]                                  # average num flux
-fix             xlo_out ave/time 1 1 100 c_xlo_mflux_avg c_xlo_etot_avg c_xlo_nflux_avg ave running file dumps/xlo_flux.dat
+fix             xlo_out ave/time 1 1 100 c_xlo_mflux_avg c_xlo_ke_avg c_xlo_nflux_avg ave running file dumps/xlo_flux.dat
 
-compute         xhi_flux surf xhi_bdy atm mflux etot nflux
+compute         xhi_flux surf xhi_bdy atm mflux ke nflux
 compute         xhi_mflux_avg reduce ave c_xhi_flux[1]
-compute         xhi_etot_avg reduce ave c_xhi_flux[2]
+compute         xhi_ke_avg reduce ave c_xhi_flux[2]
 compute         xhi_nflux_avg reduce ave c_xhi_flux[3]
-fix             xhi_out ave/time 1 1 100 c_xhi_mflux_avg c_xhi_etot_avg c_xhi_nflux_avg ave running file dumps/xhi_flux.dat
+fix             xhi_out ave/time 1 1 100 c_xhi_mflux_avg c_xhi_ke_avg c_xhi_nflux_avg ave running file dumps/xhi_flux.dat
 
 
 # sum of surface forces (direct):
