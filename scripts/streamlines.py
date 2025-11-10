@@ -2,6 +2,7 @@ import os
 import re
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import sys
 
 sys.path.append(os.path.expanduser('~/AMPT/tools'))
@@ -107,6 +108,10 @@ def plot_streamlines(x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, spe
     ax.set_title(f"streamlines |z| ≤ {SLICE_FRAC:.2f}H | {time_text}")
     ax.set_xlim(x_edges[0], x_edges[-1])
     ax.set_ylim(y_edges[0], y_edges[-1])
+    # highlight AMPT box outline -------------------------------------------------------------------
+    outline = Rectangle((-0.5, -0.1), 1.0, 0.2, fill=False, edgecolor='red', linewidth=1.5)
+    ax.add_patch(outline)
+    # ----------------------------------------------------------------------------------------------
     fig.colorbar(img, ax=ax, label='|u| (m/s)')
     fig.tight_layout()
 

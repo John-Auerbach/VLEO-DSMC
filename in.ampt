@@ -13,11 +13,11 @@ boundary        o p p
 
 # domain size (m)
 variable        xmin equal -1.1
-variable        xmax equal 1.1
-variable        ymin equal -1.1
-variable 	    ymax equal 1.1
-variable	    zmin equal -1.1
-variable	    zmax equal 1.1
+variable        xmax equal 5
+variable        ymin equal -2
+variable 	    ymax equal 2
+variable	    zmin equal -2
+variable	    zmax equal 2
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -33,43 +33,41 @@ variable        vx   file data/vx.dat
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
 
-variable 	kB equal 1.380649e-23  # J/K
-variable 	d equal 3.7e-10  # m
-variable 	R equal 287.05 # (J / kg*K)
-variable 	lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
-variable	vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
+variable 	    kB equal 1.380649e-23  # J/K
+variable 	    d equal 3.7e-10  # m
+variable 	    R equal 287.05 # (J / kg*K)
+variable 	    lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
+variable	    vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
 
 print "MEAN FREE PATH = ${lambda} m"
 print "MEAN MOLEC VEL = ${vbar} m/s"
 
 # grid resolution
 
-variable	dx equal ${lambda}/3 # m
-variable	mct equal ${lambda}/${vbar} # s
-variable	mtt equal ${dx}/${vbar} # s
-variable	dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
+variable	    dx equal ${lambda}/3 # m
+variable	    mct equal ${lambda}/${vbar} # s
+variable	    mtt equal ${dx}/${vbar} # s
+variable	    dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
 
 print "CELL SIZE MUST BE LESS THAN ${dx} m"
 print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	150 100 50 
+create_grid	    150 100 50 
 balance_grid    rcb part
 
-variable	diag_freq   equal 100 # dump diagnostics every _ timesteps
-variable 	tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
+variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
+variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	surf/ampt_box.surf  group ampt        # create surface group "ampt"
-group       ampt_xnorm surf id 1:4              # front/back
-group       ampt_yznorm surf id 5:12             # walls
+read_surf	    surf/ampt_box.surf  group ampt        # create surface group "ampt"
+group           ampt_xnorm surf id 1:4              # front/back
+group           ampt_yznorm surf id 5:12             # walls
 
-read_surf	surf/xlo_bdy.surf  group xlo_bdy transparent
-read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
-
-
+read_surf	    surf/xlo_bdy.surf  group xlo_bdy transparent
+read_surf	    surf/xhi_bdy.surf  group xhi_bdy transparent
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -77,8 +75,8 @@ read_surf	surf/xhi_bdy.surf  group xhi_bdy transparent
 species         species/air.species N2 O2
 
 # define inflow gas mixture named atm
-mixture 	atm N2 frac 0.79
-mixture		atm O2 frac 0.21
+mixture 	    atm N2 frac 0.79
+mixture		    atm O2 frac 0.21
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
@@ -87,7 +85,7 @@ variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
 
-variable	parts_per equal ${nrho}/${Ns_target}
+variable	    parts_per equal ${nrho}/${Ns_target}
 print "particles per particle = ${parts_per}"
 
 # global useful for stat query later
@@ -97,7 +95,7 @@ global          nrho ${nrho}
 create_particles	atm n 0
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
-fix		in emit/face atm xlo
+fix		        in emit/face atm xlo
 
 # SURFACE COLLISIONS --------------------------------------------------------------------------
 
@@ -127,17 +125,17 @@ dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y
                 # ID, type, region, mixture, property (gas temperature per grid cell)
 compute         compute_Tgrid grid all atm temp # *per-grid array
                 # ID, data type, region, every _ steps, filename, columns (cell coords and gas temperature)
-dump 		dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_compute_Tgrid[*] # compute for all columns (gases) in array
+dump 		    dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_compute_Tgrid[*] # compute for all columns (gases) in array
 
                 # Per-grid mass-weighted velocity components for streamline plotting
 compute         compute_flow grid all atm u v w
                 # Dump per-cell centers and velocity components each diagnostics step
 dump            dump_flow grid all ${diag_freq} dumps/flow.*.dat id xlo ylo zlo xc yc zc c_compute_flow[*]
 
-		# ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
-dump    	dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
+		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
+dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
-# Measure simulated flow properties ---------------------------------
+# Measure simulated flow properties ---------------------
 
 compute         prop_grid grid all atm nrho massrho pxrho
 compute         vol_grid  property/grid all vol
