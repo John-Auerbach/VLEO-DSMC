@@ -77,7 +77,7 @@ def build_slice_field(df, box):
 
 
 def discover_timesteps(prefix='flow', dumps_dir=DUMPS_DIR):
-    """Return sorted timesteps from parquet or text dumps for the given prefix."""
+    """return sorted timesteps from parquet or text dumps for the given prefix."""
     timesteps = load_parquet_timesteps(prefix, dumps_dir)
     if timesteps:
         return timesteps
@@ -95,7 +95,7 @@ def discover_timesteps(prefix='flow', dumps_dir=DUMPS_DIR):
 
 
 def load_flow_frame(prefix, step, dumps_dir=DUMPS_DIR):
-    """Load a single flow frame as (step, df, box) with parquet/text fallback."""
+    """load a single flow frame as (step, df, box) with parquet/text fallback"""
     try:
         return load_parquet_single(prefix, step, dumps_dir)
     except Exception:
@@ -157,7 +157,7 @@ def plot_streamlines(x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, spe
 
 
 def animate_streamlines(dump_prefix='flow', dumps_dir=DUMPS_DIR, out_path=ANIM_OUTPUT_PATH, fps=10, dpi=200, sample_percentile=95):
-    """Create an animation of streamlines over available timesteps."""
+    """animation of streamlines over available timesteps"""
     dumps_dir = os.path.expanduser(dumps_dir)
     timesteps = discover_timesteps(dump_prefix, dumps_dir)
 
@@ -261,7 +261,7 @@ def animate_streamlines(dump_prefix='flow', dumps_dir=DUMPS_DIR, out_path=ANIM_O
 
 
 def create_snapshot(dump_prefix='flow', dumps_dir=DUMPS_DIR, out_path=OUTPUT_PATH):
-    """Generate a single streamline snapshot for the latest timestep."""
+    """generate a single streamline snapshot for the latest timestep"""
     dumps_dir = os.path.expanduser(dumps_dir)
     timesteps = discover_timesteps(dump_prefix, dumps_dir)
     if not timesteps:
