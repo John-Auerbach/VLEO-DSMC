@@ -40,9 +40,9 @@ def read_drag(path):
 
 def read_flux_file(path):
 	"""
-	Read a flux data file with timestep, mass flux (Φ_m), and KE flux (Φ_ke) columns.
-	Also derive an effective normal speed v_n = sqrt(2 Φ_ke / Φ_m).
-	Returns: timesteps, mass_flux (Φ_m), ke_flux (Φ_ke), velocity (v_n).
+	Read a plane flux file with timestep, M_dot (kg/s), E_dot (W), N_dot (1/s).
+	Also derive an effective normal speed v_eff = sqrt(2 * E_dot / M_dot).
+	Returns: timesteps, M_dot, E_dot, v_eff, N_dot.
 	"""
 	if not os.path.exists(path):
 		raise FileNotFoundError(f"Pressure file not found: {path}")
@@ -51,25 +51,25 @@ def read_flux_file(path):
 		# single line
 		data = data.reshape((1, -1))
 	if data.shape[1] < 3:
-		raise ValueError("Expected at least three columns: timestep, mass_flux, ke_flux")
+		raise ValueError("Expected at least three columns: timestep, M_dot, E_dot")
 	
 	timesteps = data[:, 0]
-	mass_flux = data[:, 1]  # Φ_m (kg/m²/s)
-	ke_flux = data[:, 2]    # Φ_KE (J/m²/s)
-	n_flux = data[:, 3]    # Φ_N
+	m_dot = data[:, 1]  # total mass flow (kg/s)
+	e_dot = data[:, 2]  # total KE flow (W)
+	n_dot = data[:, 3]  # total number flow (1/s)
 	
 	# Debug: print flux values
 	print(f"\n{path}:")
-	print(f"  mass_flux mean: {np.mean(mass_flux):.6e}")
-	print(f"  ke_flux mean: {np.mean(ke_flux):.6e}")
-	print(f"  n_flux mean: {np.mean(n_flux):.6e}")
+	print(f"  M_dot mean: {np.mean(m_dot):.6e} kg/s")
+	print(f"  E_dot mean: {np.mean(e_dot):.6e} W")
+	print(f"  N_dot mean: {np.mean(n_dot):.6e} 1/s")
 
 	# Calculate velocity: v = sqrt(2*Φ_KE / Φ_m)
 	# Avoid division by zero
 	with np.errstate(divide='ignore', invalid='ignore'):
-		velocity = np.sqrt(2.0 * ke_flux / mass_flux)
+		velocity = np.sqrt(2.0 * e_dot / m_dot)
 
-	return timesteps, mass_flux, ke_flux, velocity, n_flux
+	return timesteps, m_dot, e_dot, velocity, n_dot
 
 
 def read_in_ampt_area(path='in.ampt'):
@@ -113,11 +113,17 @@ def main():
 	xlo_file = 'dumps/xlo_flux.dat'
 	xhi_file = 'dumps/xhi_flux.dat'
 	
-	# read flux data from xlo and xhi boundary surfaces, derive momentum flux Π = Φ_m * v
-	t_xlo, m_lo, ke_lo, v_lo, n_lo = read_flux_file(xlo_file)
-	t_xhi, m_hi, ke_hi, v_hi, n_hi = read_flux_file(xhi_file)
+	# read total flow data from xlo and xhi boundary surfaces
+	t_xlo, m_lo_dot, e_lo_dot, v_lo, n_lo_dot = read_flux_file(xlo_file)
+	t_xhi, m_hi_dot, e_hi_dot, v_hi, n_hi_dot = read_flux_file(xhi_file)
 	
 	area = read_in_ampt_area('in.ampt') # cross-sectional area in m^2
+	# convert totals to per-area fluxes
+	m_lo = m_lo_dot / area
+	m_hi = m_hi_dot / area
+	n_lo = n_lo_dot / area
+	n_hi = n_hi_dot / area
+
 	# Momentum-flux-based boundary drag: F ≈ (Π_lo - Π_hi) * A, where Π = Φ_m * v
 	pi_lo = m_lo * v_lo
 	pi_hi = m_hi * v_hi

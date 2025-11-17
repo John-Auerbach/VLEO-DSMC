@@ -104,6 +104,30 @@ def load_flow_frame(prefix, step, dumps_dir=DUMPS_DIR):
             raise FileNotFoundError(f"Missing dump for step {step}: {path}")
         return read_sparta_grid_dump(path)
 
+# --------------------------------------------------------------------------------------
+
+def _safe_start_points(xc, yc, n_tracks):
+    """Generate start points strictly inside data bounds to satisfy streamplot."""
+    # small offsets to avoid touching domain extrema
+    if xc.size > 1:
+        dx = float(xc[1] - xc[0])
+    else:
+        dx = 0.0
+    if yc.size > 1:
+        dy = float(yc[1] - yc[0])
+    else:
+        dy = 0.0
+    epsx = 0.25 * dx
+    epsy = 0.25 * dy
+    x0 = float(xc[0] + epsx)
+    y_lo = float(yc[0] + epsy)
+    y_hi = float(yc[-1] - epsy) if yc.size > 1 else float(yc[0])
+    if y_hi < y_lo:
+        y_hi = y_lo
+    start_y = np.linspace(y_lo, y_hi, n_tracks, endpoint=True)
+    return np.column_stack((np.full_like(start_y, x0), start_y))
+
+# --------------------------------------------------------------------------------------
 
 def plot_streamlines(x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, speed_grid, step, dt, output_path=OUTPUT_PATH):
     """draw a speed heatmap with white streamlines so the flow direction is obvious"""
@@ -122,8 +146,7 @@ def plot_streamlines(x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, spe
     img = ax.imshow(speed_plot, extent=extent, origin='lower', cmap=cmap, aspect='auto')
 
     n_tracks = 100
-    start_y = np.linspace(y_centers[0], y_centers[-1], n_tracks, endpoint=True)
-    start_points = np.column_stack((np.full_like(start_y, x_centers[0]), start_y))
+    start_points = _safe_start_points(x_centers, y_centers, n_tracks)
 
     ax.streamplot(
         X,
@@ -216,8 +239,7 @@ def animate_streamlines(dump_prefix='flow', dumps_dir=DUMPS_DIR, out_path=ANIM_O
     dt = read_timestep_size()
 
     def fresh_start_points(xc, yc):
-        start_y_local = np.linspace(yc[0], yc[-1], n_tracks, endpoint=True)
-        return np.column_stack((np.full_like(start_y_local, xc[0]), start_y_local))
+        return _safe_start_points(xc, yc, n_tracks)
 
     def update(frame_idx):
         step = timesteps[frame_idx]
