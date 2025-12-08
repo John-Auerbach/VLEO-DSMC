@@ -35,7 +35,7 @@ if not os.path.exists(data_file):
         
         lat = 40.7934
         lon = 77.8600
-        altitudes = np.linspace(70, 300, 100) * 1e3 # m
+        altitudes = np.linspace(70, 500, 200) * 1e3 # m
         alt_km = altitudes * 1e-3 # km
         
         # load NRLMSIS Data
@@ -51,6 +51,14 @@ if not os.path.exists(data_file):
         v = np.sqrt(mu_E / (R_E + altitudes))
         N = P / (k_B * T)
 
+        # species number densities
+        n_N2 = np.squeeze(atmosphere[..., pymsis.Variable.N2])
+        n_O2 = np.squeeze(atmosphere[..., pymsis.Variable.O2])
+        n_O  = np.squeeze(atmosphere[..., pymsis.Variable.O])
+        n_He = np.squeeze(atmosphere[..., pymsis.Variable.HE])
+        n_Ar = np.squeeze(atmosphere[..., pymsis.Variable.AR])
+        n_N  = np.squeeze(atmosphere[..., pymsis.Variable.N])
+
         plt.figure(figsize=(8, 5))
         plt.plot(alt_km, rho)
         plt.xlabel('Altitude (km)')
@@ -59,8 +67,8 @@ if not os.path.exists(data_file):
         plt.grid(True)
         
         # save data to file
-        data = np.column_stack((alt_km, T, rho, P, P_torr, v, N))
-        header = "Altitude_km Temperature_K Density_kg_m3 Pressure_Pa Pressure_Torr Orbital_Velocity_m_s Number_Density_per_m3"
+        data = np.column_stack((alt_km, T, rho, P, P_torr, v, N, n_N2, n_O2, n_O, n_He, n_Ar, n_N))
+        header = "Altitude_km Temperature_K Density_kg_m3 Pressure_Pa Pressure_Torr Orbital_Velocity_m_s Number_Density_per_m3 n_N2 n_O2 n_O n_He n_Ar n_N"
         
         os.makedirs(data_dir, exist_ok=True)
         np.savetxt(data_file, data, header=header, fmt='%.6e', delimiter=' ')
@@ -83,6 +91,41 @@ open(os.path.join(data_dir, 'nrho.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,6
 open(os.path.join(data_dir, 'T.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,1]):.6f}\n")
 open(os.path.join(data_dir, 'vx.dat'),'w').write(f"{np.interp(alt,d[:,0],d[:,5]):.1f}\n")
 
+# species fractions
+# columns: 7=n_N2, 8=n_O2, 9=n_O, 10=n_He, 11=n_Ar, 12=n_N
+n_N2 = np.interp(alt, d[:,0], d[:,7])
+n_O2 = np.interp(alt, d[:,0], d[:,8])
+n_O  = np.interp(alt, d[:,0], d[:,9])
+n_He = np.interp(alt, d[:,0], d[:,10])
+n_Ar = np.interp(alt, d[:,0], d[:,11])
+n_N  = np.interp(alt, d[:,0], d[:,12])
+
+# replace nan with 0 (pymsis returns nan for some species at low altitudes)
+n_N2 = np.nan_to_num(n_N2)
+n_O2 = np.nan_to_num(n_O2)
+n_O  = np.nan_to_num(n_O)
+n_He = np.nan_to_num(n_He)
+n_Ar = np.nan_to_num(n_Ar)
+n_N  = np.nan_to_num(n_N)
+
+n_total = n_N2 + n_O2 + n_O + n_He + n_Ar + n_N
+frac_N2 = n_N2 / n_total
+frac_O2 = n_O2 / n_total
+frac_O  = n_O / n_total
+frac_He = n_He / n_total
+frac_Ar = n_Ar / n_total
+frac_N  = 1.0 - frac_N2 - frac_O2 - frac_O - frac_He - frac_Ar  # ensure sum = 1 or sparta crashes
+
+# write sparta include file with mixture commands
+with open(os.path.join(data_dir, 'atm.sparta'), 'w') as f:
+    f.write(f"species         species/air.species N2 O2 O He Ar N\n")
+    f.write(f"mixture         atm N2 frac {frac_N2:.4f}\n")
+    f.write(f"mixture         atm O2 frac {frac_O2:.4f}\n")
+    f.write(f"mixture         atm O  frac {frac_O:.4f}\n")
+    f.write(f"mixture         atm He frac {frac_He:.4f}\n")
+    f.write(f"mixture         atm Ar frac {frac_Ar:.4f}\n")
+    f.write(f"mixture         atm N  frac {frac_N:.4f}\n")
+
 print(f'Loaded atmospheric data for {alt} km altitude')
 rho_val = np.interp(alt,d[:,0],d[:,2])
 nrho_val = np.interp(alt,d[:,0],d[:,6])
@@ -92,3 +135,4 @@ print(f'  rho: {rho_val:.3e} kg/m³')
 print(f'  nrho: {nrho_val:.3e} m⁻³')
 print(f'  T: {T_val:.1f} K')
 print(f'  vx: {vx_val:.1f} m/s')
+print(f'  N2: {frac_N2:.4f}  O2: {frac_O2:.4f}  O: {frac_O:.4f}  He: {frac_He:.4f}  Ar: {frac_Ar:.4f}  N: {frac_N:.4f}')
