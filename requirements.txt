@@ -20,3 +20,4 @@ typing_extensions==4.14.1
 tzdata==2025.2
 pyarrow==15.0.0
 fastparquet==2024.5.0
+pymsis==0.8.0
