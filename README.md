@@ -112,6 +112,8 @@ source ~/.bashrc
 sparta -h  # should print help
 ```
 
+**Additional SPARTA documentation:** Extensive documentation is available at https://sparta.github.io/ - I highly recommend perusing it; It isn't terribly long, it can be tremendously helpful, and getting an idea about what is included before you start will save you hours of troubleshooting!
+
 ## 2. Setting Up Python Environment
 
 ```bash
