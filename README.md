@@ -81,6 +81,7 @@ The simulation integrates real atmospheric data using the **NRLMSIS-2.0 empirica
 - **Rarefied gas dynamics** in the thermosphere
 - **Molecular velocity distributions** (Maxwell-Boltzmann)
 - **Surface heating** from molecular bombardment
+- **Aerodynamic drag** from molecular impacts on surfaces
 - **Altitude-dependent** atmospheric properties
 - **Non-equilibrium effects** not captured by continuum models
 
