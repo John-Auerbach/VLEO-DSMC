@@ -7,20 +7,20 @@ VLEO-DSMC is a simulation toolkit built on [SPARTA](https://sparta.github.io/) f
 Import your satellite geometry as an STL file and compute aerodynamic drag, surface heating, velocity fields, and streamlines. The included Python scripts handle atmospheric data generation, dump file handling, and visualization. Particle animations, temperature heatmaps, flow field plots, and multi-altitude drag analysis are all supported out of the box. MPI parallelization enables faster execution on multi-core systems.
 
 ## Table of Contents
-1. [Simulation Overview](#simulation-overview)
-2. [Installing SPARTA](#1-install-sparta)
-3. [Setting Up Python Environment](#2-set-up-python-environment)
-4. [Running Simulations](#3-run-simulations)
-5. [Converting Dump Data](#4-convert-dump-data-for-memory-efficient-analysis)
-6. [Visualization and Analysis Scripts](#5-visualization-and-analysis-scripts)
-7. [Atmospheric Data and Species Composition](#6-atmospheric-data-and-species-composition)
-8. [Surface Geometry and STL Conversion](#7-surface-geometry-and-stl-conversion)
-9. [Surface Collision Models and Accommodation](#8-surface-collision-models-and-accommodation)
-10. [Drag Calculation Methods](#9-drag-calculation-methods)
-11. [Input File Reference](#10-input-file-reference)
-12. [Best Practices](#11-best-practices)
+0. [Simulation Overview](#simulation-overview)
+1. [Installing SPARTA](#1-install-sparta)
+2. [Setting Up Python Environment](#2-set-up-python-environment)
+3. [Running Simulations](#3-run-simulations)
+4. [Converting Dump Data](#4-convert-dump-data-for-memory-efficient-analysis)
+5. [Visualization and Analysis Scripts](#5-visualization-and-analysis-scripts)
+6. [Atmospheric Data and Species Composition](#6-atmospheric-data-and-species-composition)
+7. [Surface Geometry and STL Conversion](#7-surface-geometry-and-stl-conversion)
+8. [Surface Collision Models and Accommodation](#8-surface-collision-models-and-accommodation)
+9. [Drag Calculation Methods](#9-drag-calculation-methods)
+10. [Input File Reference](#10-input-file-reference)
+11. [Best Practices](#11-best-practices)
 
-## Simulation Overview
+## 0. Simulation Overview
 
 ### What is DSMC?
 
