@@ -288,7 +288,7 @@ python3 scripts/animate_particles.py [folder]
 - **Output:** `outputs/particle_anim.mp4`
 
 <div align="center">
-  <img src="examples/animate_particles.gif" width="400">
+  <img src="examples/animate_particles.gif" width="300">
 </div>
 
 ### Surface Temperature Heatmap
@@ -301,7 +301,7 @@ python3 scripts/surface_temp_heatmap.py [folder]
 - **Note:** Uses `in.ampt` to extract timestep size
 
 <div align="center">
-  <img src="examples/surface_temp_heatmap.gif" width="400">
+  <img src="examples/surface_temp_heatmap.gif" width="500">
 </div>
 
 ### Grid Temperature Heatmap
@@ -314,7 +314,7 @@ python3 scripts/grid_temp_heatmap.py [folder]
 - **Note:** Uses `in.ampt` to extract timestep size
 
 <div align="center">
-  <img src="examples/grid_temp_heatmap.gif" width="400">
+  <img src="examples/grid_temp_heatmap.gif" width="500">
 </div>
 
 ### Velocity Heatmap
@@ -327,7 +327,7 @@ python3 scripts/velocity_heatmap.py [folder]
 - **Note:** Uses `in.ampt` to extract timestep size
 
 <div align="center">
-  <img src="examples/velocity_heatmap.gif" width="400">
+  <img src="examples/velocity_heatmap.gif" width="500">
 </div>
 
 ### Streamlines
