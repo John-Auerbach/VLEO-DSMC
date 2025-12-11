@@ -25,11 +25,8 @@ variable        Lz equal ${zmax}-${zmin}
 
 create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
 
-# Load atmospheric data from NRLMSIS (run: python3 tools/load_atm_data.py)
-variable        rho  file data/rho.dat
-variable        nrho file data/nrho.dat
-variable        T    file data/T.dat
-variable        vx   file data/vx.dat
+# Load atmospheric data from NRLMSIS (run: python3 tools/load_atm_data.py <altitude_km>)
+include         data/atm.sparta
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
 
@@ -71,8 +68,7 @@ read_surf	    surf/xhi_bdy.surf  group xhi_bdy transparent
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
-# load species and mixture from NRLMSIS (run: python3 tools/load_atm_data.py <altitude_km>)
-include         data/atm.sparta
+# set mixture properties from NRLMSIS data
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
