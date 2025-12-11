@@ -288,7 +288,7 @@ python3 scripts/animate_particles.py [folder]
 - **Output:** `outputs/particle_anim.mp4`
 
 <div align="center">
-  <img src="examples/animate_particles.gif" width="300">
+  <img src="examples/animate_particles.gif" width="350">
 </div>
 
 ### Surface Temperature Heatmap
@@ -494,9 +494,8 @@ python3 tools/stl2surf.py models/AMPT_sat_inlet.STL surf/AMPT_sat_inlet.surf
 
 Located in `surf/`:
 - `cube.surf` - 1m × 1m × 1m cube centered at origin (12 triangles)
-- `AMPT_sat_inlet.surf` - AMPT satellite geometry
-- `sat_inlet_radiator.surf`, `sat_inlet.surf`, etc. - Various satellite configurations
-- `xlo_bdy.surf`, `xhi_bdy.surf` - Transparent boundary planes for flux measurement
+- Additional satellite configurations
+- `xlo_bdy.surf`, `xhi_bdy.surf` - Transparent boundary planes for flux measurement ()
 
 ### Transparent Boundary Surfaces
 
@@ -505,6 +504,8 @@ For drag calculations using momentum flux, transparent boundary surfaces are pla
 - `xhi_bdy.surf` - Downstream plane at x = +1.0 m
 
 These are read with the `transparent` flag in SPARTA and don't interact with particles—they only measure fluxes.
+
+**(Warning: see [experimental momentum flux drag method](#momentum-flux-method-experimental---do-not-use) before using transparent planes to measure fluxes!)**
 
 ## 8. Surface Collision Models and Accommodation
 
@@ -599,7 +600,7 @@ compute         xhi_flux surf xhi_bdy atm mflux ke nflux
 
 Drag is computed as: F ≈ (Π_lo - Π_hi) × A, where Π = Φ_m × v
 
-**!! Warning:** This method does not accurately reconstruct simulated number or mass densities. I suspect there a fundamental issue with how SPARTA's transparent surfaces detect particles (the actual calculations of fluxes follow my formulations, but I still calculate the wrong values). **The boundary momentum-flux line on the drag plot should be ignored.** Use only the direct drag values.
+**Warning:** This method does not accurately reconstruct simulated number or mass densities. I suspect there a fundamental issue with how SPARTA's transparent surfaces detect particles (the actual calculations of fluxes follow my formulations, but I still calculate the wrong values). **The boundary momentum-flux line on the drag plot should be ignored.** Use only the direct drag values.
 
 ### Output Files
 
