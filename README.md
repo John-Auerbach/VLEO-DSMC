@@ -287,7 +287,9 @@ python3 scripts/animate_particles.py [folder]
 - Subsamples to 5000 particles for performance
 - **Output:** `outputs/particle_anim.mp4`
 
-<img src="examples/animate_particles.gif" width="400">
+<div align="center">
+  <img src="examples/animate_particles.gif" width="400">
+</div>
 
 ### Surface Temperature Heatmap
 ```bash
@@ -298,7 +300,9 @@ python3 scripts/surface_temp_heatmap.py [folder]
 - **Output:** `outputs/surface_temp_heatmap.mp4`
 - **Note:** Uses `in.ampt` to extract timestep size
 
-![examples/surface_temp_heatmap.gif](examples/surface_temp_heatmap.gif)
+<div align="center">
+  <img src="examples/surface_temp_heatmap.gif" width="400">
+</div>
 
 ### Grid Temperature Heatmap
 ```bash
@@ -309,7 +313,9 @@ python3 scripts/grid_temp_heatmap.py [folder]
 - **Output:** `outputs/grid_temp_heatmap.mp4`
 - **Note:** Uses `in.ampt` to extract timestep size
 
-![examples/grid_temp_heatmap.gif](examples/grid_temp_heatmap.gif)
+<div align="center">
+  <img src="examples/grid_temp_heatmap.gif" width="400">
+</div>
 
 ### Velocity Heatmap
 ```bash
@@ -320,7 +326,9 @@ python3 scripts/velocity_heatmap.py [folder]
 - **Output:** `outputs/velocity_heatmap.mp4`
 - **Note:** Uses `in.ampt` to extract timestep size
 
-![examples/velocity_heatmap.gif](examples/velocity_heatmap.gif)
+<div align="center">
+  <img src="examples/velocity_heatmap.gif" width="400">
+</div>
 
 ### Streamlines
 ```bash
@@ -335,9 +343,20 @@ python3 scripts/streamlines.py --anim
 - Red rectangle indicates object outline
 - **Output:** `outputs/streamlines_2d.png` or `outputs/streamlines_anim.mp4`
 
-<img src="examples/streamlines_2d.png" width="500">
-
-<img src="examples/streamlines_anim.gif" width="500">
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="examples/streamlines_2d.png" width="400"><br>
+        <sub>Static Streamlines</sub>
+      </td>
+      <td align="center">
+        <img src="examples/streamlines_anim.gif" width="400"><br>
+        <sub>Animated Streamlines</sub>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ### Drag Analysis (Single Run)
 ```bash
@@ -358,7 +377,9 @@ python3 scripts/analyze_multi_altitude_drag.py [--csv]
   - `outputs/multi_altitude_drag_evolution.mp4` (linear scale)
   - `outputs/multi_altitude_drag_evolution_log.mp4` (log scale)
 
-![examples/multi_altitude_drag_evolution.gif](examples/multi_altitude_drag_evolution.gif)
+<div align="center">
+  <img src="examples/multi_altitude_drag_evolution.gif" width="500">
+</div>
 
 ### Multi-Altitude Temperature Analysis
 ```bash
@@ -368,7 +389,9 @@ python3 scripts/analyze_multi_altitude_temp.py
 - Creates animated plot showing temperature vs altitude over time
 - **Output:** `outputs/multi_altitude_temp_evolution.mp4`
 
-![examples/analyze_multi_altitude_temp.gif](examples/analyze_multi_altitude_temp.gif)
+<div align="center">
+  <img src="examples/analyze_multi_altitude_temp.gif" width="500">
+</div>
 
 ### Usage Examples
 ```bash
