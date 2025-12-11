@@ -6,8 +6,6 @@ VLEO-DSMC is a simulation toolkit built on [SPARTA](https://sparta.github.io/) f
 
 Import your satellite geometry as an STL file and compute aerodynamic drag, surface heating, velocity fields, and streamlines. The included Python scripts handle atmospheric data generation, dump file handling, and visualization. Particle animations, temperature heatmaps, flow field plots, and multi-altitude drag analysis are all supported out of the box. MPI parallelization enables faster execution on multi-core systems.
 
----
-
 ## Table of Contents
 1. [Simulation Overview](#simulation-overview)
 2. [Installing SPARTA](#1-install-sparta)
