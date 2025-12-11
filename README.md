@@ -377,8 +377,20 @@ python3 scripts/analyze_multi_altitude_drag.py [--csv]
   - `outputs/multi_altitude_drag_evolution.mp4` (linear scale)
   - `outputs/multi_altitude_drag_evolution_log.mp4` (log scale)
 
+
 <div align="center">
-  <img src="examples/multi_altitude_drag_evolution.gif" width="500">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="examples/multi_altitude_drag_evolution.gif" width="400"><br>
+        <sub>Linear Scale</sub>
+      </td>
+      <td align="center">
+        <img src="examples/multi_altitude_drag_evolution_log.gif" width="400"><br>
+        <sub>Log Scale</sub>
+      </td>
+    </tr>
+  </table>
 </div>
 
 ### Multi-Altitude Temperature Analysis
@@ -648,7 +660,7 @@ shell "bash -c 'rm -f dumps/*.dat'"
 
 However, if dumps are stored in subfolders (e.g., `dumps/alt_100km/`), they will persist. This is useful for keeping multi-altitude results.
 
-**Note:** Parquet files (`.parquet`) from previous conversions will also persist. Delete them manually if needed. These should probably be auto deleted during load_dumps.py, but its late and I'm too tired to think about the implications of doing so. Submit a pull request if you have a problem with it, or anything else for that matter:
+**Note:** Parquet files (`.parquet`) from previous conversions will also persist. Delete them manually if needed. These should probably be auto deleted during load_dumps.py, but it's late and I'm too tired to think about the implications of doing so. Submit a pull request if you have a problem with it, or anything else for that matter:
 ```bash
 rm -f dumps/*.parquet
 ```
