@@ -102,22 +102,74 @@ This simulation models **satellite atmospheric drag and heating** in the thermos
 
 The DSMC method is essential at altitude ranges where the Knudsen number (Kn = λ/L > 0.1) indicates rarefied flow conditions that may violate continuum assumptions used in traditional CFD.
 
-## 1. Installing SPARTA
+## 1. Install SPARTA
+
+### Prerequisites
 
 ```bash
 sudo apt update
 sudo apt install build-essential gfortran mpich
-git clone https://github.com/sparta/sparta.git
-cd sparta/src
-make serial
-echo 'export PATH=$PATH:$HOME/sparta/src' >> ~/.bashrc
-source ~/.bashrc
-sparta -h  # should print help
 ```
 
-**Additional SPARTA documentation:** Extensive documentation is available at https://sparta.github.io/ - I highly recommend perusing it; It isn't terribly long, it can be tremendously helpful, and getting an idea about what is included before you start will save you hours of troubleshooting!
+### Build SPARTA
 
-## 2. Setting Up Python Environment
+```bash
+git clone https://github.com/sparta/sparta.git
+cd sparta/src
+
+# Build MPI version (recommended for multi-core execution)
+make mpi      # Creates: spa_mpi
+
+# Build serial version (single core only)
+make serial   # Creates: spa_serial
+```
+
+**Which to use?** Build `spa_mpi` if you want to run simulations on multiple cores (recommended). The scripts in this repo (`run_sparta.sh`, `multi_altitude.py`) use `mpirun` and require `spa_mpi`.
+
+### Create a symlink for convenience
+
+To use `sparta` as the command name (as used in `run_sparta.sh` and `multi_altitude.py`):
+
+```bash
+cd ~/sparta/src
+ln -s spa_mpi sparta       # Recommended: enables multi-core runs with mpirun
+# OR for serial only:
+ln -s spa_serial sparta
+```
+
+**Important:** If you plan to use `mpirun` for parallel execution, you **must** link to `spa_mpi`. Using `spa_serial` with `mpirun` will launch multiple independent serial processes instead of one parallel simulation - they won't communicate and results will be incorrect.
+
+### Add to PATH
+
+For **bash** (most common):
+```bash
+echo 'export PATH="$PATH:$HOME/sparta/src"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+For **tcsh/csh**:
+```tcsh
+echo 'setenv PATH "${PATH}:${HOME}/sparta/src"' >> ~/.cshrc
+source ~/.cshrc
+```
+
+### Verify installation
+
+```bash
+sparta -h              # Should print help/version info
+# OR test directly:
+~/sparta/src/sparta -h
+
+# Verify MPI is working (should say "Running on N MPI task(s)"):
+mpirun -np 2 sparta -h
+# Ignore the 'non-zero status' error that comes after this.
+```
+
+If `sparta -h` doesn't work but the direct path does, your PATH isn't set correctly for your shell.
+
+**Additional SPARTA documentation:** Extensive documentation is available at https://sparta.github.io/ - I highly recommend perusing it; it isn't terribly long, it can be tremendously helpful, and getting an idea about what is included before you start will save you hours of troubleshooting!
+
+## 2. Set Up Python Environment
 
 ```bash
 cd ~/AMPT

@@ -1,5 +1,5 @@
-SPARTA (20 Jan 2025)
-Running on 16 MPI task(s)
+SPARTA (24 Sep 2025)
+Running on 4 MPI task(s)
 # SETUP --------------------------------------------------------------------------------------
 
 shell "bash -c 'rm -f dumps/*.dat'"
@@ -47,66 +47,66 @@ variable        T    file data/T.dat
 variable        vx   file data/vx.dat
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
-Loaded NRLMSIS data: rho=1.009844229730e-09 nrho=2.099562e+16 T=707.766559 vx=7808.1
+Loaded NRLMSIS data: rho=5.383632342874e-07 nrho=1.119308e+19 T=180.511820 vx=7844.2
 
 variable 	    kB equal 1.380649e-23  # J/K
 variable 	    d equal 3.7e-10  # m
 variable 	    R equal 287.05 # (J / kg*K)
 variable 	    lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
 variable 	    lambda equal 1.380649e-23*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
-variable 	    lambda equal 1.380649e-23*707.766559/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
-variable 	    lambda equal 1.380649e-23*707.766559/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R}) 
-variable 	    lambda equal 1.380649e-23*707.766559/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R}) 
-variable 	    lambda equal 1.380649e-23*707.766559/(sqrt(2.0)*PI*3.7e-10*3.7e-10*1.009844229730e-09*${R}) 
-variable 	    lambda equal 1.380649e-23*707.766559/(sqrt(2.0)*PI*3.7e-10*3.7e-10*1.009844229730e-09*287.05) 
+variable 	    lambda equal 1.380649e-23*180.511820/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) 
+variable 	    lambda equal 1.380649e-23*180.511820/(sqrt(2.0)*PI*3.7e-10*${d}*${rho}*${R}) 
+variable 	    lambda equal 1.380649e-23*180.511820/(sqrt(2.0)*PI*3.7e-10*3.7e-10*${rho}*${R}) 
+variable 	    lambda equal 1.380649e-23*180.511820/(sqrt(2.0)*PI*3.7e-10*3.7e-10*5.383632342874e-07*${R}) 
+variable 	    lambda equal 1.380649e-23*180.511820/(sqrt(2.0)*PI*3.7e-10*3.7e-10*5.383632342874e-07*287.05) 
 variable	    vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
 variable	    vbar equal sqrt(8*1.380649e-23*${T}/(PI*${rho}/${nrho})) 
-variable	    vbar equal sqrt(8*1.380649e-23*707.766559/(PI*${rho}/${nrho})) 
-variable	    vbar equal sqrt(8*1.380649e-23*707.766559/(PI*1.009844229730e-09/${nrho})) 
-variable	    vbar equal sqrt(8*1.380649e-23*707.766559/(PI*1.009844229730e-09/2.099562e+16)) 
+variable	    vbar equal sqrt(8*1.380649e-23*180.511820/(PI*${rho}/${nrho})) 
+variable	    vbar equal sqrt(8*1.380649e-23*180.511820/(PI*5.383632342874e-07/${nrho})) 
+variable	    vbar equal sqrt(8*1.380649e-23*180.511820/(PI*5.383632342874e-07/1.119308e+19)) 
 
 print "MEAN FREE PATH = ${lambda} m"
-MEAN FREE PATH = 55423.3871192865 m
+MEAN FREE PATH = 26.514757791453 m
 print "MEAN MOLEC VEL = ${vbar} m/s"
-MEAN MOLEC VEL = 719.273194893199 m/s
+MEAN MOLEC VEL = 363.246658653627 m/s
 
 # grid resolution
 
 variable	    dx equal ${lambda}/3 # m
-variable	    dx equal 55423.3871192865/3 
+variable	    dx equal 26.514757791453/3 
 variable	    mct equal ${lambda}/${vbar} # s
-variable	    mct equal 55423.3871192865/${vbar} 
-variable	    mct equal 55423.3871192865/719.273194893199 
+variable	    mct equal 26.514757791453/${vbar} 
+variable	    mct equal 26.514757791453/363.246658653627 
 variable	    mtt equal ${dx}/${vbar} # s
-variable	    mtt equal 18474.4623730955/${vbar} 
-variable	    mtt equal 18474.4623730955/719.273194893199 
+variable	    mtt equal 8.838252597151/${vbar} 
+variable	    mtt equal 8.838252597151/363.246658653627 
 variable	    dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
-variable	    dt equal ((77.0547095495697<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
-variable	    dt equal ((77.0547095495697<25.6849031831899)*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
-variable	    dt equal ((77.0547095495697<25.6849031831899)*77.0547095495697+(${mct}>=${mtt})*${mtt})/3.0 
-variable	    dt equal ((77.0547095495697<25.6849031831899)*77.0547095495697+(77.0547095495697>=${mtt})*${mtt})/3.0 
-variable	    dt equal ((77.0547095495697<25.6849031831899)*77.0547095495697+(77.0547095495697>=25.6849031831899)*${mtt})/3.0 
-variable	    dt equal ((77.0547095495697<25.6849031831899)*77.0547095495697+(77.0547095495697>=25.6849031831899)*25.6849031831899)/3.0 
+variable	    dt equal ((0.0729938105686365<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
+variable	    dt equal ((0.0729938105686365<0.0243312701895455)*${mct}+(${mct}>=${mtt})*${mtt})/3.0 
+variable	    dt equal ((0.0729938105686365<0.0243312701895455)*0.0729938105686365+(${mct}>=${mtt})*${mtt})/3.0 
+variable	    dt equal ((0.0729938105686365<0.0243312701895455)*0.0729938105686365+(0.0729938105686365>=${mtt})*${mtt})/3.0 
+variable	    dt equal ((0.0729938105686365<0.0243312701895455)*0.0729938105686365+(0.0729938105686365>=0.0243312701895455)*${mtt})/3.0 
+variable	    dt equal ((0.0729938105686365<0.0243312701895455)*0.0729938105686365+(0.0729938105686365>=0.0243312701895455)*0.0243312701895455)/3.0 
 
 print "CELL SIZE MUST BE LESS THAN ${dx} m"
-CELL SIZE MUST BE LESS THAN 18474.4623730955 m
+CELL SIZE MUST BE LESS THAN 8.838252597151 m
 print "MEAN COLL TIME = ${mct} s"
-MEAN COLL TIME = 77.0547095495697 s
+MEAN COLL TIME = 0.0729938105686365 s
 print "MEAN TRANSIT TIME = ${mtt} s"
-MEAN TRANSIT TIME = 25.6849031831899 s
+MEAN TRANSIT TIME = 0.0243312701895455 s
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
-TIMESTEP MUST BE < 8.56163439439663 s
+TIMESTEP MUST BE < 0.00811042339651517 s
 
 create_grid	    150 100 50
-WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
 Created 750000 child grid cells
-  CPU time = 1.5404 secs
-  create/ghost percent = 1.87995 98.12
+  CPU time = 0.446033 secs
+  create/ghost percent = 7.78327 92.2167
 balance_grid    rcb part
-WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
-Balance grid migrated 703091 cells
-  CPU time = 1.55348 secs
-  reassign/sort/migrate/ghost percent = 8.56907 0.465115 10.5954 80.3704
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
+Balance grid migrated 562500 cells
+  CPU time = 0.540296 secs
+  reassign/sort/migrate/ghost percent = 11.9796 0.824879 25.5599 61.6356
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
 variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
@@ -120,20 +120,16 @@ read_surf	    surf/cube.surf  group ampt        # create surface group "ampt"
   -0.5 0.5 zlo zhi
   1 min triangle edge length
   0.5 min triangle area
-  1608 = cells with surfs
-  2080 = total surfs in all grid cells
-  6 = max surfs in one grid cell
-  8.33333 = min surf-size/cell-size ratio
   1608 0 = cells overlapping surfs, overlap cells with unmarked corner pts
   4 tiny edges removed
-WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
   745320 3072 1608 = cells outside/inside/overlapping surfs
   1608 = surf cells with 1,2,etc splits
   215 215 = cell-wise and global flow volume
-  CPU time = 1.39636 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.605161 2.61669 2.26367 4.9544 89.5601 4.29366 0.000389083
-  surf2grid time = 0.0691813 secs
-  map/comm1/comm2/comm3/comm4/split percent = 23.5375 0 0 0 0 37.7363
+  CPU time = 0.463778 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0160544 0.0273426 7.06177 11.5874 81.3074 15.5889 0.000188236
+  surf2grid time = 0.0537401 secs
+  map/comm1/comm2/comm3/comm4/split percent = 25.2264 0.0504577 24.2587 7.87023 10.5208 17.7871
 group           ampt_xnorm surf id 1:4              # front/back
 0 = initial surface count in group ampt_xnorm
 4 = final surface count in group ampt_xnorm
@@ -148,20 +144,16 @@ read_surf	    surf/xlo_bdy.surf  group xlo_bdy transparent
   -1.1 1.1 zlo zhi
   2.2 min triangle edge length
   2.42 min triangle area
-  3128 = cells with surfs
-  3748 = total surfs in all grid cells
-  6 = max surfs in one grid cell
-  8.33333 = min surf-size/cell-size ratio
   1608 0 = cells overlapping surfs, overlap cells with unmarked corner pts
   8 tiny edges removed
-WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
   745320 3072 1608 = cells outside/inside/overlapping surfs
   1608 = surf cells with 1,2,etc splits
   215 215 = cell-wise and global flow volume
-  CPU time = 1.46198 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0285323 0.153808 2.11043 1.56633 96.1409 4.02508 0.00679826
-  surf2grid time = 0.0228994 secs
-  map/comm1/comm2/comm3/comm4/split percent = 28.4992 0 0 0 0 49.494
+  CPU time = 0.473884 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0108438 0.0159222 6.53638 13.2853 80.1516 14.8408 0.000199416
+  surf2grid time = 0.0629568 secs
+  map/comm1/comm2/comm3/comm4/split percent = 26.0261 0.0601269 25.4684 6.46749 9.51086 15.8969
 read_surf	    surf/xhi_bdy.surf  group xhi_bdy transparent
   2 triangles
   0.7 0.7 xlo xhi
@@ -171,30 +163,30 @@ read_surf	    surf/xhi_bdy.surf  group xhi_bdy transparent
   2.42 min triangle area
   1608 0 = cells overlapping surfs, overlap cells with unmarked corner pts
   12 tiny edges removed
-WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:499)
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
   745320 3072 1608 = cells outside/inside/overlapping surfs
   1608 = surf cells with 1,2,etc splits
   215 215 = cell-wise and global flow volume
-  CPU time = 1.54796 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0100565 0.0176889 1.90915 4.14239 93.9207 3.86818 0.00452913
-  surf2grid time = 0.0641224 secs
-  map/comm1/comm2/comm3/comm4/split percent = 28.5061 0.151735 19.1165 6.86246 9.41907 17.3997
+  CPU time = 0.538967 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0123176 0.0152892 5.74059 11.444 82.7878 10.6472 0.000190364
+  surf2grid time = 0.0616795 secs
+  map/comm1/comm2/comm3/comm4/split percent = 25.8717 0.0524518 27.2621 5.70204 9.78735 16.7606
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
 # load species and mixture from NRLMSIS (run: python3 tools/load_atm_data.py <altitude_km>)
 include         data/atm.sparta
 species         species/air.species N2 O2 O He Ar N
-mixture         atm N2 frac 0.5379
-mixture         atm O2 frac 0.0379
-mixture         atm O  frac 0.4213
-mixture         atm He frac 0.0005
-mixture         atm Ar frac 0.0009
-mixture         atm N  frac 0.0015
+mixture         atm N2 frac 0.7577
+mixture         atm O2 frac 0.1847
+mixture         atm O  frac 0.0499
+mixture         atm He frac 0.0000
+mixture         atm Ar frac 0.0077
+mixture         atm N  frac 0.0000
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
-mixture     	atm nrho 2.099562e+16 vstream ${vx} 0.0 0.0 temp ${T}
-mixture     	atm nrho 2.099562e+16 vstream 7808.1 0.0 0.0 temp ${T}
-mixture     	atm nrho 2.099562e+16 vstream 7808.1 0.0 0.0 temp 707.766559
+mixture     	atm nrho 1.119308e+19 vstream ${vx} 0.0 0.0 temp ${T}
+mixture     	atm nrho 1.119308e+19 vstream 7844.2 0.0 0.0 temp ${T}
+mixture     	atm nrho 1.119308e+19 vstream 7844.2 0.0 0.0 temp 180.511820
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
 variable        Ns_target equal 500000.0
@@ -203,26 +195,26 @@ variable        Vol       equal 6*${Ly}*${Lz}
 variable        Vol       equal 6*6*${Lz}
 variable        Vol       equal 6*6*6
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
-variable        fnum      equal 2.099562e+16*${Vol}/${Ns_target}
-variable        fnum      equal 2.099562e+16*216/${Ns_target}
-variable        fnum      equal 2.099562e+16*216/500000
+variable        fnum      equal 1.119308e+19*${Vol}/${Ns_target}
+variable        fnum      equal 1.119308e+19*216/${Ns_target}
+variable        fnum      equal 1.119308e+19*216/500000
 global          fnum ${fnum} # global bc will be queried by each new particle
-global          fnum 9070107840000 
+global          fnum 4.83541056e+15 
 
 variable	    parts_per equal ${nrho}/${Ns_target}
-variable	    parts_per equal 2.099562e+16/${Ns_target}
-variable	    parts_per equal 2.099562e+16/500000
+variable	    parts_per equal 1.119308e+19/${Ns_target}
+variable	    parts_per equal 1.119308e+19/500000
 print "particles per particle = ${parts_per}"
-particles per particle = 41991240000
+particles per particle = 22386160000000
 
 # global useful for stat query later
 global          nrho ${nrho}
-global          nrho 2.099562e+16
+global          nrho 1.119308e+19
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
 Created 497685 particles
-  CPU time = 0.0254549 secs
+  CPU time = 0.0327267 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		        in emit/face atm xlo
@@ -331,94 +323,4 @@ fix             dragout ave/time 1 1 100 c_drag c_drag_xnorm c_drag_walls file d
 # ----------------------------------------------------------
 
 # cell-averaged (streaming+thermal) temperature
-compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
-stats           ${diag_freq} # print diagnostics every _ timesteps
-stats           100 
-stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls # print timestep, runtime, particles, collision stats, avg temp, drag components
-
-timestep        ${tstep}
-timestep        1e-07
-collide		    vss atm vss/air.vss # variable soft sphere model
-run             2000
-Memory usage per proc in Mbytes:
-  particles (ave,min,max) = 3.375 3.375 3.375
-  grid      (ave,min,max) = 89.3263 89.3263 89.3263
-  surf      (ave,min,max) = 0.00201416 0.00201416 0.00201416
-  total     (ave,min,max) = 97.4047 97.4047 97.4047
-Step CPU Np Natt Ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls 
-       0            0   497685        0        0    57083.717            0            0            0 
-     100    4.1080669   497555        0        0    57058.585  0.055736147  0.054459367 0.0012767807 
-     200    8.3608881   497586        0        0    57038.326  0.053722895  0.052901536 0.00082135903 
-     300    12.003038   497619        0        0    57010.464  0.053069599  0.052046383 0.0010232154 
-     400    15.889379   497593        0        0    56989.747  0.054350041  0.053191845 0.0011581963 
-     500    19.771811   497781        0        0    56967.757  0.054401968  0.053136872 0.0012650953 
-     600    23.591587   497738        0        0    56946.532  0.053759436  0.052453257 0.0013061794 
-     700    27.123374   497733        0        0    56930.283  0.054254163   0.05283717 0.0014169935 
-     800     31.37291   497655        0        0    56916.065  0.053395788  0.052017885 0.0013779037 
-     900    35.717356   497530        0        0    56899.947  0.053638914  0.052275843  0.001363071 
-    1000    39.861582   497570        0        0    56883.087  0.053283618  0.051974661 0.0013089576 
-    1100    49.079063   497637        0        0    56862.826  0.053100978  0.051787971 0.0013130068 
-    1200    53.884424   497512        0        0    56839.832  0.052965703  0.051678609 0.0012870944 
-    1300    57.667652   497520        0        0    56823.165  0.052830619  0.051548776  0.001281843 
-    1400    60.916073   497470        0        0    56812.511  0.052705279  0.051455966 0.0012493126 
-    1500    65.587539   497342        0        0    56789.184  0.052911062  0.051609078  0.001301984 
-    1600    70.447271   497323        0        0    56773.557  0.052638467  0.051329275 0.0013091923 
-    1700    74.038064   497377        0        0    56751.553  0.052501828  0.051168711 0.0013331167 
-    1800    78.008622   497266        0        0    56722.009  0.052534757  0.051234927 0.0012998299 
-    1900    82.033966   497273        0        0    56694.632   0.05279106  0.051469318 0.0013217418 
-    2000    85.626123   497209        0        0    56682.729  0.052991334  0.051677271 0.0013140632 
-Loop time of 85.6262 on 16 procs for 2000 steps with 497209 particles
-
-MPI task timing breakdown:
-Section |  min time  |  avg time  |  max time  |%varavg| %total
----------------------------------------------------------------
-Move    | 15.084     | 15.855     | 16.746     |  11.5 | 18.52
-Coll    | 5.9711     | 6.5543     | 7.0156     |  13.1 |  7.65
-Sort    | 17.511     | 18.683     | 19.948     |  19.8 | 21.82
-Comm    | 6.8016     | 7.6515     | 8.4345     |  14.7 |  8.94
-Modify  | 18.756     | 19.728     | 20.488     |  13.5 | 23.04
-Output  | 17.138     | 17.149     | 17.156     |   0.1 | 20.03
-Other   |            | 0.005503   |            |       |  0.01
-
-Particle moves    = 995199591 (995M)
-Cells touched     = 1015457782 (1.02B)
-Particle comms    = 421425 (0.421M)
-Boundary collides = 0 (0K)
-Boundary exits    = 130310 (0.13M)
-SurfColl checks   = 7858512 (7.86M)
-SurfColl occurs   = 35811 (35.8K)
-Surf reactions    = 0 (0K)
-Collide attempts  = 0 (0K)
-Collide occurs    = 0 (0K)
-Reactions         = 0 (0K)
-Particles stuck   = 0
-Axisymm bad moves = 0
-
-Particle-moves/CPUsec/proc: 726413
-Particle-moves/step: 497600
-Cell-touches/particle/step: 1.02036
-Particle comm iterations/step: 1
-Particle fraction communicated: 0.000423458
-Particle fraction colliding with boundary: 0
-Particle fraction exiting boundary: 0.000130939
-Surface-checks/particle/step: 0.00789642
-Surface-collisions/particle/step: 3.59837e-05
-Surf-reactions/particle/step: 0
-Collision-attempts/particle/step: 0
-Collisions/particle/step: 0
-Reactions/particle/step: 0
-
-Particles: 31075.6 ave 31999 max 29942 min
-Histogram: 3 1 0 0 0 4 4 0 1 3
-Cells:      46875 ave 46875 max 46875 min
-Histogram: 16 0 0 0 0 0 0 0 0 0
-GhostCell: 703125 ave 703125 max 703125 min
-Histogram: 16 0 0 0 0 0 0 0 0 0
-EmptyCell: 0 ave 0 max 0 min
-Histogram: 16 0 0 0 0 0 0 0 0 0
-Surfs:    16 ave 16 max 16 min
-Histogram: 16 0 0 0 0 0 0 0 0 0
-GhostSurf: 0 ave 0 max 0 min
-Histogram: 16 0 0 0 0 0 0 0 0 0
-
-shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
+compute         Tbox temp # define a compute Tbox that calculates domain 
