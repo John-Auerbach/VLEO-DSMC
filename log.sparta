@@ -323,4 +323,94 @@ fix             dragout ave/time 1 1 100 c_drag c_drag_xnorm c_drag_walls file d
 # ----------------------------------------------------------
 
 # cell-averaged (streaming+thermal) temperature
-compute         Tbox temp # define a compute Tbox that calculates domain 
+compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
+stats           ${diag_freq} # print diagnostics every _ timesteps
+stats           100 
+stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls # print timestep, runtime, particles, collision stats, avg temp, drag components
+
+timestep        ${tstep}
+timestep        1e-07
+collide		    vss atm vss/air.vss # variable soft sphere model
+run             2000
+Memory usage per proc in Mbytes:
+  particles (ave,min,max) = 12.5 12.5 12.5
+  grid      (ave,min,max) = 97.8263 97.8263 97.8263
+  surf      (ave,min,max) = 0.00201416 0.00201416 0.00201416
+  total     (ave,min,max) = 128.947 128.947 128.947
+Step CPU Np Natt Ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls 
+       0            0   497685        0        0    69809.203            0            0            0 
+     100    3.2190794   497556        0        0    69780.253    39.559664    39.358315   0.20134945 
+     200    6.4704182   497373        0        0    69755.324    36.993298     36.79611   0.19718804 
+     300    9.9128659   497409        0        0    69730.016    36.463494     36.09876   0.36473407 
+     400    13.309949   497390        5        3    69704.745    36.233384    35.959606   0.27377794 
+     500    16.617987   497309        4        0    69677.693    36.354843    36.081247   0.27359636 
+     600    19.957448   497087        2        1    69655.654    35.662707    35.346747   0.31596054 
+     700    23.604108   497015        7        5    69631.514    35.135697    34.806695   0.32900161 
+     800    26.891754   497081       10        3    69609.914    35.066048    34.752568   0.31347946 
+     900    30.058768   497117       14        7    69585.271    35.181229    34.848964   0.33226515 
+    1000    33.483181   497144        8        5      69562.7    34.964229    34.665533    0.2986963 
+    1100    36.729448   496927       13        7    69538.774    35.277634    34.956441   0.32119355 
+    1200    39.913806   496891       25       14    69512.595    35.315641     34.94215   0.37349123 
+    1300    43.269538   496976       21       16    69494.153    35.294328    34.928149   0.36617913 
+    1400    46.751816   496888       33       16    69467.995    35.536064    35.183397   0.35266733 
+    1500    49.943845   496767       35       12    69448.973     35.33904    34.986909   0.35213159 
+    1600    53.100857   496836       33       20    69427.244    35.423256    35.052194   0.37106251 
+    1700    56.402504   496937       37       25    69405.417    35.349474    34.978114   0.37135971 
+    1800    59.724759   496922       34       21    69382.876     35.42367    35.052059   0.37161122 
+    1900    62.975752   496695       37       21    69361.898    35.509597    35.149924   0.35967272 
+    2000    66.248598   496646       53       32      69335.5     35.50031    35.121359   0.37895123 
+Loop time of 66.2486 on 4 procs for 2000 steps with 496646 particles
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Move    | 21.779     | 22.013     | 22.266     |   3.9 | 33.23
+Coll    | 6.0357     | 6.1869     | 6.4279     |   5.9 |  9.34
+Sort    | 16.34      | 16.577     | 16.869     |   4.7 | 25.02
+Comm    | 0.56483    | 0.91789    | 1.2534     |  28.4 |  1.39
+Modify  | 2.1965     | 2.3471     | 2.6334     |  11.0 |  3.54
+Output  | 18.196     | 18.196     | 18.197     |   0.0 | 27.47
+Other   |            | 0.009992   |            |       |  0.02
+
+Particle moves    = 994296297 (994M)
+Cells touched     = 1014062555 (1.01B)
+Particle comms    = 133352 (0.133M)
+Boundary collides = 0 (0K)
+Boundary exits    = 130868 (0.131M)
+SurfColl checks   = 7445627 (7.45M)
+SurfColl occurs   = 38140 (38.1K)
+Surf reactions    = 0 (0K)
+Collide attempts  = 32180 (32.2K)
+Collide occurs    = 17132 (17.1K)
+Reactions         = 0 (0K)
+Particles stuck   = 0
+Axisymm bad moves = 0
+
+Particle-moves/CPUsec/proc: 3.75214e+06
+Particle-moves/step: 497148
+Cell-touches/particle/step: 1.01988
+Particle comm iterations/step: 1
+Particle fraction communicated: 0.000134117
+Particle fraction colliding with boundary: 0
+Particle fraction exiting boundary: 0.000131619
+Surface-checks/particle/step: 0.00748834
+Surface-collisions/particle/step: 3.83588e-05
+Surf-reactions/particle/step: 0
+Collision-attempts/particle/step: 3.23646e-05
+Collisions/particle/step: 1.72303e-05
+Reactions/particle/step: 0
+
+Particles: 124162 ave 125825 max 122473 min
+Histogram: 2 0 0 0 0 0 0 0 0 2
+Cells:      187500 ave 187500 max 187500 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+GhostCell: 562500 ave 562500 max 562500 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+EmptyCell: 0 ave 0 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+Surfs:    16 ave 16 max 16 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+GhostSurf: 0 ave 0 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 0
+
+shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"

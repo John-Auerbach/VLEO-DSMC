@@ -1,17 +1,23 @@
-Updated Dec 9 2025
+Updated Dec 10 2025
 
 # VLEO-DSMC: Satellite Atmospheric Simulation with SPARTA
+
+VLEO-DSMC is a simulation toolkit built on [SPARTA](https://sparta.github.io/) for analyzing spacecraft aerodynamics across flow regimes in **Very Low Earth Orbit (VLEO)** using the Direct Simulation Monte Carlo (DSMC) method. It integrates real NRLMSIS-2.0 atmospheric data to model the full thermospheric composition (N₂, O₂, O, He, Ar, N) with altitude-dependent species fractions from 70–500 km.
+
+Import your satellite geometry as an STL file and compute aerodynamic drag, surface heating, velocity fields, and streamlines. The included Python scripts handle atmospheric data generation, dump file handling, and visualization. Particle animations, temperature heatmaps, flow field plots, and multi-altitude drag analysis are all supported out of the box. MPI parallelization enables faster execution on multi-core systems.
+
+---
 
 ## Table of Contents
 1. [Simulation Overview](#simulation-overview)
 2. [Installing SPARTA](#1-install-sparta)
 3. [Setting Up Python Environment](#2-set-up-python-environment)
 4. [Running Simulations](#3-run-simulations)
-5. [Atmospheric Data and Species Composition](#4-atmospheric-data-and-species-composition)
-6. [Surface Geometry and STL Conversion](#5-surface-geometry-and-stl-conversion)
-7. [Surface Collision Models and Accommodation](#6-surface-collision-models-and-accommodation)
-8. [Converting Dump Data](#7-convert-dump-data-for-memory-efficient-analysis)
-9. [Visualization and Analysis Scripts](#8-visualization-and-analysis-scripts)
+5. [Converting Dump Data](#4-convert-dump-data-for-memory-efficient-analysis)
+6. [Visualization and Analysis Scripts](#5-visualization-and-analysis-scripts)
+7. [Atmospheric Data and Species Composition](#6-atmospheric-data-and-species-composition)
+8. [Surface Geometry and STL Conversion](#7-surface-geometry-and-stl-conversion)
+9. [Surface Collision Models and Accommodation](#8-surface-collision-models-and-accommodation)
 10. [Drag Calculation Methods](#9-drag-calculation-methods)
 11. [Input File Reference](#10-input-file-reference)
 12. [Best Practices](#11-best-practices)
@@ -78,20 +84,6 @@ The simulation integrates real atmospheric data using the **NRLMSIS-2.0 empirica
 - **Timestep:** 1×10⁻⁷ seconds (much smaller than collision time)
 - **Duration:** 10,000 timesteps (1.0 milliseconds physical time)
 - **Diagnostics:** Data output every 100 timesteps (100 frames total)
-
-#### Scope of Simulation Model
-- **Rarefied gas dynamics** in the thermosphere
-- **Molecular velocity distributions** (Maxwell-Boltzmann)
-- **Surface heating** from molecular bombardment
-- **Aerodynamic drag** from molecular impacts on surfaces
-- **Altitude-dependent** atmospheric properties
-- **Non-equilibrium effects** not captured by continuum models
-
-#### Computational Approach
-- **SPARTA:** Open-source DSMC code (particle-based, not grid-based)
-- **Memory efficiency:** Parquet format for large (6GB+) datasets
-- **Parallelization:** MPI support for multi-core execution
-- **Visualization:** Real-time particle tracking and temperature mapping
 
 #### Scientific Applications
 This simulation models **satellite atmospheric drag and heating** in the thermosphere, relevant for:
@@ -251,147 +243,7 @@ Output files:
 - `outputs/multi_altitude_drag_evolution_log.mp4` - Animated drag plot (log scale)
 - `outputs/multi_altitude_temp_evolution.mp4` - Animated temperature plot
 
-## 4. Atmospheric Data and Species Composition
-
-### How Atmospheric Data is Generated and Used
-
-The atmospheric data pipeline works as follows:
-
-1. **Generate NRLMSIS data:** Run `python3 tools/load_atm_data.py <altitude_km>` to query NRLMSIS-2.0 for atmospheric properties at the specified altitude.
-
-2. **Data files created in `data/`:**
-   - `nrlmsis.dat` - Full NRLMSIS dataset (70-500 km) with columns:
-     - Altitude (km), Temperature (K), Density (kg/m³), Pressure (Pa), Pressure (Torr), Orbital Velocity (m/s), Number Density (m⁻³), n_N2, n_O2, n_O, n_He, n_Ar, n_N
-   - `rho.dat` - Mass density at specified altitude (kg/m³)
-   - `nrho.dat` - Number density at specified altitude (m⁻³)
-   - `T.dat` - Temperature at specified altitude (K)
-   - `vx.dat` - Orbital velocity at specified altitude (m/s)
-   - `atm.sparta` - SPARTA include file with species and mixture definitions
-
-3. **Species composition (`data/atm.sparta`):** This file is auto-generated with altitude-appropriate species fractions:
-   ```
-   species         species/air.species N2 O2 O He Ar N
-   mixture         atm N2 frac 0.5379
-   mixture         atm O2 frac 0.0379
-   mixture         atm O  frac 0.4213
-   mixture         atm He frac 0.0005
-   mixture         atm Ar frac 0.0009
-   mixture         atm N  frac 0.0015
-   ```
-   (Example shown for ~150 km altitude; fractions vary significantly with altitude)
-
-4. **Loading in SPARTA:** The `in.ampt` file uses:
-   ```
-   variable        rho  file data/rho.dat
-   variable        nrho file data/nrho.dat
-   variable        T    file data/T.dat
-   variable        vx   file data/vx.dat
-   include         data/atm.sparta
-   mixture         atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
-   ```
-
-### Species Data Files
-
-- **`species/air.species`** - Molecular properties (mass, rotational/vibrational DOF, etc.) for N₂, O₂, O, N, He, Ar, and ionized species
-- **`vss/air.vss`** - Variable Soft Sphere collision parameters (diameter, omega, tref, alpha) for each species
-
-## 5. Surface Geometry and STL Conversion
-
-### Converting STL Files to SPARTA Surface Format
-
-SPARTA requires surface files in its native `.surf` format. Use `stl2surf.py` to convert:
-
-```bash
-python3 tools/stl2surf.py models/your_model.STL surf/your_model.surf
-```
-
-**Features:**
-- Accepts both ASCII and binary STL files
-- Automatically converts mm → m (divides coordinates by 1000)
-- Auto-centers the model at the origin
-- Warns if the surface is not watertight (important for closed bodies)
-
-**Example:**
-```bash
-python3 tools/stl2surf.py models/AMPT_sat_inlet.STL surf/AMPT_sat_inlet.surf
-```
-
-### Available Surface Files
-
-Located in `surf/`:
-- `cube.surf` - 1m × 1m × 1m cube centered at origin (12 triangles)
-- `AMPT_sat_inlet.surf` - AMPT satellite geometry
-- `sat_inlet_radiator.surf`, `sat_inlet.surf`, etc. - Various satellite configurations
-- `xlo_bdy.surf`, `xhi_bdy.surf` - Transparent boundary planes for flux measurement
-
-### Transparent Boundary Surfaces
-
-For drag calculations using momentum flux, transparent boundary surfaces are placed upstream and downstream:
-- `xlo_bdy.surf` - Upstream plane at x = -1.0 m
-- `xhi_bdy.surf` - Downstream plane at x = +1.0 m
-
-These are read with the `transparent` flag in SPARTA and don't interact with particles—they only measure fluxes.
-
-## 6. Surface Collision Models and Accommodation
-
-### Accommodation Coefficients
-
-The accommodation coefficient (α) determines how much a gas molecule thermalizes with the surface:
-- **α = 1.0 (fully diffuse):** Molecule leaves surface at surface temperature with random direction
-- **α = 0.0 (fully specular):** Molecule reflects like a billiard ball, conserving tangential momentum
-- **0 < α < 1:** Partial accommodation (interpolated behavior)
-
-### Input File Configurations
-
-**`in.ampt` (Cube with Different Face Treatments):**
-
-This configuration is used for studying ram drag vs skin friction separately on a cube geometry:
-
-```
-# Surface groups for different face orientations
-read_surf       surf/cube.surf  group ampt
-group           ampt_xnorm surf id 1:4      # front/back faces (ram direction)
-group           ampt_yznorm surf id 5:12    # side walls
-
-# Define collision models with different accommodation
-surf_collide    wall_diffuse diffuse s_Tsurf 1     # α=1.0 for ram faces
-surf_collide    wall_specular diffuse s_Tsurf 0.3  # α=0.3 for side walls
-
-# Apply to respective surface groups
-surf_modify     ampt_xnorm collide wall_diffuse
-surf_modify     ampt_yznorm collide wall_specular
-```
-
-This allows separate calculation of:
-- **Ram drag:** Force on x-normal faces (directly facing the flow)
-- **Skin friction:** Force on y/z-normal faces (parallel to flow)
-
-**`in.ampt_actual` (General Purpose - Uniform Accommodation):**
-
-For simulating arbitrary geometries where face-specific treatment is not needed:
-
-```
-surf_collide    wall diffuse s_Tsurf 0.9    # Single collision model, α=0.9
-surf_modify     ampt collide wall           # Apply to all surfaces
-```
-
-**Recommendation:** For general simulations with complex geometry, use `in.ampt_actual`. The cube-specific `in.ampt` is primarily for validation studies where separating ram and skin friction is important.
-
-### Scripts That Depend on `in.ampt`
-
-The following scripts explicitly use `in.ampt` as the input file and expect the cube geometry with face groupings:
-
-- **`run_sparta.sh`** - Runs `sparta -in in.ampt`
-- **`multi_altitude.py`** - Runs simulations using `in.ampt`
-- **`scripts/surface_temp_heatmap.py`** - Reads timestep from `in.ampt`
-- **`scripts/grid_temp_heatmap.py`** - Reads timestep from `in.ampt`
-- **`scripts/velocity_heatmap.py`** - Reads timestep from `in.ampt`
-- **`scripts/streamlines.py`** - Reads timestep from `in.ampt`
-- **`scripts/plot_drag.py`** - Reads domain size from `in.ampt`
-
-**To use these scripts with a different geometry:** Either rename your input file to `in.ampt`, or modify the filename reference in the script.
-
-## 7. Convert Dump Data for Memory-Efficient Analysis
+## 4. Convert Dump Data for Memory-Efficient Analysis
 
 After running simulations, convert dump data to Parquet format for memory-efficient analysis:
 
@@ -425,7 +277,7 @@ timesteps = load_parquet_timesteps("particle", "dumps/alt_100km")
 step, df, box = load_parquet_single("particle", timesteps[0], "dumps/alt_100km")
 ```
 
-## 8. Visualization and Analysis Scripts
+## 5. Visualization and Analysis Scripts
 
 All visualization scripts are located in `scripts/` and output to `outputs/`. Most scripts default to reading from `dumps/` but can analyze specific altitude data.
 
@@ -523,6 +375,146 @@ python3 scripts/velocity_heatmap.py dumps/alt_95km
 - Run `python3 tools/load_dumps.py <folder>` first to convert dump data to Parquet format
 - Scripts now use streaming data access, preventing RAM crashes on large datasets - no more catastrophic failure :)
 - All output files (.mp4, .png, .csv) are saved to the `outputs/` folder
+
+## 6. Atmospheric Data and Species Composition
+
+### How Atmospheric Data is Generated and Used
+
+The atmospheric data pipeline works as follows:
+
+1. **Generate NRLMSIS data:** Run `python3 tools/load_atm_data.py <altitude_km>` to query NRLMSIS-2.0 for atmospheric properties at the specified altitude.
+
+2. **Data files created in `data/`:**
+   - `nrlmsis.dat` - Full NRLMSIS dataset (70-500 km) with columns:
+     - Altitude (km), Temperature (K), Density (kg/m³), Pressure (Pa), Pressure (Torr), Orbital Velocity (m/s), Number Density (m⁻³), n_N2, n_O2, n_O, n_He, n_Ar, n_N
+   - `rho.dat` - Mass density at specified altitude (kg/m³)
+   - `nrho.dat` - Number density at specified altitude (m⁻³)
+   - `T.dat` - Temperature at specified altitude (K)
+   - `vx.dat` - Orbital velocity at specified altitude (m/s)
+   - `atm.sparta` - SPARTA include file with species and mixture definitions
+
+3. **Species composition (`data/atm.sparta`):** This file is auto-generated with altitude-appropriate species fractions:
+   ```
+   species         species/air.species N2 O2 O He Ar N
+   mixture         atm N2 frac 0.5379
+   mixture         atm O2 frac 0.0379
+   mixture         atm O  frac 0.4213
+   mixture         atm He frac 0.0005
+   mixture         atm Ar frac 0.0009
+   mixture         atm N  frac 0.0015
+   ```
+   (Example shown for ~150 km altitude; fractions vary significantly with altitude)
+
+4. **Loading in SPARTA:** The `in.ampt` file uses:
+   ```
+   variable        rho  file data/rho.dat
+   variable        nrho file data/nrho.dat
+   variable        T    file data/T.dat
+   variable        vx   file data/vx.dat
+   include         data/atm.sparta
+   mixture         atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
+   ```
+
+### Species Data Files
+
+- **`species/air.species`** - Molecular properties (mass, rotational/vibrational DOF, etc.) for N₂, O₂, O, N, He, Ar, and ionized species
+- **`vss/air.vss`** - Variable Soft Sphere collision parameters (diameter, omega, tref, alpha) for each species
+
+## 7. Surface Geometry and STL Conversion
+
+### Converting STL Files to SPARTA Surface Format
+
+SPARTA requires surface files in its native `.surf` format. Use `stl2surf.py` to convert:
+
+```bash
+python3 tools/stl2surf.py models/your_model.STL surf/your_model.surf
+```
+
+**Features:**
+- Accepts both ASCII and binary STL files
+- Automatically converts mm → m (divides coordinates by 1000)
+- Auto-centers the model at the origin
+- Warns if the surface is not watertight (important for closed bodies)
+
+**Example:**
+```bash
+python3 tools/stl2surf.py models/AMPT_sat_inlet.STL surf/AMPT_sat_inlet.surf
+```
+
+### Available Surface Files
+
+Located in `surf/`:
+- `cube.surf` - 1m × 1m × 1m cube centered at origin (12 triangles)
+- `AMPT_sat_inlet.surf` - AMPT satellite geometry
+- `sat_inlet_radiator.surf`, `sat_inlet.surf`, etc. - Various satellite configurations
+- `xlo_bdy.surf`, `xhi_bdy.surf` - Transparent boundary planes for flux measurement
+
+### Transparent Boundary Surfaces
+
+For drag calculations using momentum flux, transparent boundary surfaces are placed upstream and downstream:
+- `xlo_bdy.surf` - Upstream plane at x = -1.0 m
+- `xhi_bdy.surf` - Downstream plane at x = +1.0 m
+
+These are read with the `transparent` flag in SPARTA and don't interact with particles—they only measure fluxes.
+
+## 8. Surface Collision Models and Accommodation
+
+### Accommodation Coefficients
+
+The accommodation coefficient (α) determines how much a gas molecule thermalizes with the surface:
+- **α = 1.0 (fully diffuse):** Molecule leaves surface at surface temperature with random direction
+- **α = 0.0 (fully specular):** Molecule reflects like a billiard ball, conserving tangential momentum
+- **0 < α < 1:** Partial accommodation (interpolated behavior)
+
+### Input File Configurations
+
+**`in.ampt` (Cube with Different Face Treatments):**
+
+This configuration is used for studying ram drag vs skin friction separately on a cube geometry:
+
+```
+# Surface groups for different face orientations
+read_surf       surf/cube.surf  group ampt
+group           ampt_xnorm surf id 1:4      # front/back faces (ram direction)
+group           ampt_yznorm surf id 5:12    # side walls
+
+# Define collision models with different accommodation
+surf_collide    wall_diffuse diffuse s_Tsurf 1     # α=1.0 for ram faces
+surf_collide    wall_specular diffuse s_Tsurf 0.3  # α=0.3 for side walls
+
+# Apply to respective surface groups
+surf_modify     ampt_xnorm collide wall_diffuse
+surf_modify     ampt_yznorm collide wall_specular
+```
+
+This allows separate calculation of:
+- **Ram drag:** Force on x-normal faces (directly facing the flow)
+- **Skin friction:** Force on y/z-normal faces (parallel to flow)
+
+**`in.ampt_actual` (General Purpose - Uniform Accommodation):**
+
+For simulating arbitrary geometries where face-specific treatment is not needed:
+
+```
+surf_collide    wall diffuse s_Tsurf 0.9    # Single collision model, α=0.9
+surf_modify     ampt collide wall           # Apply to all surfaces
+```
+
+**Recommendation:** For general simulations with complex geometry, use `in.ampt_actual`. The cube-specific `in.ampt` is primarily for validation studies where separating ram and skin friction is important.
+
+### Scripts That Depend on `in.ampt`
+
+The following scripts explicitly use `in.ampt` as the input file and expect the cube geometry with face groupings:
+
+- **`run_sparta.sh`** - Runs `sparta -in in.ampt`
+- **`multi_altitude.py`** - Runs simulations using `in.ampt`
+- **`scripts/surface_temp_heatmap.py`** - Reads timestep from `in.ampt`
+- **`scripts/grid_temp_heatmap.py`** - Reads timestep from `in.ampt`
+- **`scripts/velocity_heatmap.py`** - Reads timestep from `in.ampt`
+- **`scripts/streamlines.py`** - Reads timestep from `in.ampt`
+- **`scripts/plot_drag.py`** - Reads domain size from `in.ampt`
+
+**To use these scripts with a different geometry:** Either rename your input file to `in.ampt`, or modify the filename reference in the script.
 
 ## 9. Drag Calculation Methods
 
