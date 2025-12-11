@@ -287,6 +287,8 @@ python3 scripts/animate_particles.py [folder]
 - Subsamples to 5000 particles for performance
 - **Output:** `outputs/particle_anim.mp4`
 
+<img src="examples/animate_particles.gif" width="400">
+
 ### Surface Temperature Heatmap
 ```bash
 python3 scripts/surface_temp_heatmap.py [folder]
@@ -295,6 +297,8 @@ python3 scripts/surface_temp_heatmap.py [folder]
 - Rotating view with colorbar
 - **Output:** `outputs/surface_temp_heatmap.mp4`
 - **Note:** Uses `in.ampt` to extract timestep size
+
+![examples/surface_temp_heatmap.gif](examples/surface_temp_heatmap.gif)
 
 ### Grid Temperature Heatmap
 ```bash
@@ -305,6 +309,8 @@ python3 scripts/grid_temp_heatmap.py [folder]
 - **Output:** `outputs/grid_temp_heatmap.mp4`
 - **Note:** Uses `in.ampt` to extract timestep size
 
+![examples/grid_temp_heatmap.gif](examples/grid_temp_heatmap.gif)
+
 ### Velocity Heatmap
 ```bash
 python3 scripts/velocity_heatmap.py [folder]
@@ -313,6 +319,8 @@ python3 scripts/velocity_heatmap.py [folder]
 - Uses 500×300 binning resolution
 - **Output:** `outputs/velocity_heatmap.mp4`
 - **Note:** Uses `in.ampt` to extract timestep size
+
+![examples/velocity_heatmap.gif](examples/velocity_heatmap.gif)
 
 ### Streamlines
 ```bash
@@ -326,6 +334,10 @@ python3 scripts/streamlines.py --anim
 - Uses flow dump data (per-cell velocity averages)
 - Red rectangle indicates object outline
 - **Output:** `outputs/streamlines_2d.png` or `outputs/streamlines_anim.mp4`
+
+<img src="examples/streamlines_2d.png" width="500">
+
+<img src="examples/streamlines_anim.gif" width="500">
 
 ### Drag Analysis (Single Run)
 ```bash
@@ -346,6 +358,8 @@ python3 scripts/analyze_multi_altitude_drag.py [--csv]
   - `outputs/multi_altitude_drag_evolution.mp4` (linear scale)
   - `outputs/multi_altitude_drag_evolution_log.mp4` (log scale)
 
+![examples/multi_altitude_drag_evolution.gif](examples/multi_altitude_drag_evolution.gif)
+
 ### Multi-Altitude Temperature Analysis
 ```bash
 python3 scripts/analyze_multi_altitude_temp.py
@@ -353,6 +367,8 @@ python3 scripts/analyze_multi_altitude_temp.py
 - Analyzes surface temperatures across multiple altitudes
 - Creates animated plot showing temperature vs altitude over time
 - **Output:** `outputs/multi_altitude_temp_evolution.mp4`
+
+![examples/analyze_multi_altitude_temp.gif](examples/analyze_multi_altitude_temp.gif)
 
 ### Usage Examples
 ```bash
