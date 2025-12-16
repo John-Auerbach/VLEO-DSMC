@@ -1,4 +1,4 @@
-Updated Dec 10 2025
+Updated Dec 16 2025
 
 # VLEO-DSMC: Satellite Atmospheric Simulation with SPARTA
 
@@ -506,18 +506,13 @@ These are read with the `transparent` flag in SPARTA and don't interact with par
 
 **(Warning: see [experimental momentum flux drag method](#momentum-flux-method-experimental---do-not-use) before using transparent planes to measure fluxes!)**
 
-## 8. Surface Collision Models and Accommodation
+## 8. Input File Configurations
 
-### Accommodation Coefficients
+### Overview
 
-The accommodation coefficient (α) determines how much a gas molecule thermalizes with the surface:
-- **α = 1.0 (fully diffuse):** Molecule leaves surface at surface temperature with random direction
-- **α = 0.0 (fully specular):** Molecule reflects like a billiard ball, conserving tangential momentum
-- **0 < α < 1:** Partial accommodation (interpolated behavior)
+The repository provides several input file templates for different simulation scenarios:
 
-### Input File Configurations
-
-**Available Template Files:**
+**Available Templates:**
 
 | File | Description | Use Case |
 |------|-------------|----------|
@@ -526,7 +521,7 @@ The accommodation coefficient (α) determines how much a gas molecule thermalize
 | `in.auto_surf_decomp` | Automatic surface decomposition by orientation | Complex geometries requiring drag decomposition |
 | `in.ampt_box` | Original slender box configuration | Testing |
 
-The repository provides several input file templates with descriptive names. **To run any of them, copy/rename to `in.ampt`** since all run / analysis scripts expect this filename:
+**To run any of them, copy/rename to `in.ampt`** since all run / analysis scripts expect this filename:
 
 ```bash
 cp in.cube in.ampt              # Use cube configuration
@@ -548,16 +543,25 @@ group           ampt_yznorm surf id 5:12    # side walls
 
 # Define collision models with different accommodation
 surf_collide    wall_diffuse diffuse s_Tsurf 1     # α=1.0 for ram faces
-surf_collide    wall_specular diffuse s_Tsurf 0.3  # α=0.3 for side walls
+surf_collide    wall_specular diffuse s_Tsurf 1    # α=1.0 for side walls
 
 # Apply to respective surface groups
 surf_modify     ampt_xnorm collide wall_diffuse
 surf_modify     ampt_yznorm collide wall_specular
 ```
 
-This allows separate calculation of:
+[Jiang et al.](https://doi.org/10.1016/j.ast.2022.108077) uses this cube geometry, and tests both α=0.3 and α=1.0 (see below) for lateral surfaces. Just like in the paper, this script allows separate calculation of:
 - **Ram drag:** Force on x-normal faces (directly facing the flow)
 - **Skin friction:** Force on y/z-normal faces (parallel to flow)
+
+### Accommodation Coefficients
+
+The accommodation coefficient (α) in the collision models determines how much a gas molecule thermalizes with the surface:
+- **α = 1.0 (fully diffuse):** Molecule leaves surface at surface temperature with random direction
+- **α = 0.0 (fully specular):** Molecule reflects like a billiard ball, conserving tangential momentum
+- **0 < α < 1:** Partial accommodation (interpolated behavior)
+
+You can modify the α values in the input files by changing the parameter in the `surf_collide` commands. For example, changing `diffuse s_Tsurf 0.9` to `diffuse s_Tsurf 0.5` reduces accommodation from 90% to 50%.
 
 **`in.general_surface` (General Purpose - Uniform Accommodation):**
 
@@ -568,7 +572,7 @@ surf_collide    wall diffuse s_Tsurf 0.9    # Single collision model, α=0.9
 surf_modify     ampt collide wall           # Apply to all surfaces
 ```
 
-This is ideal if you plan to simply upload an .STL file, convert it to .surf, and run the simulation.
+This is ideal if you plan to simply upload an STL file, convert it to surf, and run the simulation.
 
 **`in.auto_surf_decomp` (Automatic Surface Decomposition):**
 
@@ -591,8 +595,8 @@ The tool analyzes triangle normals and classifies surfaces by orientation, enabl
 - Use `in.cube` for basic validation studies ([Jiang et al.](https://doi.org/10.1016/j.ast.2022.108077))
 - Use `in.general_surface` for simulations with uniform surface properties
 - Use `in.auto_surf_decomp` for complex geometries requiring automatic drag decomposition
+- Use `in.ampt_box` to modify the original test file for this toolbox
 
-**Remember:** Always copy your chosen template to `in.ampt` before running!
 
 ### Scripts That Depend on Input Files
 
