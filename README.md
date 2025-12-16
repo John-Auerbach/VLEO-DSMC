@@ -192,7 +192,7 @@ sparta < in.ampt
 ./run_sparta.sh    # Uses 8 cores by default. Modify this to work with your setup.
 ```
 
-**Note:** `run_sparta.sh` uses `in.ampt` as the input file.
+**Note:** `run_sparta.sh` the input file to be named `in.ampt`. To run a script, copy your chosen configuration to `in.ampt` first. Example: `cp in.general_surface in.ampt`
 
 **Performance:** Multi-core execution is typically 4-6x faster for DSMC simulations. 
 
@@ -216,7 +216,7 @@ This will:
 
 **Performance:** Using `--cores 8` is typically 4-6x faster than single core for DSMC simulations.
 
-**Important:** `multi_altitude.py` uses `in.ampt` as the input file. If you want to simulate a different geometry, rename your input file to `in.ampt` or modify the script.
+**Important:** `multi_altitude.py` expects the input file to be named `in.ampt`. To run the script, copy your chosen configuration to `in.ampt` first. Example: `cp in.general_surface in.ampt`
 
 ### Analyze Multi-Altitude Results
 
@@ -458,7 +458,7 @@ The atmospheric data pipeline works as follows:
    ```
    (Example shown for ~150 km altitude; values vary with altitude)
 
-4. **Loading in SPARTA:** The `in.ampt` file simply includes the file:
+4. **Loading in SPARTA:** The input files simply include the file:
    ```
    include         data/atm.sparta
    mixture         atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
@@ -518,7 +518,19 @@ The accommodation coefficient (α) determines how much a gas molecule thermalize
 
 ### Input File Configurations
 
-**`in.ampt` (Cube with Different Face Treatments):**
+**Available Template Files:**
+
+The repository provides several input file templates with descriptive names. **To run any of them, copy/rename to `in.ampt`** since all run / analysis scripts expect this filename:
+
+```bash
+cp in.cube in.ampt              # Use cube configuration
+cp in.general_surface in.ampt   # Use general surface configuration  
+cp in.auto_surf_decomp in.ampt  # Use automatic decomposition
+```
+
+---
+
+**`in.cube` (Cube with Different Face Treatments):**
 
 This configuration is used for studying ram drag vs skin friction separately on a cube geometry:
 
@@ -541,7 +553,7 @@ This allows separate calculation of:
 - **Ram drag:** Force on x-normal faces (directly facing the flow)
 - **Skin friction:** Force on y/z-normal faces (parallel to flow)
 
-**`in.ampt_actual` (General Purpose - Uniform Accommodation):**
+**`in.general_surface` (General Purpose - Uniform Accommodation):**
 
 For simulating arbitrary geometries where face-specific treatment is not needed:
 
@@ -550,11 +562,35 @@ surf_collide    wall diffuse s_Tsurf 0.9    # Single collision model, α=0.9
 surf_modify     ampt collide wall           # Apply to all surfaces
 ```
 
-**Recommendation:** For general simulations with complex geometry, use `in.ampt_actual`. The cube-specific `in.ampt` is primarily for validation studies where separating ram and skin friction is important.
+This is ideal if you plan to simply upload an .STL file, convert it to .surf, and run the simulation.
 
-### Scripts That Depend on `in.ampt`
+**`in.auto_surf_decomp` (Automatic Surface Decomposition):**
 
-The following scripts explicitly use `in.ampt` as the input file and expect the cube geometry with face groupings:
+For complex geometries where you want to automatically identify and separate ram vs lateral surfaces:
+
+```
+# Automatically generate surface groups using normal vector analysis
+read_surf       surf/your_geometry.surf  group ampt
+include         surf/your_geometry.sparta   # auto-generated groups
+```
+
+Run `python tools/auto_surf_decomp.py surf/your_geometry.surf` to generate the `.sparta` file containing:
+- **ampt_xnorm:** Surfaces with normals pointing in -x direction (ram surfaces, nx < -0.9)
+- **ampt_yznorm:** Surfaces with normals perpendicular to x-axis (lateral surfaces, |nx| < 0.1)
+- **ampt_diffuse:** All remaining unclassified triangles (assigned diffuse collision model)
+
+The tool analyzes triangle normals and classifies surfaces by orientation, enabling drag decomposition on arbitrary geometries without manual surface ID assignment. Any triangles not matching the ram or lateral criteria are automatically assigned to the diffuse group with accommodation coefficient α = 0.9. This works best for surfaces with discrete ram/lateral facing triangles. 
+
+**Recommendation:** 
+- Use `in.cube` for basic validation studies ([Jiang et al.](https://doi.org/10.1016/j.ast.2022.108077))
+- Use `in.general_surface` for simulations with uniform surface properties
+- Use `in.auto_surf_decomp` for complex geometries requiring automatic drag decomposition
+
+**Remember:** Always copy your chosen template to `in.ampt` before running!
+
+### Scripts That Depend on Input Files
+
+The following scripts explicitly use `in.ampt` as the input file:
 
 - **`run_sparta.sh`** - Runs `sparta -in in.ampt`
 - **`multi_altitude.py`** - Runs simulations using `in.ampt`
@@ -564,7 +600,10 @@ The following scripts explicitly use `in.ampt` as the input file and expect the 
 - **`scripts/streamlines.py`** - Reads timestep from `in.ampt`
 - **`scripts/plot_drag.py`** - Reads domain size from `in.ampt`
 
-**To use these scripts with a different geometry:** Either rename your input file to `in.ampt`, or modify the filename reference in the script.
+**To use these scripts:** Copy your desired input template to `in.ampt`:
+```bash
+cp in.general_surface in.ampt  # Example
+```
 
 ## 9. Drag Calculation Methods
 
@@ -583,9 +622,9 @@ compute         drag reduce sum f_surfavg[1]
 This method:
 - Sums x-component of forces imparted by gas molecules on all surface faces
 - Uses running time-average to reduce statistical noise
-- **Has been validated analytically and against existing literature to within ~2%**
+- **Has been validated analytically and against existing literature to within ~0.2%**
 
-For the cube geometry (`in.ampt`), drag is decomposed into:
+For the decomposed geometries (`in.cube` and `in.auto_surf_decomp`), drag is decomposed into:
 - **Ram drag:** Forces on x-normal faces (front/back)
 - **Skin friction:** Forces on y/z-normal faces (side walls)
 
@@ -686,7 +725,7 @@ Ensure your grid resolution and timestep satisfy these constraints for accurate 
 
 Direct drag calculations have been validated:
 - Analytically against kinetic theory predictions
-- Against existing literature to within ~2% accuracy
+- Against existing literature to within ~0.2% accuracy
 
 For critical applications, perform convergence studies by varying:
 - Grid resolution
