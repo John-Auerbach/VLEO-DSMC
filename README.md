@@ -17,8 +17,7 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 7. [Surface Geometry and STL Conversion](#7-surface-geometry-and-stl-conversion)
 8. [Surface Collision Models and Accommodation](#8-surface-collision-models-and-accommodation)
 9. [Drag Calculation Methods](#9-drag-calculation-methods)
-10. [Input File Reference](#10-input-file-reference)
-11. [Best Practices](#11-best-practices)
+10. [Best Practices](#11-best-practices)
 
 ## 0. Simulation Overview
 
@@ -520,6 +519,13 @@ The accommodation coefficient (α) determines how much a gas molecule thermalize
 
 **Available Template Files:**
 
+| File | Description | Use Case |
+|------|-------------|----------|
+| `in.cube` | Cube geometry with auto-generated surface groups | Validation, ram vs skin friction studies |
+| `in.general_surface` | General geometry with uniform accommodation | Production simulations with complex geometry |
+| `in.auto_surf_decomp` | Automatic surface decomposition by orientation | Complex geometries requiring drag decomposition |
+| `in.ampt_box` | Original slender box configuration | Testing |
+
 The repository provides several input file templates with descriptive names. **To run any of them, copy/rename to `in.ampt`** since all run / analysis scripts expect this filename:
 
 ```bash
@@ -649,41 +655,7 @@ Drag data is written to:
 - `dumps/xhi_flux.dat` - Downstream boundary fluxes
 - ^ Don't worry about those last two, they're for momentum flux calcs
 
-## 10. Input File Reference
-
-### Available Input Files
-
-| File | Description | Use Case |
-|------|-------------|----------|
-| `in.ampt` | Cube geometry with face-specific accommodation | Validation, ram vs skin friction studies |
-| `in.ampt_actual` | General geometry with uniform accommodation | Production simulations with complex geometry |
-| `in.ampt_box` | Original slender box configuration | Testing |
-
-### Key Parameters in `in.ampt` as of this commit (these may have changed)
-
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| `xmin/xmax` | -3 to 3 | Domain x-bounds (m) |
-| `ymin/ymax` | -3 to 3 | Domain y-bounds (m) |
-| `zmin/zmax` | -3 to 3 | Domain z-bounds (m) |
-| `create_grid` | 150 100 50 | Grid cells in x, y, z |
-| `Ns_target` | 500000 | Target number of simulation particles |
-| `diag_freq` | 100 | Dump output frequency (timesteps) |
-| `tstep` | 1.0e-7 | Timestep size (s) |
-| `run` | 2000 | Number of timesteps to run |
-
-### Key Parameters in `in.ampt_actual`
-
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| `xmin/xmax` | -1.5 to 1.1 | Tighter domain bounds (m) |
-| `ymin/ymax` | -1.1 to 1.1 | Domain y-bounds (m) |
-| `zmin/zmax` | -1.1 to 1.1 | Domain z-bounds (m) |
-| `Ns_target` | 2000000 | Higher particle count |
-| `run` | 5000 | Longer simulation |
-| `surf_collide` | diffuse s_Tsurf 0.9 | Uniform α=0.9 accommodation |
-
-## 11. Best Practices
+## 10. Best Practices
 
 ### Clearing Dump Files Between Runs
 
