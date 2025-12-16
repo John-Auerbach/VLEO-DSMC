@@ -15,7 +15,7 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 5. [Visualization and Analysis Scripts](#5-visualization-and-analysis-scripts)
 6. [Atmospheric Data and Species Composition](#6-atmospheric-data-and-species-composition)
 7. [Surface Geometry and STL Conversion](#7-surface-geometry-and-stl-conversion)
-8. [Surface Collision Models and Accommodation](#8-surface-collision-models-and-accommodation)
+8. [Input File Configurations](#8-input-file-configurations)
 9. [Drag Calculation Methods](#9-drag-calculation-methods)
 10. [Best Practices](#11-best-practices)
 
