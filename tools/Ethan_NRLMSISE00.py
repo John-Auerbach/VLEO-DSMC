@@ -39,11 +39,18 @@ if not os.path.exists(data_file):
         alt_km = altitudes * 1e-3  # km
         
         # load NRLMSIS Data
-        utc = datetime.datetime(2011, 4, 10, 0, 0)
+        utc = datetime.datetime(2011, 4, 10, 0, 0)  # Day 100, midnight (matches Ethan's sec=0)
         times = np.array([utc], dtype='datetime64')
         
+        # Ethan solar/geomagnetic params
+        f107a = 250  # 81-day average F10.7
+        f107 = 250   # daily F10.7
+        aps = [[4, 4, 4, 4, 4, 4, 4]]  # Ap indices: [daily, 0h, 3h, 6h, 9h, 12-33h avg, 36-57h avg]
+        
         msis_version = 2.1
-        atmosphere = pymsis.calculate(times, [lon], [lat], alt_km, version=msis_version)
+        atmosphere = pymsis.calculate(times, [lon], [lat], alt_km, 
+                                     f107, f107a, aps,
+                                     version=msis_version)
         
         T = np.squeeze(atmosphere[..., pymsis.Variable.TEMPERATURE])
         rho = np.squeeze(atmosphere[..., pymsis.Variable.MASS_DENSITY])
