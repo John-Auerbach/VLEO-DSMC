@@ -178,6 +178,8 @@ To auto-activate in **VS Code** (not necessary):
 
 ## 3. Running Simulations
 
+**Note: `run_sparta.sh` and all analysis scripts expect the input file to be named `in.ampt`. To run a simulation, copy your chosen configuration to `in.ampt` first. Example: `cp in.general_surface in.ampt`**
+
 ### Single Altitude Simulation
 
 ```bash
@@ -190,8 +192,6 @@ sparta < in.ampt
 # OR run with multiple cores for faster execution
 ./run_sparta.sh    # Uses 8 cores by default. Modify this to work with your setup.
 ```
-
-**Note:** `run_sparta.sh` the input file to be named `in.ampt`. To run a script, copy your chosen configuration to `in.ampt` first. Example: `cp in.general_surface in.ampt`
 
 **Performance:** Multi-core execution is typically 4-6x faster for DSMC simulations. 
 
