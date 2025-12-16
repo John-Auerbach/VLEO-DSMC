@@ -6,6 +6,8 @@ VLEO-DSMC is a simulation toolkit built on [SPARTA](https://sparta.github.io/) f
 
 Import your satellite geometry as an STL file and compute aerodynamic drag, surface heating, velocity fields, and streamlines. The included Python scripts handle atmospheric data generation, dump file handling, and visualization. Particle animations, temperature heatmaps, flow field plots, and multi-altitude drag analysis are all supported out of the box. MPI parallelization enables faster execution on multi-core systems.
 
+**For a quick start, follow along with sections 1-5:**
+
 ## Table of Contents
 0. [Simulation Overview](#simulation-overview)
 1. [Installing SPARTA](#1-install-sparta)
@@ -115,7 +117,7 @@ make serial   # Creates: spa_serial
 
 **Which to use?** Build `spa_mpi` if you want to run simulations on multiple cores (recommended). The scripts in this repo (`run_sparta.sh`, `multi_altitude.py`) use `mpirun` and require `spa_mpi`.
 
-### Create a symlink for convenience
+### Create a symlink
 
 To use `sparta` as the command name (as used in `run_sparta.sh` and `multi_altitude.py`):
 
@@ -126,7 +128,7 @@ ln -s spa_mpi sparta       # Recommended: enables multi-core runs with mpirun
 ln -s spa_serial sparta
 ```
 
-**Important:** If you plan to use `mpirun` for parallel execution, you **must** link to `spa_mpi`. Using `spa_serial` with `mpirun` will launch multiple independent serial processes instead of one parallel simulation - they won't communicate and results will be incorrect.
+**Important:** You will likely use the `run_sparta.sh` script, which utilizes `mpirun` for parallel execution. You **must** link to `spa_mpi` to run this. Using `spa_serial` with `mpirun` will launch multiple independent serial processes instead of one parallel simulation; they won't communicate and results will be incorrect.
 
 ### Add to PATH
 
@@ -178,7 +180,7 @@ To auto-activate in **VS Code** (not necessary):
 
 ## 3. Running Simulations
 
-**Note: `run_sparta.sh` and all analysis scripts expect the input file to be named `in.ampt`. To run a simulation, copy your chosen configuration to `in.ampt` first. Example: `cp in.general_surface in.ampt`**
+**!! NOTE:** `run_sparta.sh` and all analysis scripts expect the input file to be named `in.ampt`. To run a simulation, copy your chosen configuration to `in.ampt` first. Example: `cp in.general_surface in.ampt`
 
 ### Single Altitude Simulation
 
