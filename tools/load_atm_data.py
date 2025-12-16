@@ -34,9 +34,9 @@ if not os.path.exists(data_file):
         R = 287.05 # specific gas constant, air (J / kg*K)
         
         lat = 40.7934
-        lon = 77.8600
-        altitudes = np.linspace(70, 500, 200) * 1e3 # m
-        alt_km = altitudes * 1e-3 # km
+        lon = -77.8600
+        altitudes = np.linspace(70e3, 300e3, 501)  # m
+        alt_km = altitudes * 1e-3  # km
         
         # load NRLMSIS Data
         utc = datetime.datetime(2011, 4, 10, 12, 0)

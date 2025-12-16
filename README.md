@@ -503,7 +503,7 @@ For drag calculations using momentum flux, transparent boundary surfaces are pla
 - `xlo_bdy.surf` - Upstream plane at x = -1.0 m
 - `xhi_bdy.surf` - Downstream plane at x = +1.0 m
 
-These are read with the `transparent` flag in SPARTA and don't interact with particles—they only measure fluxes.
+These are read with the `transparent` flag in SPARTA and don't interact with particles; they only measure fluxes.
 
 **(Warning: see [experimental momentum flux drag method](#momentum-flux-method-experimental---do-not-use) before using transparent planes to measure fluxes!)**
 
