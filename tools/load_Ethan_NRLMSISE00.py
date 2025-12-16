@@ -4,6 +4,8 @@ import os
 import sys
 import matplotlib.pyplot as plt
 
+msis_version = 0  # MSISE-00 (version 0) for Ethan comparison
+
 # get altitude from command line or use default
 if len(sys.argv) > 1:
     alt = float(sys.argv[1])
@@ -47,7 +49,6 @@ if not os.path.exists(data_file):
         f107 = 250   # daily F10.7
         aps = [[4, 4, 4, 4, 4, 4, 4]]  # Ap indices: [daily, 0h, 3h, 6h, 9h, 12-33h avg, 36-57h avg]
         
-        msis_version = 2.1
         atmosphere = pymsis.calculate(times, [lon], [lat], alt_km, 
                                      f107, f107a, aps,
                                      version=msis_version)
@@ -122,6 +123,18 @@ frac_O  = round(n_O / n_total, 4)
 frac_He = round(n_He / n_total, 4)
 frac_Ar = round(n_Ar / n_total, 4)
 frac_N  = 1.0 - (frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar)
+
+# Sometimes rounding causes sum to exceed 1.0 or frac_N to be negative, which crashes sparta
+# if sum > 1.0, renormalize
+if frac_N < 0:
+    # Renormalize all fractions to ensure they sum to exactly 1.0
+    total = frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar
+    frac_N2 = round(frac_N2 / total, 4)
+    frac_O2 = round(frac_O2 / total, 4)
+    frac_O  = round(frac_O / total, 4)
+    frac_He = round(frac_He / total, 4)
+    frac_Ar = round(frac_Ar / total, 4)
+    frac_N  = 1.0 - (frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar)
 
 # write sparta include file with all atmospheric data
 with open(os.path.join(data_dir, 'atm.sparta'), 'w') as f:

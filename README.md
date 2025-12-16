@@ -124,11 +124,15 @@ To use `sparta` as the command name (as used in `run_sparta.sh` and `multi_altit
 ```bash
 cd ~/sparta/src
 ln -s spa_mpi sparta       # Recommended: enables multi-core runs with mpirun
-# OR for serial only:
+```
+
+Or for serial only (not recommended):
+```bash
+cd ~/sparta/src
 ln -s spa_serial sparta
 ```
 
-**Important:** You will likely use the `run_sparta.sh` script, which utilizes `mpirun` for parallel execution. You **must** link to `spa_mpi` to run this. Using `spa_serial` with `mpirun` will launch multiple independent serial processes instead of one parallel simulation; they won't communicate and results will be incorrect.
+**Important:** You will likely use the `run_sparta.sh` script, which utilizes `mpirun` for parallel execution. You **must** link to `spa_mpi` (first code snippet above) to run this. Using `spa_serial` with `mpirun` will launch multiple independent serial processes instead of one parallel simulation; they won't communicate and results will be incorrect.
 
 ### Add to PATH
 
@@ -170,7 +174,7 @@ pip install -r requirements.txt
 ```
 
 You must run `source .venv/bin/activate` **every time you open a new terminal**  
-(unless you're using system-wide Python via `apt`, which doesn't require activation)
+(unless you're using system-wide Python via `apt`, which doesn't require activation).
 I have it set up like this to isolate dependencies and guarantee it will run on any machine with just requirements.txt
 
 To auto-activate in **VS Code** (not necessary):
@@ -186,7 +190,7 @@ To auto-activate in **VS Code** (not necessary):
 
 ```bash
 # Generate atmospheric data for specific altitude (70-500 km)
-python3 tools/load_atm_data.py 150
+python3 tools/load_atm_data.py 150 # km
 
 # Run SPARTA simulation (single core)
 sparta < in.ampt
@@ -207,11 +211,11 @@ python3 multi_altitude.py
 python3 multi_altitude.py --cores 8
 python3 multi_altitude.py -c 4
 
-# Edit altitude list in multi_altitude.py (default: 70, 80, 90, 100, 110, 120, 130, 140, 150 km)
+# Edit altitude list in multi_altitude.py
 ```
 
 This will:
-- Run SPARTA simulations at each altitude using `in.ampt`
+- Automatically run SPARTA simulations at multiple altitudes using `in.ampt`
 - Save results to `dumps/alt_XXkm/` directories  
 - **Automatically convert dumps to Parquet format** for memory-efficient analysis  
 

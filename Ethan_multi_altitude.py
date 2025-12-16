@@ -32,7 +32,7 @@ for alt in altitudes:
     print(f"\n=== Running {alt} km ===")
     
     # Generate atmospheric data
-    os.system(f'python3 tools/load_atm_data.py {alt}')
+    os.system(f'python3 tools/load_Ethan_NRLMSISE00.py {alt}')
     
     # Run SPARTA (single core or parallel)
     if args.cores == 1:

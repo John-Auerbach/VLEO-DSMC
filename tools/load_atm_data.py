@@ -4,6 +4,8 @@ import os
 import sys
 import matplotlib.pyplot as plt
 
+msis_version = 2.1  # NRLMSIS-2.1
+
 # get altitude from command line or use default
 if len(sys.argv) > 1:
     alt = float(sys.argv[1])
@@ -42,7 +44,6 @@ if not os.path.exists(data_file):
         utc = datetime.datetime(2011, 4, 10, 0, 0)
         times = np.array([utc], dtype='datetime64')
         
-        msis_version = 2.1
         atmosphere = pymsis.calculate(times, [lon], [lat], alt_km, version=msis_version)
         
         T = np.squeeze(atmosphere[..., pymsis.Variable.TEMPERATURE])
@@ -115,6 +116,18 @@ frac_O  = round(n_O / n_total, 4)
 frac_He = round(n_He / n_total, 4)
 frac_Ar = round(n_Ar / n_total, 4)
 frac_N  = 1.0 - (frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar)
+
+# Sometimes rounding causes sum to exceed 1.0 or frac_N to be negative, which crashes sparta
+# if sum > 1.0, renormalize
+if frac_N < 0:
+    # Renormalize all fractions to ensure they sum to exactly 1.0
+    total = frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar
+    frac_N2 = round(frac_N2 / total, 4)
+    frac_O2 = round(frac_O2 / total, 4)
+    frac_O  = round(frac_O / total, 4)
+    frac_He = round(frac_He / total, 4)
+    frac_Ar = round(frac_Ar / total, 4)
+    frac_N  = 1.0 - (frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar)
 
 # write sparta include file with all atmospheric data
 with open(os.path.join(data_dir, 'atm.sparta'), 'w') as f:
