@@ -100,7 +100,7 @@ fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 1 Tsurf  # Stefan-Boltzm
 
 # Define collision models
 surf_collide 	wall_diffuse diffuse s_Tsurf 1   # diffuse model for front/back, random dir, use local facet temp, acc
-surf_collide    wall_specular diffuse s_Tsurf 0.3      # specular model for walls
+surf_collide    wall_specular diffuse s_Tsurf 1      # specular model for walls
 # Apply to respective surface groups
 surf_modify 	ampt_xnorm collide wall_diffuse    # attach model to facets
 surf_modify 	ampt_yznorm collide wall_specular 

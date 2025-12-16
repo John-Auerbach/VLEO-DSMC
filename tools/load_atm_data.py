@@ -42,7 +42,7 @@ if not os.path.exists(data_file):
         utc = datetime.datetime(2011, 4, 10, 12, 0)
         times = np.array([utc], dtype='datetime64')
         
-        atmosphere = pymsis.calculate(times, [lon], [lat], alt_km)
+        atmosphere = pymsis.calculate(times, [lon], [lat], alt_km, version=2.1)
         
         T = np.squeeze(atmosphere[..., pymsis.Variable.TEMPERATURE])
         rho = np.squeeze(atmosphere[..., pymsis.Variable.MASS_DENSITY])
@@ -108,12 +108,12 @@ n_Ar = np.nan_to_num(n_Ar)
 n_N  = np.nan_to_num(n_N)
 
 n_total = n_N2 + n_O2 + n_O + n_He + n_Ar + n_N
-frac_N2 = n_N2 / n_total
-frac_O2 = n_O2 / n_total
-frac_O  = n_O / n_total
-frac_He = n_He / n_total
-frac_Ar = n_Ar / n_total
-frac_N  = 1.0 - frac_N2 - frac_O2 - frac_O - frac_He - frac_Ar  # ensure sum = 1 or sparta crashes
+frac_N2 = round(n_N2 / n_total, 4)
+frac_O2 = round(n_O2 / n_total, 4)
+frac_O  = round(n_O / n_total, 4)
+frac_He = round(n_He / n_total, 4)
+frac_Ar = round(n_Ar / n_total, 4)
+frac_N  = 1.0 - (frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar)
 
 # write sparta include file with all atmospheric data
 with open(os.path.join(data_dir, 'atm.sparta'), 'w') as f:
