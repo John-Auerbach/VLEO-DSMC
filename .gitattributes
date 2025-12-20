@@ -1,7 +1,5 @@
-in.* linguist-language=SPARTA linguist-detectable
-*.sparta linguist-language=SPARTA linguist-detectable
-*.surf linguist-language=Text
+in.* linguist-language=Tcl
+*.sparta linguist-language=Tcl
+*.surf linguist-detectable
 *.species linguist-detectable
 *.vss linguist-detectable
-dumps/** linguist-generated=true
-*.dat linguist-generated=true
