@@ -59,7 +59,7 @@ variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight ti
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	    surf/solar_panel1.surf  group ampt        # create surface group "ampt"
+read_surf	    surf/solar_panel2.surf  group ampt        # create surface group "ampt"
 group           ampt_xnorm surf id 1:4              # front/back faces (ram direction)
 group           ampt_yznorm surf id 5:12            # side walls
 
