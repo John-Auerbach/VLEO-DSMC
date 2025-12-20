@@ -1,4 +1,4 @@
-Updated Dec 16 2025
+Updated Dec 19 2025
 
 # VLEO-DSMC: Satellite Atmospheric Simulation with SPARTA
 
@@ -633,6 +633,8 @@ This method:
 For the decomposed geometries (`in.cube` and `in.auto_surf_decomp`), drag is decomposed into:
 - **Ram drag:** Forces on x-normal faces (front/back)
 - **Skin friction:** Forces on y/z-normal faces (side walls)
+
+The alternate momentum flux method was removed in commit 21a5f46 due to issues with SPARTA's transparent surface flux measurement.
 
 ### Output Files
 
