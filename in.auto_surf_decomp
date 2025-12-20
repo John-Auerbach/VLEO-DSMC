@@ -62,9 +62,6 @@ variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight ti
 read_surf	    surf/AMPT_sat_no_inlet.surf  group ampt        # create surface group "ampt"
 include         surf/AMPT_sat_no_inlet.sparta                  # auto-generated surface groups
 
-read_surf	    surf/xlo_bdy.surf  group xlo_bdy transparent
-read_surf	    surf/xhi_bdy.surf  group xhi_bdy transparent
-
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
 # set mixture properties from NRLMSIS data
@@ -104,11 +101,7 @@ surf_collide    wall_diffuse_other diffuse s_Tsurf 0.9  # diffuse model for rema
 # Apply to respective surface groups
 surf_modify 	ampt_xnorm collide wall_diffuse         # ram surfaces
 surf_modify 	ampt_yznorm collide wall_specular       # lateral surfaces
-surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces 
-
-surf_collide    trans transparent                  # define transparent collision model for boundary surfaces
-surf_modify     xlo_bdy collide trans              # attach transparent model to xlo_bdy
-surf_modify     xhi_bdy collide trans              # attach transparent model to xhi_bdy
+surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
@@ -150,22 +143,6 @@ variable        ux_avg   equal c_sum_px_vol/c_sum_rho_vol
 fix             boxprops ave/time 1 1 100 v_ux_avg v_rho_avg v_nrho_avg ave running file dumps/box_props.dat
 
 # DRAG CALC (short for caclulator) ------------------------
-# boundary method: use mass flux and kinetic energy flux through transparent surface. 
-                    # these can be used to find pressure in front and behind object which gives F_drag
-
-compute         xlo_flux surf xlo_bdy atm mflux ke nflux                                # per-surf fluxes (mass/area/time, energy/area/time, number/area/time)
-compute         xlo_mdot   reduce sum-area c_xlo_flux[1]                                # total mass flow rate through plane (kg/s)
-compute         xlo_Edot   reduce sum-area c_xlo_flux[2]                                # total kinetic energy flow rate (W)
-compute         xlo_Ndot   reduce sum-area c_xlo_flux[3]                                # total number flow rate (1/s)
-fix             xlo_out ave/time 1 1 100 c_xlo_mdot c_xlo_Edot c_xlo_Ndot ave running file dumps/xlo_flux.dat
-
-compute         xhi_flux surf xhi_bdy atm mflux ke nflux
-compute         xhi_mdot   reduce sum-area c_xhi_flux[1]
-compute         xhi_Edot   reduce sum-area c_xhi_flux[2]
-compute         xhi_Ndot   reduce sum-area c_xhi_flux[3]
-fix             xhi_out ave/time 1 1 100 c_xhi_mdot c_xhi_Edot c_xhi_Ndot ave running file dumps/xhi_flux.dat
-
-
 # sum of surface forces (direct):
                 # compute per-surface-element force components (fx,fy,fz) for all ampt surfaces
 compute         surfF surf ampt atm fx fy fz

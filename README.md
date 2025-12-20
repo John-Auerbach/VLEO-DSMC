@@ -501,17 +501,6 @@ python3 tools/stl2surf.py models/AMPT_sat_inlet.STL surf/AMPT_sat_inlet.surf
 Located in `surf/`:
 - `cube.surf` - 1m × 1m × 1m cube centered at origin (12 triangles)
 - Additional satellite configurations
-- `xlo_bdy.surf`, `xhi_bdy.surf` - Transparent boundary planes for flux measurement ()
-
-### Transparent Boundary Surfaces
-
-For drag calculations using momentum flux, transparent boundary surfaces are placed upstream and downstream:
-- `xlo_bdy.surf` - Upstream plane at x = -1.0 m
-- `xhi_bdy.surf` - Downstream plane at x = +1.0 m
-
-These are read with the `transparent` flag in SPARTA and don't interact with particles; they only measure fluxes.
-
-**(Warning: see [experimental momentum flux drag method](#momentum-flux-method-experimental---do-not-use) before using transparent planes to measure fluxes!)**
 
 ## 8. Input File Configurations
 
@@ -624,9 +613,9 @@ cp in.general_surface in.ampt  # Example
 
 ## 9. Drag Calculation Methods
 
-The `plot_drag.py` script computes drag using two methods:
+The `plot_drag.py` script computes drag using the direct sum method:
 
-### Direct Sum Method (Recommended)
+### Direct Sum Method
 
 Forces on each surface element are computed directly by SPARTA and summed:
 
@@ -645,26 +634,10 @@ For the decomposed geometries (`in.cube` and `in.auto_surf_decomp`), drag is dec
 - **Ram drag:** Forces on x-normal faces (front/back)
 - **Skin friction:** Forces on y/z-normal faces (side walls)
 
-### Momentum Flux Method (Experimental - Do Not Use)
-
-An alternative method using momentum flux through upstream/downstream transparent planes:
-
-```
-compute         xlo_flux surf xlo_bdy atm mflux ke nflux
-compute         xhi_flux surf xhi_bdy atm mflux ke nflux
-```
-
-Drag is computed as: F ≈ (Π_lo - Π_hi) × A, where Π = Φ_m × v
-
-**Warning:** This method does not accurately reconstruct simulated number or mass densities. I suspect there a fundamental issue with how SPARTA's transparent surfaces detect particles (the actual calculations of fluxes follow my formulations, but I still calculate the wrong values). **The boundary momentum-flux line on the drag plot should be ignored.** Use only the direct drag values.
-
 ### Output Files
 
 Drag data is written to:
 - `dumps/direct_drag.dat` - Timestep, total drag, ram drag, skin friction
-- `dumps/xlo_flux.dat` - Upstream boundary fluxes (mass, energy, number flow rates)
-- `dumps/xhi_flux.dat` - Downstream boundary fluxes
-- ^ Don't worry about those last two, they're for momentum flux calcs
 
 ## 10. Best Practices
 
