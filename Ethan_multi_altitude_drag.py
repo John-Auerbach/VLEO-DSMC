@@ -20,7 +20,7 @@ parser.add_argument('--cores', '-c', type=int, default=1,
 args = parser.parse_args()
 
 # EDIT THESE ALTITUDES
-altitudes = [70, 80, 90, 100, 120, 140, 160, 180, 200, 220, 250, 300]
+altitudes = list(range(70, 305, 5))  # 70 to 300 km in 5 km intervals
 
 print(f"Running with {args.cores} core(s)")
 if args.cores > 1:
