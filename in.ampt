@@ -65,8 +65,8 @@ variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight ti
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	    surf/AMPT_sat_no_inlet.surf  group ampt        # create surface group "ampt"
-include         surf/AMPT_sat_no_inlet.sparta                  # auto-generated surface groups
+read_surf	    surf/AMPT_sat_inlet.surf  group ampt        # create surface group "ampt"
+include         surf/AMPT_sat_inlet.sparta                  # auto-generated surface groups
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -111,6 +111,9 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
+# per-grid density
+compute         prop_grid grid all atm nrho
+dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_prop_grid[1]
 
 # DRAG CALC (short for caclulator) ------------------------
 # sum of surface forces (direct):

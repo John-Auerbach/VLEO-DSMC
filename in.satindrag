@@ -1,0 +1,159 @@
+##
+
+# THIS FILE IS FOR LARGE DRAG SIMS ONLY. It will only output drag data to save storage space.
+
+##
+
+# SETUP --------------------------------------------------------------------------------------
+
+shell "bash -c 'rm -f dumps/*.dat'"
+
+shell "mkdir -p dumps"
+
+units           si
+seed            11111
+dimension       3
+
+# outflow in +x, periodic y,z. will inject at xlo (x=0)
+boundary        o p p
+
+# domain size (m)
+variable        xmin equal -2
+variable        xmax equal 2
+variable        ymin equal -2
+variable 	    ymax equal 2
+variable	    zmin equal -2
+variable	    zmax equal 2
+
+variable	    Lx equal ${xmax}-${xmin}
+variable        Ly equal ${ymax}-${ymin}
+variable        Lz equal ${zmax}-${zmin}
+
+create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
+
+# Load atmospheric data from NRLMSIS (run: python3 tools/load_atm_data.py <altitude_km>)
+include         data/atm.sparta
+
+print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
+
+variable 	    kB equal 1.380649e-23  # J/K
+variable 	    d equal 3.7e-10  # m
+variable 	    R equal 287.05 # (J / kg*K)
+variable 	    lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
+variable	    vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
+
+print "MEAN FREE PATH = ${lambda} m"
+print "MEAN MOLEC VEL = ${vbar} m/s"
+
+# grid resolution
+
+variable	    dx equal ${lambda}/3 # m
+variable	    mct equal ${lambda}/${vbar} # s
+variable	    mtt equal ${dx}/${vbar} # s
+variable	    dt equal ((${mct}<${mtt})*${mct}+(${mct}>=${mtt})*${mtt})/3.0 # min(${mct},${mtt})/3.0
+
+print "CELL SIZE MUST BE LESS THAN ${dx} m"
+print "MEAN COLL TIME = ${mct} s"
+print "MEAN TRANSIT TIME = ${mtt} s"
+print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
+
+create_grid	    150 100 100 
+balance_grid    rcb part
+
+variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
+variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
+
+# SURFACE GEOMETRY ----------------------------------------------------------------------------
+
+read_surf	    surf/AMPT_sat_inlet.surf  group ampt        # create surface group "ampt"
+include         surf/AMPT_sat_inlet.sparta                  # auto-generated surface groups
+
+# SPECIES AND MIXTURE -------------------------------------------------------------------------
+
+# set mixture properties from NRLMSIS data
+mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
+
+# particle weighting: set target of 2e5 sim particles, calculate weighting factor
+variable        Ns_target equal 2000000.0
+variable        Vol       equal ${Lx}*${Ly}*${Lz}
+variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
+global          fnum ${fnum} # global bc will be queried by each new particle
+
+variable	    parts_per equal ${nrho}/${Ns_target}
+print "particles per particle = ${parts_per}"
+
+# global useful for stat query later
+global          nrho ${nrho}
+
+# create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
+create_particles	atm n 0
+
+# continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
+fix		        in emit/face atm xlo
+
+# SURFACE COLLISIONS --------------------------------------------------------------------------
+
+                # compute ID, type, surf group, mixture, property (energy flux on surface)
+compute         compute_qwall surf ampt atm ke # ke = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
+
+                # running‑average every step so flux is never exactly zero (exponential decay)
+fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
+fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 1 Tsurf  # Stefan-Boltzmann
+
+# Define collision models
+surf_collide 	wall_diffuse diffuse s_Tsurf 0.9        # diffuse model for ram surfaces
+surf_collide    wall_specular diffuse s_Tsurf 0.3       # specular model for lateral surfaces
+surf_collide    wall_diffuse_other diffuse s_Tsurf 0.9  # diffuse model for remaining surfaces
+# Apply to respective surface groups
+surf_modify 	ampt_xnorm collide wall_diffuse         # ram surfaces
+surf_modify 	ampt_yznorm collide wall_specular       # lateral surfaces
+surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
+
+# DIAGNOSTICS ---------------------------------------------------------------------------------
+
+# per-grid density and pressure at origin (0,0,0)
+compute         grid_nrho grid all atm nrho
+compute         grid_press grid all atm press
+# reduce to get cell-averaged values - we'll sample the cell containing origin
+# create a region around origin
+region          origin_cell block -0.1 0.1 -0.1 0.1 -0.1 0.1
+# compute density and pressure in that region
+compute         region_nrho reduce ave c_grid_nrho[1]
+compute         region_press reduce ave c_grid_press[1]
+# write density and pressure at origin to file
+fix             origin_out ave/time 1 1 100 c_region_nrho c_region_press file dumps/density_and_pressure_at_O.dat mode scalar
+
+# DRAG CALC (short for caclulator) ------------------------
+# sum of surface forces (direct):
+                # compute per-surface-element force components (fx,fy,fz) for all ampt surfaces
+compute         surfF surf ampt atm fx fy fz
+                # time-average per-surf forces (running mean)
+fix             surfavg ave/surf ampt 1 1 1 c_surfF[*] ave running
+                # reduce (sum) per-surf averaged fx -> global total drag
+compute         drag reduce sum f_surfavg[1]
+
+# compute forces for x-normal surfaces (ram drag)
+compute         surfF_xnorm surf ampt_xnorm atm fx fy fz
+fix             surfavg_xnorm ave/surf ampt_xnorm 1 1 1 c_surfF_xnorm[*] ave running
+compute         drag_xnorm reduce sum f_surfavg_xnorm[1]
+
+# compute forces for y/z-normal surfaces (skin friction)
+compute         surfF_walls surf ampt_yznorm atm fx fy fz
+fix             surfavg_walls ave/surf ampt_yznorm 1 1 1 c_surfF_walls[*] ave running
+compute         drag_walls reduce sum f_surfavg_walls[1]
+
+# write drag components (timestep, total_drag, ram_drag, skin_friction) to file
+fix             dragout ave/time 1 1 100 c_drag c_drag_xnorm c_drag_walls file dumps/direct_drag.dat mode scalar
+
+# ----------------------------------------------------------
+
+# cell-averaged (streaming+thermal) temperature
+compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
+stats           ${diag_freq} # print diagnostics every _ timesteps
+stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls # print timestep, runtime, particles, collision stats, avg temp, drag components
+
+timestep        ${tstep}
+collide		    vss atm vss/air.vss # variable soft sphere model
+run             5000
+
+shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"

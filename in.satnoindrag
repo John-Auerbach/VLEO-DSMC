@@ -111,7 +111,6 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
-
 # DRAG CALC (short for caclulator) ------------------------
 # sum of surface forces (direct):
                 # compute per-surface-element force components (fx,fy,fz) for all ampt surfaces

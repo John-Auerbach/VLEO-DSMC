@@ -52,9 +52,6 @@ for alt in altitudes:
     
     # Get final surface temps
     surf_files = [f for f in os.listdir(f'dumps/alt_{alt}km') if f.startswith('surf.')]
-    if not surf_files:
-        print(f"Warning: No surf.* files found for {alt}km - skipping temperature extraction")
-        continue
     final_surf = sorted(surf_files, key=lambda x: int(x.split('.')[1]))[-1]
     
     with open(f'dumps/alt_{alt}km/{final_surf}') as f:

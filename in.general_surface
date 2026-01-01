@@ -99,6 +99,14 @@ surf_modify 	ampt collide wall                  # attach model to facets
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
+# per-grid density
+compute         prop_grid grid all atm nrho
+dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_prop_grid[1]
+
+# per-grid pressure
+compute         prop_grid_press grid all atm press
+dump            dump_grid_press grid all ${diag_freq} dumps/grid_press.*.dat id xlo ylo zlo xc yc zc c_prop_grid_press[1]
+
                 # ID, data type, mixture, every _ steps, filename, columns (particle data)
 dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
 
