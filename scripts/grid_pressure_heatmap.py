@@ -23,7 +23,7 @@ parser.add_argument('folder', nargs='?', default='dumps',
                    help='Folder containing dump files (default: dumps)')
 args = parser.parse_args()
 
-# I/O - Get timesteps
+# get timesteps
 folder_path = args.folder
 timesteps = load_parquet_timesteps("grid", folder_path)
 print(f"Found {len(timesteps)} grid timesteps in {args.folder}")
@@ -94,7 +94,7 @@ im = ax.imshow(
     aspect="auto",
     vmin=vmin, vmax=vmax,
     cmap=cmap,
-    interpolation="none"  # no smoothing - raw grid cells
+    interpolation="none"
 )
 cbar = fig.colorbar(im, ax=ax, label="Pressure (Pa)")
 title = ax.set_title("")
