@@ -111,9 +111,16 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
-# per-grid density
-compute         prop_grid grid all atm nrho
-dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_prop_grid[1]
+# per-grid density and pressure at origin
+compute         grid_nrho grid all atm nrho
+compute         grid_press thermal/grid all atm press
+
+# use fix ave/grid to time average, then will extract origin cell in post-processing
+fix             avg_nrho ave/grid all 1 1 100 c_grid_nrho[1] ave one
+fix             avg_press ave/grid all 1 1 100 c_grid_press[1] ave one
+
+# dump grid data including cell centers to find origin cell
+dump            dump_origin grid all 100 dumps/grid_origin.*.dat id xc yc zc f_avg_nrho f_avg_press
 
 # DRAG CALC (short for caclulator) ------------------------
 # sum of surface forces (direct):

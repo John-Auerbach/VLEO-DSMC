@@ -38,7 +38,7 @@ def main():
 
     os.makedirs('outputs', exist_ok=True)
 
-    # Find altitude directories
+    # find altitude directories
     alt_dirs = sorted(glob.glob('dumps/alt_*km'))
     if not alt_dirs:
         print('No altitude directories found under dumps/alt_*km')
@@ -194,7 +194,7 @@ def main():
         for line, D in zip(lines_log, data_arrays):
             y = D[i, :]
             x = alts
-            mask = ~np.isnan(y) & (y > 0)  # Only positive values for log scale
+            mask = ~np.isnan(y) & (y > 0)  # only positive values for log scale
             line.set_data(np.array(x)[mask], y[mask])
         ax_log.set_title(f'Drag Components vs Altitude (Log Scale) | timestep {timesteps[i]}')
         return lines_log
@@ -202,7 +202,7 @@ def main():
     ani_log = FuncAnimation(fig_log, update_log, frames=len(timesteps), init_func=init_log,
                             interval=200, blit=False)
 
-    # Save both animations
+    # save both animations
     ani_lin.save('outputs/multi_altitude_drag_evolution.mp4', fps=10, dpi=150)
     print('Saved outputs/multi_altitude_drag_evolution.mp4')
     

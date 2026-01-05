@@ -111,17 +111,42 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
-# per-grid density and pressure at origin (0,0,0)
-compute         grid_nrho grid all atm nrho
-compute         grid_press grid all atm press
-# reduce to get cell-averaged values - we'll sample the cell containing origin
-# create a region around origin
-region          origin_cell block -0.1 0.1 -0.1 0.1 -0.1 0.1
-# compute density and pressure in that region
-compute         region_nrho reduce ave c_grid_nrho[1]
-compute         region_press reduce ave c_grid_press[1]
-# write density and pressure at origin to file
-fix             origin_out ave/time 1 1 100 c_region_nrho c_region_press file dumps/density_and_pressure_at_O.dat mode scalar
+# density and pressure at origin (0,0,0)
+# define a small region around origin to capture the cell containing it
+region          origin_region block -0.55 -0.45 -0.05 0.05 -0.05 0.05
+# create grid group for cells in that region (center point must be in region)
+group           origin_cells grid region origin_region center
+# compute density and pressure for origin grid group only
+compute         grid_nrho_origin grid origin_cells atm nrho
+compute         grid_press_origin thermal/grid origin_cells atm press
+# reduce to scalar (average over the small region, typically 1 cell)
+compute         nrho_at_origin reduce ave c_grid_nrho_origin[1]
+compute         press_at_origin reduce ave c_grid_press_origin[1]
+# write to file like direct_drag.dat
+fix             origin_out ave/time 1 1 100 c_nrho_at_origin c_press_at_origin file dumps/density_and_pressure_at_O.dat mode scalar
+
+
+
+# Measure simulated flow properties ---------------------
+
+compute         prop_grid grid all atm nrho massrho pxrho
+compute         vol_grid  property/grid all vol
+
+# Use grid-style variables to multiply density by volume for each cell
+variable        nrho_vol grid c_prop_grid[1]*c_vol_grid
+variable        rho_vol  grid c_prop_grid[2]*c_vol_grid
+variable        px_vol   grid c_prop_grid[3]*c_vol_grid
+
+compute         sum_vol      reduce sum c_vol_grid
+compute         sum_nrho_vol reduce sum v_nrho_vol
+compute         sum_rho_vol  reduce sum v_rho_vol
+compute         sum_px_vol   reduce sum v_px_vol
+
+variable        nrho_avg equal c_sum_nrho_vol/c_sum_vol
+variable        rho_avg  equal c_sum_rho_vol/c_sum_vol
+variable        ux_avg   equal c_sum_px_vol/c_sum_rho_vol
+
+fix             boxprops ave/time 1 1 100 v_ux_avg v_rho_avg v_nrho_avg ave running file dumps/box_props.dat
 
 # DRAG CALC (short for caclulator) ------------------------
 # sum of surface forces (direct):
