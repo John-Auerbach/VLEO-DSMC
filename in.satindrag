@@ -111,42 +111,27 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
-# density and pressure at origin (0,0,0)
-# define a small region around origin to capture the cell containing it
-region          origin_region block -0.55 -0.45 -0.05 0.05 -0.05 0.05
-# create grid group for cells in that region (center point must be in region)
+# density and pressure at upstream free stream (far from satellite)
+                # region ID, style, xlo xhi ylo yhi zlo zhi
+region          origin_region block -1.95 -1.85 -0.2 0.2 -0.2 0.2
+                # group ID, grid, region ID, rflag (center = cell center must be in region)
 group           origin_cells grid region origin_region center
-# compute density and pressure for origin grid group only
+
+                # compute ID, style, grid group, mixture, property
 compute         grid_nrho_origin grid origin_cells atm nrho
 compute         grid_press_origin thermal/grid origin_cells atm press
-# reduce to scalar (average over the small region, typically 1 cell)
-compute         nrho_at_origin reduce ave c_grid_nrho_origin[1]
-compute         press_at_origin reduce ave c_grid_press_origin[1]
-# write to file like direct_drag.dat
+
+                # fix ID, style, grid group, Nevery Nrepeat Nfreq, input, ave running
+fix             avg_nrho_origin ave/grid origin_cells 1 100 100 c_grid_nrho_origin[1] ave running
+fix             avg_press_origin ave/grid origin_cells 1 100 100 c_grid_press_origin[1] ave running
+
+                # compute ID, reduce, mode, input, subset grid-group-ID
+compute         nrho_at_origin reduce ave f_avg_nrho_origin subset origin_cells
+compute         press_at_origin reduce ave f_avg_press_origin subset origin_cells
+
+                # fix ID, ave/time, Nevery Nrepeat Nfreq, inputs, file, mode scalar
 fix             origin_out ave/time 1 1 100 c_nrho_at_origin c_press_at_origin file dumps/density_and_pressure_at_O.dat mode scalar
 
-
-
-# Measure simulated flow properties ---------------------
-
-compute         prop_grid grid all atm nrho massrho pxrho
-compute         vol_grid  property/grid all vol
-
-# Use grid-style variables to multiply density by volume for each cell
-variable        nrho_vol grid c_prop_grid[1]*c_vol_grid
-variable        rho_vol  grid c_prop_grid[2]*c_vol_grid
-variable        px_vol   grid c_prop_grid[3]*c_vol_grid
-
-compute         sum_vol      reduce sum c_vol_grid
-compute         sum_nrho_vol reduce sum v_nrho_vol
-compute         sum_rho_vol  reduce sum v_rho_vol
-compute         sum_px_vol   reduce sum v_px_vol
-
-variable        nrho_avg equal c_sum_nrho_vol/c_sum_vol
-variable        rho_avg  equal c_sum_rho_vol/c_sum_vol
-variable        ux_avg   equal c_sum_px_vol/c_sum_rho_vol
-
-fix             boxprops ave/time 1 1 100 v_ux_avg v_rho_avg v_nrho_avg ave running file dumps/box_props.dat
 
 # DRAG CALC (short for caclulator) ------------------------
 # sum of surface forces (direct):
