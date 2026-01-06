@@ -20,10 +20,10 @@ boundary        o p p
 # domain size (m)
 variable        xmin equal -2
 variable        xmax equal 2
-variable        ymin equal -2
-variable 	    ymax equal 2
-variable	    zmin equal -2
-variable	    zmax equal 2
+variable        ymin equal -0.5
+variable 	    ymax equal 0.5
+variable	    zmin equal -0.5
+variable	    zmax equal 0.5
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -57,7 +57,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    150 100 100 
+create_grid	    50 310 310
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -111,16 +111,27 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
-# per-grid density and pressure at origin
-compute         grid_nrho grid all atm nrho
-compute         grid_press thermal/grid all atm press
+# density and pressure at centerline of throat
+                # region ID, style, xlo xhi ylo yhi zlo zhi
+region          origin_region block -2.0 -1.9 -0.003 0.003 -0.003 0.003
+                # group ID, grid, region ID, rflag (center = cell center must be in region)
+group           origin_cells grid region origin_region center
 
-# use fix ave/grid to time average, then will extract origin cell in post-processing
-fix             avg_nrho ave/grid all 1 1 100 c_grid_nrho[1] ave one
-fix             avg_press ave/grid all 1 1 100 c_grid_press[1] ave one
+                # compute ID, style, grid group, mixture, property
+compute         grid_nrho_origin grid origin_cells atm nrho
+compute         grid_press_origin thermal/grid origin_cells atm press
 
-# dump grid data including cell centers to find origin cell
-dump            dump_origin grid all 100 dumps/grid_origin.*.dat id xc yc zc f_avg_nrho f_avg_press
+                # fix ID, style, grid group, Nevery Nrepeat Nfreq, input, ave running
+fix             avg_nrho_origin ave/grid origin_cells 1 100 100 c_grid_nrho_origin[1] ave running
+fix             avg_press_origin ave/grid origin_cells 1 100 100 c_grid_press_origin[1] ave running
+
+                # compute ID, reduce, mode, input, subset grid-group-ID
+compute         nrho_at_origin reduce ave f_avg_nrho_origin subset origin_cells
+compute         press_at_origin reduce ave f_avg_press_origin subset origin_cells
+
+                # fix ID, ave/time, Nevery Nrepeat Nfreq, inputs, file, mode scalar
+fix             origin_out ave/time 1 1 100 c_nrho_at_origin c_press_at_origin file dumps/density_and_pressure_at_O.dat mode scalar
+
 
 # DRAG CALC (short for caclulator) ------------------------
 # sum of surface forces (direct):

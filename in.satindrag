@@ -20,10 +20,10 @@ boundary        o p p
 # domain size (m)
 variable        xmin equal -2
 variable        xmax equal 2
-variable        ymin equal -2
-variable 	    ymax equal 2
-variable	    zmin equal -2
-variable	    zmax equal 2
+variable        ymin equal -0.5
+variable 	    ymax equal 0.5
+variable	    zmin equal -0.5
+variable	    zmax equal 0.5
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -57,7 +57,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    150 100 100 
+create_grid	    50 310 310
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -111,9 +111,9 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
-# density and pressure at upstream free stream (far from satellite)
+# density and pressure at centerline of throat
                 # region ID, style, xlo xhi ylo yhi zlo zhi
-region          origin_region block -1.95 -1.85 -0.2 0.2 -0.2 0.2
+region          origin_region block -1.5 -1.6 -0.003 0.003 -0.003 0.003
                 # group ID, grid, region ID, rflag (center = cell center must be in region)
 group           origin_cells grid region origin_region center
 
