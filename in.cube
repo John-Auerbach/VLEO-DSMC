@@ -122,7 +122,7 @@ dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y
 		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
 dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
-# Measure simulated flow properties ---------------------
+# Measure simulated flow properties for domain ---------------------
 
 compute         vol_grid  property/grid all vol
 

@@ -14,10 +14,10 @@ boundary        o p p
 # domain size (m)
 variable        xmin equal -2
 variable        xmax equal 2
-variable        ymin equal -2
-variable 	    ymax equal 2
-variable	    zmin equal -2
-variable	    zmax equal 2
+variable        ymin equal -0.5
+variable 	    ymax equal 0.5
+variable	    zmin equal -0.5
+variable	    zmax equal 0.5
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -51,7 +51,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    150 100 50 
+create_grid	    50 310 310 
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -59,8 +59,8 @@ variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight ti
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	    surf/AMPT_sat_no_inlet.surf  group ampt        # create surface group "ampt"
-include         surf/AMPT_sat_no_inlet.sparta                  # auto-generated surface groups
+read_surf	    surf/AMPT_sat_inlet.surf  group ampt        # create surface group "ampt"
+include         surf/AMPT_sat_inlet.sparta                  # auto-generated surface groups
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y
 		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
 dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
-# Measure simulated flow properties ---------------------
+# Measure simulated flow properties for domain ---------------------
 
 compute         vol_grid  property/grid all vol
 
@@ -174,6 +174,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_wal
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             2500
+run             5000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
