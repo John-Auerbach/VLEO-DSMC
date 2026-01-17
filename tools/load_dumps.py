@@ -166,23 +166,19 @@ if __name__ == "__main__":
     dumps_path = os.path.expanduser(args.dumps_dir)
     
     print(f"Processing dumps from: {dumps_path}")
-    print("Processing particle dumps (1/4)...")
+    print("Processing particle dumps (1/3)...")
     particle_count = process_and_save_dumps(f"{dumps_path}/part.*.dat", read_sparta_particle_dump, "particle", dumps_path)
 
-    print("\nProcessing grid dumps (2/4)...")
+    print("\nProcessing grid dumps (2/3)...")
     grid_count = process_and_save_dumps(f"{dumps_path}/grid.*.dat", read_sparta_grid_dump, "grid", dumps_path)
 
-    print("\nProcessing surface dumps (3/4)...")
+    print("\nProcessing surface dumps (3/3)...")
     surf_count = process_and_save_dumps(f"{dumps_path}/surf.*.dat", read_sparta_surface_dump, "surf", dumps_path)
-
-    print("\nProcessing flow dumps (4/4)...")
-    flow_count = process_and_save_dumps(f"{dumps_path}/flow.*.dat", read_sparta_grid_dump, "flow", dumps_path)
 
     print(f"\nCompleted:")
     print(f"particle frames: {particle_count}")
     print(f"grid frames: {grid_count}")
     print(f"surface frames: {surf_count}")
-    print(f"flow frames: {flow_count}")
 
 def load_parquet_data(prefix, dumps_dir="~/AMPT/dumps"):
     """Load parquet data back into the original format - MEMORY EFFICIENT VERSION"""

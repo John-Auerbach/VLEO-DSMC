@@ -113,7 +113,7 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # density and pressure at centerline of throat
                 # region ID, style, xlo xhi ylo yhi zlo zhi
-region          origin_region block -1.5 -1.6 -0.003 0.003 -0.003 0.003
+region          origin_region block -0.05 0.05 -0.003 0.003 -0.003 0.003
                 # group ID, grid, region ID, rflag (center = cell center must be in region)
 group           origin_cells grid region origin_region center
 

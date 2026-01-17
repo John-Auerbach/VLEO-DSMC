@@ -260,7 +260,7 @@ python3 tools/load_dumps.py dumps/alt_XXkm/
 ```
 
 This will:
-- Parse raw dump files (part.*.dat, grid.*.dat, surf.*.dat, flow.*.dat) 
+- Parse raw dump files (part.*.dat, grid.*.dat, surf.*.dat) 
 - Save memory-efficient Parquet files (.parquet) in the same directory (uses significantly less RAM than pickle files)
 - Can handle large (100 GB+) datasets without crashes
 - Python analysis scripts automatically use Parquet files for streaming data access

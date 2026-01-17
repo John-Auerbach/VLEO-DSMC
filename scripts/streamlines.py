@@ -38,8 +38,8 @@ def build_slice_field(df, box):
     # grab just the slice values needed for coordinates and horizontal velocity
     x = df.loc[in_slice, 'xc'].to_numpy()
     y = df.loc[in_slice, 'yc'].to_numpy()
-    u = df.loc[in_slice, 'c_compute_flow[1]'].to_numpy()
-    v = df.loc[in_slice, 'c_compute_flow[2]'].to_numpy()
+    u = df.loc[in_slice, 'c_prop_grid_flow[1]'].to_numpy()
+    v = df.loc[in_slice, 'c_prop_grid_flow[2]'].to_numpy()
 
     # drop cells containing no particles and leave blank in the figure
     speed = np.hypot(u, v)
@@ -76,7 +76,7 @@ def build_slice_field(df, box):
     return x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, speed_grid
 
 
-def discover_timesteps(prefix='flow', dumps_dir=DUMPS_DIR):
+def discover_timesteps(prefix='grid', dumps_dir=DUMPS_DIR):
     """return sorted timesteps from parquet or text dumps for the given prefix."""
     timesteps = load_parquet_timesteps(prefix, dumps_dir)
     if timesteps:
@@ -179,7 +179,7 @@ def plot_streamlines(x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, spe
     plt.close(fig)
 
 
-def animate_streamlines(dump_prefix='flow', dumps_dir=DUMPS_DIR, out_path=ANIM_OUTPUT_PATH, fps=10, dpi=200, sample_percentile=95):
+def animate_streamlines(dump_prefix='grid', dumps_dir=DUMPS_DIR, out_path=ANIM_OUTPUT_PATH, fps=10, dpi=200, sample_percentile=95):
     """animation of streamlines over available timesteps"""
     dumps_dir = os.path.expanduser(dumps_dir)
     timesteps = discover_timesteps(dump_prefix, dumps_dir)

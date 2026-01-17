@@ -105,33 +105,26 @@ surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
-# per-grid density
-compute         prop_grid grid all atm nrho
-dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_prop_grid[1]
-
-# per-grid pressure
-compute         prop_grid_press grid all atm press
-dump            dump_grid_press grid all ${diag_freq} dumps/grid_press.*.dat id xlo ylo zlo xc yc zc c_prop_grid_press[1]
+                # per-grid properties: nrho, massrho, pxrho (for flow calcs)
+compute         prop_grid grid all atm nrho massrho pxrho
+                # per-grid temperature
+compute         prop_grid_temp grid all atm temp
+                # per-grid pressure (thermal/grid supports press property)
+compute         prop_grid_press thermal/grid all atm press
+                # per-grid velocity components (for streamlines)
+compute         prop_grid_flow grid all atm u v w
+                # single grid dump with all properties
+dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc &
+                    c_prop_grid[*] c_prop_grid_temp[*] c_prop_grid_press[*] c_prop_grid_flow[*]
 
                 # ID, data type, mixture, every _ steps, filename, columns (particle data)
 dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
-
-                # ID, type, region, mixture, property (gas temperature per grid cell)
-compute         compute_Tgrid grid all atm temp # *per-grid array
-                # ID, data type, region, every _ steps, filename, columns (cell coords and gas temperature)
-dump 		    dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc c_compute_Tgrid[*] # compute for all columns (gases) in array
-
-                # Per-grid mass-weighted velocity components for streamline plotting
-compute         compute_flow grid all atm u v w
-                # Dump per-cell centers and velocity components each diagnostics step
-dump            dump_flow grid all ${diag_freq} dumps/flow.*.dat id xlo ylo zlo xc yc zc c_compute_flow[*]
 
 		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
 dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # Measure simulated flow properties ---------------------
 
-compute         prop_grid grid all atm nrho massrho pxrho
 compute         vol_grid  property/grid all vol
 
 # Use grid-style variables to multiply density by volume for each cell

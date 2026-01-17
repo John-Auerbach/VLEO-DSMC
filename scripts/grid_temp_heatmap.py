@@ -44,7 +44,7 @@ y_edges = np.concatenate(([yc0[0] - dy / 2], (yc0[:-1] + yc0[1:]) / 2, [yc0[-1] 
 nx, ny = len(xc0), len(yc0)
 
 # temperature column name
-temp_col = [c for c in first_df.columns if c.startswith("c_compute_Tgrid")][0]
+temp_col = [c for c in first_df.columns if c.startswith("c_prop_grid_temp")][0]
 
 def temp_hist(df):
     """Return 2D array of mean Tgrid value for |z| < delta_z, binned on (x,y) using cell centres."""

@@ -48,7 +48,7 @@ y_edges = np.concatenate(([yc0[0] - dy / 2], (yc0[:-1] + yc0[1:]) / 2, [yc0[-1] 
 nx, ny = len(xc0), len(yc0)
 
 # pressure column name: c_prop_grid_press[1] is pressure
-press_col = [c for c in first_df.columns if "c_prop_grid_press[1]" in c][0]
+press_col = [c for c in first_df.columns if "c_prop_grid_press" in c][0]
 
 def pressure_hist(df):
     """Return 2D array of mean pressure for |z| < delta_z, binned on (x,y) using cell centres."""
