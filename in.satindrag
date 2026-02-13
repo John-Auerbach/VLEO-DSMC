@@ -39,7 +39,7 @@ print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
 variable 	    kB equal 1.380649e-23  # J/K
 variable 	    d equal 3.7e-10  # m
 variable 	    R equal 287.05 # (J / kg*K)
-variable 	    lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
+variable 	    lambda equal ${kB}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
 variable	    vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
 
 print "MEAN FREE PATH = ${lambda} m"

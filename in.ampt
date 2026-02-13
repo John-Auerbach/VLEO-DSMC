@@ -12,12 +12,12 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        xmin equal -2
-variable        xmax equal 2
-variable        ymin equal -0.5
-variable 	    ymax equal 0.5
-variable	    zmin equal -0.5
-variable	    zmax equal 0.5
+variable        xmin equal -10
+variable        xmax equal 10
+variable        ymin equal -2
+variable 	    ymax equal 2
+variable	    zmin equal -2
+variable	    zmax equal 2
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -33,7 +33,7 @@ print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
 variable 	    kB equal 1.380649e-23  # J/K
 variable 	    d equal 3.7e-10  # m
 variable 	    R equal 287.05 # (J / kg*K)
-variable 	    lambda equal ${kB}*${T}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
+variable 	    lambda equal ${kB}/(sqrt(2.0)*PI*${d}*${d}*${rho}*${R}) # m
 variable	    vbar equal sqrt(8*${kB}*${T}/(PI*${rho}/${nrho})) # m/s
 
 print "MEAN FREE PATH = ${lambda} m"
@@ -51,7 +51,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    50 310 310 
+create_grid	    200 100 50 
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -59,8 +59,9 @@ variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight ti
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	    surf/AMPT_sat_inlet.surf  group ampt        # create surface group "ampt"
-include         surf/AMPT_sat_inlet.sparta                  # auto-generated surface groups
+read_surf	    surf/linearity_test.surf  group ampt        # create surface group "ampt"
+group           ampt_xnorm surf id 1:4              # front/back faces (ram direction)
+group           ampt_yznorm surf id 5:12            # side walls
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -68,7 +69,7 @@ include         surf/AMPT_sat_inlet.sparta                  # auto-generated sur
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 500000.0
+variable        Ns_target equal 2000000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -95,13 +96,11 @@ fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # runni
 fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 1 Tsurf  # Stefan-Boltzmann
 
 # Define collision models
-surf_collide 	wall_diffuse diffuse s_Tsurf 0.9        # diffuse model for ram surfaces
-surf_collide    wall_specular diffuse s_Tsurf 0.3       # specular model for lateral surfaces
-surf_collide    wall_diffuse_other diffuse s_Tsurf 0.9  # diffuse model for remaining surfaces
+surf_collide 	wall_diffuse diffuse s_Tsurf 1   # diffuse model for front/back, random dir, use local facet temp, acc
+surf_collide    wall_specular diffuse s_Tsurf 1      # specular model for walls
 # Apply to respective surface groups
-surf_modify 	ampt_xnorm collide wall_diffuse         # ram surfaces
-surf_modify 	ampt_yznorm collide wall_specular       # lateral surfaces
-surf_modify     ampt_diffuse collide wall_diffuse_other # all other surfaces
+surf_modify 	ampt_xnorm collide wall_diffuse    # attach model to facets
+surf_modify 	ampt_yznorm collide wall_specular
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 

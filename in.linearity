@@ -12,12 +12,12 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        xmin equal -1.1
-variable        xmax equal 1.1
-variable        ymin equal -1.1
-variable 	    ymax equal 1.1
-variable	    zmin equal -1.1
-variable	    zmax equal 1.1
+variable        xmin equal -10
+variable        xmax equal 10
+variable        ymin equal -2
+variable 	    ymax equal 2
+variable	    zmin equal -2
+variable	    zmax equal 2
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -51,7 +51,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    150 100 50 
+create_grid	    200 100 50 
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -59,9 +59,9 @@ variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight ti
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	    surf/ampt_box.surf  group ampt        # create surface group "ampt"
-group           ampt_xnorm surf id 1:4              # front/back
-group           ampt_yznorm surf id 5:12             # walls
+read_surf	    surf/linearity_test.surf  group ampt        # create surface group "ampt"
+group           ampt_xnorm surf id 1:4              # front/back faces (ram direction)
+group           ampt_yznorm surf id 5:12            # side walls
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ group           ampt_yznorm surf id 5:12             # walls
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 200000.0
+variable        Ns_target equal 500000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -93,11 +93,11 @@ compute         compute_qwall surf ampt atm ke # ke = kinetic + internal energy.
 
                 # running‑average every step so flux is never exactly zero (exponential decay)
 fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
-fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 0.9 Tsurf  # Stefan-Boltzmann
+fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 1 Tsurf  # Stefan-Boltzmann
 
 # Define collision models
-surf_collide 	wall_diffuse diffuse s_Tsurf 0.9   # diffuse model for front/back, random dir, use local facet temp, acc
-surf_collide    wall_specular specular noslip      # specular model for walls
+surf_collide 	wall_diffuse diffuse s_Tsurf 1   # diffuse model for front/back, random dir, use local facet temp, acc
+surf_collide    wall_specular diffuse s_Tsurf 1      # specular model for walls
 # Apply to respective surface groups
 surf_modify 	ampt_xnorm collide wall_diffuse    # attach model to facets
 surf_modify 	ampt_yznorm collide wall_specular
@@ -173,6 +173,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_wal
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             5000
+run             2000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
