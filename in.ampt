@@ -12,12 +12,12 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        xmin equal -10
-variable        xmax equal 10
-variable        ymin equal -2
-variable 	    ymax equal 2
-variable	    zmin equal -2
-variable	    zmax equal 2
+variable        xmin equal -3
+variable        xmax equal 3
+variable        ymin equal -3
+variable 	    ymax equal 3
+variable	    zmin equal -3
+variable	    zmax equal 3
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -51,7 +51,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    200 100 50 
+create_grid	    150 100 50 
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -59,7 +59,7 @@ variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight ti
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	    surf/linearity_test.surf  group ampt        # create surface group "ampt"
+read_surf	    surf/cube.surf  group ampt        # create surface group "ampt"
 group           ampt_xnorm surf id 1:4              # front/back faces (ram direction)
 group           ampt_yznorm surf id 5:12            # side walls
 
@@ -69,7 +69,7 @@ group           ampt_yznorm surf id 5:12            # side walls
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 2000000.0
+variable        Ns_target equal 1000000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle

@@ -173,6 +173,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_wal
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             2000
+run             5000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
