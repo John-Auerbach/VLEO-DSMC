@@ -44,7 +44,14 @@ if not os.path.exists(data_file):
         utc = datetime.datetime(2011, 4, 10, 0, 0)
         times = np.array([utc], dtype='datetime64')
         
-        atmosphere = pymsis.calculate(times, [lon], [lat], alt_km, version=msis_version)
+        # Solar/geomagnetic parameters (solar max conditions)
+        f107a = 250  # 81-day average F10.7 flux (solar max ~250, solar min ~70)
+        f107 = 250   # daily F10.7 flux for previous day
+        aps = [[4, 4, 4, 4, 4, 4, 4]]  # Ap indices: [daily, 0h, 3h, 6h, 9h, 12-33h avg, 36-57h avg] (quiet)
+        
+        atmosphere = pymsis.calculate(times, [lon], [lat], alt_km,
+                                      f107, f107a, aps,
+                                      version=msis_version)
         
         T = np.squeeze(atmosphere[..., pymsis.Variable.TEMPERATURE])
         rho = np.squeeze(atmosphere[..., pymsis.Variable.MASS_DENSITY])

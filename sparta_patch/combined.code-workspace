@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../../GT Gas Distributor"
+		},
+		{
+			"path": "../../tempest"
 		}
 	],
 	"settings": {}
