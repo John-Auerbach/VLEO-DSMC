@@ -117,24 +117,15 @@ n_Ar = np.nan_to_num(n_Ar)
 n_N  = np.nan_to_num(n_N)
 
 n_total = n_N2 + n_O2 + n_O + n_He + n_Ar + n_N
-frac_N2 = round(n_N2 / n_total, 4)
-frac_O2 = round(n_O2 / n_total, 4)
-frac_O  = round(n_O / n_total, 4)
-frac_He = round(n_He / n_total, 4)
-frac_Ar = round(n_Ar / n_total, 4)
-frac_N  = 1.0 - (frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar)
 
-# Sometimes rounding causes sum to exceed 1.0 or frac_N to be negative, which crashes sparta
-# if sum > 1.0, renormalize
-if frac_N < 0:
-    # Renormalize all fractions to ensure they sum to exactly 1.0
-    total = frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar
-    frac_N2 = round(frac_N2 / total, 4)
-    frac_O2 = round(frac_O2 / total, 4)
-    frac_O  = round(frac_O / total, 4)
-    frac_He = round(frac_He / total, 4)
-    frac_Ar = round(frac_Ar / total, 4)
-    frac_N  = 1.0 - (frac_N2 + frac_O2 + frac_O + frac_He + frac_Ar)
+# SPARTA is annoying and sums all explicit fractions and errors if > 1.0 even by 0.00001
+# use floor truncation to 4 decimals to guarantee sum < 1.0
+frac_N2 = int(n_N2 / n_total * 10000) / 10000
+frac_O2 = int(n_O2 / n_total * 10000) / 10000
+frac_O  = int(n_O / n_total * 10000) / 10000
+frac_He = int(n_He / n_total * 10000) / 10000
+frac_Ar = int(n_Ar / n_total * 10000) / 10000
+frac_N  = int(n_N / n_total * 10000) / 10000
 
 # write sparta include file with all atmospheric data
 with open(os.path.join(data_dir, 'atm.sparta'), 'w') as f:

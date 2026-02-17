@@ -51,7 +51,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    120 120 50 
+create_grid	    150 150 50 
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
