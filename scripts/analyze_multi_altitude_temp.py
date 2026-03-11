@@ -164,7 +164,7 @@ def main():
         # initialize empty lines for each triangle
         lines = []
         for i in range(num_triangles):
-            line, = ax.plot([], [], 'o-', label=f'Triangle {i+1}')
+            line, = ax.plot([], [], 'o-')
             lines.append(line)
         
         ax.set_xlabel('Altitude (km)')

@@ -51,7 +51,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    120 120 50 
+create_grid	    150 150 50 
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -91,7 +91,10 @@ compute         compute_qwall surf ampt atm ke # ke = kinetic + internal energy.
 
                 # running‑average every step so flux is never exactly zero (exponential decay)
 fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
-fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 1.0 Tsurf  # Stefan-Boltzmann
+variable        q_total surf f_flux+1225.0                          # aero + solar (0.9*1361 W/m^2, sun in +y)
+fix             flux_total ave/surf ampt 1 1 1 v_q_total ave one    # wrap for surf/temp
+fix             fix_Tsurf surf/temp ampt 1 f_flux_total 300.0 1.0 Tsurf  # Stefan-Boltzmann
+
 
 # Define collision models
 surf_collide 	wall diffuse s_Tsurf 1.0           # define collision model "wall", random dir, use local facet temp, acc
@@ -108,6 +111,14 @@ compute         prop_grid_press thermal/grid all atm press
                 # per-grid velocity components (for streamlines)
 compute         prop_grid_flow grid all atm u v w
                 # single grid dump with all properties
+dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc &
+                    c_prop_grid[*] c_prop_grid_temp[*] c_prop_grid_press[*] c_prop_grid_flow[*]
+
+                # ID, data type, mixture, every _ steps, filename, columns (particle data)
+dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+
+		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
+dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # Measure simulated flow properties for domain ---------------------
 

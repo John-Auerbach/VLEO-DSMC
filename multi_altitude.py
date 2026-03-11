@@ -20,7 +20,7 @@ parser.add_argument('--cores', '-c', type=int, default=1,
 args = parser.parse_args()
 
 # EDIT THESE ALTITUDES
-altitudes = list(range(130, 305, 10))  # 100 to 300 km in 10 km intervals
+altitudes = list(range(140, 200, 10))  # 100 to 200 km in 10 km intervals
 
 results = {}
 
