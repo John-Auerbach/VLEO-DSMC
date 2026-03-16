@@ -12,12 +12,12 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        xmin equal -0.02
-variable        xmax equal 0.02
-variable        ymin equal -0.005
-variable 	    ymax equal 0.005
-variable	    zmin equal -0.005
-variable	    zmax equal 0.005
+variable        xmin equal -3
+variable        xmax equal 3
+variable        ymin equal -3
+variable 	    ymax equal 3
+variable	    zmin equal -3
+variable	    zmax equal 3
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -51,7 +51,7 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    150 150 50 
+create_grid	    50 50 50 
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -59,7 +59,9 @@ variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight ti
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
 
-read_surf	    surf/tether_segment.surf  group ampt        # create surface group "ampt"
+read_surf	    surf/cube.surf  group ampt        # create surface group "ampt"
+group           ampt_xnorm surf id 1:4              # front/back faces (ram direction)
+group           ampt_yznorm surf id 5:12            # side walls
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -67,7 +69,7 @@ read_surf	    surf/tether_segment.surf  group ampt        # create surface group
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 1000000.0
+variable        Ns_target equal 500000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -91,14 +93,14 @@ compute         compute_qwall surf ampt atm ke # ke = kinetic + internal energy.
 
                 # running‑average every step so flux is never exactly zero (exponential decay)
 fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
-variable        q_total surf f_flux+1225.0                          # aero + solar (0.9*1361 W/m^2, sun in +y)
-fix             flux_total ave/surf ampt 1 1 1 v_q_total ave one    # wrap for surf/temp
-fix             fix_Tsurf surf/temp ampt 1 f_flux_total 300.0 1.0 Tsurf  # Stefan-Boltzmann
-
+fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 1 Tsurf  # Stefan-Boltzmann
 
 # Define collision models
-surf_collide 	wall diffuse s_Tsurf 1.0           # define collision model "wall", random dir, use local facet temp, acc
-surf_modify 	ampt collide wall                  # attach model to facets
+surf_collide 	wall_diffuse diffuse s_Tsurf 1   # diffuse model for front/back, random dir, use local facet temp, acc
+surf_collide    wall_specular diffuse s_Tsurf 1      # specular model for walls
+# Apply to respective surface groups
+surf_modify 	ampt_xnorm collide wall_diffuse    # attach model to facets
+surf_modify 	ampt_yznorm collide wall_specular
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
@@ -150,25 +152,27 @@ fix             surfavg ave/surf ampt 1 1 1 c_surfF[*] ave running
 compute         drag reduce sum f_surfavg[1]
 
 # compute forces for x-normal surfaces (ram drag)
-# NOTE: For complex geometry, we skip directional grouping.
-# Fill component drags with zeros to keep downstream analysis compatible.
-variable        drag_xnorm equal 0.0
+compute         surfF_xnorm surf ampt_xnorm atm fx fy fz
+fix             surfavg_xnorm ave/surf ampt_xnorm 1 1 1 c_surfF_xnorm[*] ave running
+compute         drag_xnorm reduce sum f_surfavg_xnorm[1]
 
 # compute forces for y/z-normal surfaces (skin friction)
-variable        drag_walls equal 0.0
+compute         surfF_walls surf ampt_yznorm atm fx fy fz
+fix             surfavg_walls ave/surf ampt_yznorm 1 1 1 c_surfF_walls[*] ave running
+compute         drag_walls reduce sum f_surfavg_walls[1]
 
 # write drag components (timestep, total_drag, ram_drag, skin_friction) to file
-fix             dragout ave/time 1 1 100 c_drag v_drag_xnorm v_drag_walls file dumps/direct_drag.dat mode scalar
+fix             dragout ave/time 1 1 100 c_drag c_drag_xnorm c_drag_walls file dumps/direct_drag.dat mode scalar
 
 # ----------------------------------------------------------
 
 # cell-averaged (streaming+thermal) temperature
 compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
 stats           ${diag_freq} # print diagnostics every _ timesteps
-stats_style     step cpu np nattempt ncoll c_Tbox c_drag v_drag_xnorm v_drag_walls # print timestep, runtime, particles, collision stats, avg temp, drag components
+stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls # print timestep, runtime, particles, collision stats, avg temp, drag components
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             5000
+run             2000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
