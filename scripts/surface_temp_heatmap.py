@@ -66,7 +66,8 @@ ntri = len(triangles)
 
 temps = np.array([f[2] for f in frames])
 fluxes = np.array([f[3] for f in frames])
-vmin, vmax = np.percentile(temps, [0, 100])
+#vmin, vmax = np.percentile(temps, [0, 100])
+vmin, vmax = np.min(temps), np.max(temps)
 
 # Colormap
 cmap = cm.get_cmap("inferno")

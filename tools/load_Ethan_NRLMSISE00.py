@@ -20,7 +20,7 @@ ampt_dir = os.path.dirname(script_dir)  # Parent of tools directory
 data_dir = os.path.join(ampt_dir, 'data')
 
 # check if NRLMSIS data file exists, if not create it
-data_file = os.path.join(data_dir, 'nrlmsis.dat')
+data_file = os.path.join(data_dir, 'nrlmsis_Ethan.dat')
 if not os.path.exists(data_file):
     print(f"NRLMSIS data file not found. Generating fresh data...")
     

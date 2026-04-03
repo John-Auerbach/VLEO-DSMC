@@ -79,8 +79,10 @@ with warnings.catch_warnings():
         img = temp_hist(df)
         if np.isfinite(img).any():
             all_vals.extend(img[np.isfinite(img)])
-vmin = 0 #np.percentile(all_vals, 5)
-vmax = np.percentile(all_vals, 95)
+#vmin = 0 #np.percentile(all_vals, 5)
+#vmax = np.percentile(all_vals, 95)
+vmin = np.min(all_vals)
+vmax = np.max(all_vals)
 print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 fig, ax = plt.subplots(figsize=(6, 3))

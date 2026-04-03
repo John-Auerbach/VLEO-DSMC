@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "../../tempest"
+		},
+		{
+			"path": "../../Sci-Hub"
 		}
 	],
 	"settings": {}

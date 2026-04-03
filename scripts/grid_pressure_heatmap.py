@@ -79,8 +79,10 @@ for step in timesteps:
     img = pressure_hist(df)
     if np.isfinite(img).any():
         all_vals.extend(img[np.isfinite(img)])
-vmin = np.percentile(all_vals, 5)
-vmax = np.percentile(all_vals, 95)
+#vmin = np.percentile(all_vals, 5)
+#vmax = np.percentile(all_vals, 95)
+vmin = np.min(all_vals)
+vmax = np.max(all_vals)
 print(f"vmin={vmin:.2e} Pa, vmax={vmax:.2e} Pa")
 
 fig, ax = plt.subplots(figsize=(6, 3))
