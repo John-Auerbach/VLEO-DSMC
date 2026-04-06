@@ -34,6 +34,7 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 8. [Input File Configurations](#8-input-file-configurations)
 9. [Drag Calculation Methods](#9-drag-calculation-methods)
 10. [Best Practices](#11-best-practices)
+11. [Running on ROAR Supercomputer](#11-running-on-roar-supercomputer)
 
 ## 0. Simulation Overview
 
@@ -703,5 +704,73 @@ For critical applications, perform convergence studies by varying:
 - Number of particles
 - Timestep size
 - Simulation duration
+
+## 11. Running on ROAR Supercomputer
+
+These instructions are for Penn State's ROAR cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
+
+### Prerequisites
+
+Make sure SPARTA is built on ROAR and the symlink is in place:
+```bash
+ls -la sparta   # should point to ../sparta/src/spa_mpi
+```
+
+Load the required modules (must match what SPARTA was compiled with):
+```bash
+module load gcc/14.2.0
+module load openmpi/4.1.1-pmi2
+```
+
+### Job Script
+
+A ready-to-use Slurm script is provided in `job_sparta.sh`:
+```bash
+#!/bin/bash
+#SBATCH --job-name=sparta_ampt
+#SBATCH --account=open
+#SBATCH --partition=open
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH --time=04:00:00
+#SBATCH --mem=16G
+#SBATCH --output=slurm_%j.out
+#SBATCH --error=slurm_%j.err
+
+module load gcc/14.2.0
+module load openmpi/4.1.1-pmi2
+
+cd $SLURM_SUBMIT_DIR
+
+# Run SPARTA with MPI
+mpirun -np $SLURM_NTASKS ./sparta -in in.ampt
+```
+
+Edit the script to change:
+- **Cores**: Change `--ntasks=8` (up to 48 per node)
+- **Wall time**: Change `--time=04:00:00` for longer simulations
+- **Memory**: Change `--mem=16G` if needed
+
+### Submitting and Monitoring Jobs
+
+```bash
+# Submit a job
+sbatch job_sparta.sh
+
+# Check job status
+squeue -u $USER
+
+# View full output
+less slurm_<jobid>.out
+
+# Watch output in real time (while job is running)
+tail -f slurm_<jobid>.out
+
+# Cancel a job
+scancel <jobid>
+
+# View past job details
+sacct -j <jobid> --format=JobID,JobName,Elapsed,State,MaxRSS
+```
 
 Good luck - and most importantly, have fun!
