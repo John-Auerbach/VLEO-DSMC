@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=sparta_ampt
 #SBATCH --account=open
-#SBATCH --partition=open
+#SBATCH --partition=basic
 #SBATCH --nodes=1
-#SBATCH --ntasks=8
+#SBATCH --ntasks=64
 #SBATCH --time=04:00:00
-#SBATCH --mem=16G
+#SBATCH --mem=240G
 #SBATCH --output=slurm_%j.out
 #SBATCH --error=slurm_%j.err
 
@@ -17,4 +17,4 @@ module load openmpi/4.1.1-pmi2
 cd $SLURM_SUBMIT_DIR
 
 # Run SPARTA with MPI
-mpirun -np $SLURM_NTASKS ./sparta -in in.ampt
+mpirun -np $SLURM_NTASKS ./sparta -in in.cube_ROAR

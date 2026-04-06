@@ -751,6 +751,37 @@ Edit the script to change:
 - **Wall time**: Change `--time=04:00:00` for longer simulations
 - **Memory**: Change `--mem=16G` if needed
 
+### Available Partitions
+
+| Partition | Cores/node | RAM/node | Notes |
+|-----------|-----------|----------|-------|
+| **basic** | 64 | 247 GB | Most nodes, shortest queue wait |
+| **standard** | 48 | 375 GB | |
+| **himem** | 48 | ~1 TB (1021 GB) | Fewest nodes, longest queue wait |
+
+All partitions have a 14-day max wall time. Use `sinfo -p <partition> -o "%D %T" | grep idle` to check idle node count before submitting.
+
+### Benchmark (70 km altitude, basic partition)
+
+Tested on ROAR `basic` partition (64 cores, 240 GB RAM requested):
+
+| Parameter | Value |
+|-----------|-------|
+| Grid | 1000 × 500 × 500 = **250M cells** |
+| Particles | Ns_target = 500M → **~498M created** |
+| `global gridcut` | 0.03 (required for large grids) |
+| Memory per proc | ~2.06 GB avg (2.06 GB × 64 procs = **~132 GB total**) |
+| Speed | **~1.0 s/timestep** (64 cores) |
+| 8000 steps | ~2.2 hours |
+
+**Important:** For large grids (>100M cells), you **must** use `global gridcut` and `block * * *` in `create_grid` to avoid each MPI rank storing all ghost cells (which will OOM). Example:
+```
+global              gridcut 0.03   # each processor only stores ghost cells within 0.03 m of its own cells
+create_grid         1000 500 500 block * * *
+```
+
+Without these, a 250M-cell grid with 1.25B particles requires >1 TB of RAM. With them, the same grid fits in ~132 GB.
+
 ### Submitting and Monitoring Jobs
 
 ```bash
