@@ -44,12 +44,12 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 
 ### How It Works
 
-The following parameters are ideal for a high-fidelity ~30 minute simulation on my laptop (AMD Ryzen 9 5900HS, 8 cores/16 threads, 40GB RAM). For lower fidelity, decrease grid dimensions, number of particles, and time steps, but make sure that constraints are followed for computational accuracy. You can test run the program and it will immediately output what the maximum cell size and timesteps can be:
+The following parameters are ideal for a high-fidelity ~30 minute simulation on my laptop (AMD Ryzen 9 5900HS, 8 cores/16 threads, 40GB RAM). For accuracy in transition/continuum regimes, you will likely need to run simulations on a cluster. See [Running on Penn State ROAR Supercomputer](#11-running-on-roar-supercomputer) for more details. For lower fidelity, decrease grid dimensions, number of particles, and time steps, but make sure that constraints are followed for computational accuracy. You can test run the program and it will immediately output what the maximum cell size and timesteps can be:
 
 (example)
 ```
-CELL SIZE MUST BE < 7.70136701893303 m
-TIMESTEP MUST BE < 0.0224217529927786 s
+CELL SIZE MUST BE < 0.01 m
+TIMESTEP MUST BE < 1*10^-6 s
 ```
 
 #### Physical Domain
@@ -707,7 +707,7 @@ For critical applications, perform convergence studies by varying:
 
 ## 11. Running on Penn State ROAR Supercomputer
 
-These instructions are for Penn State's ROAR cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
+For accuracy beyond the free molecular regime and into continuum, it is likely necessary to run the simulation on a cluster. These instructions are for Penn State's ROAR cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
 
 ### Prerequisites
 
