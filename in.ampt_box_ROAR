@@ -14,10 +14,10 @@ boundary        o p p
 # domain size (m)
 variable        xmin equal -0.75
 variable        xmax equal 0.75
-variable        ymin equal -0.75
-variable 	    ymax equal 0.75
-variable	    zmin equal -0.75
-variable	    zmax equal 0.75
+variable        ymin equal -0.5
+variable 	    ymax equal 0.5
+variable	    zmin equal -0.5
+variable	    zmax equal 0.5
 
 variable	    Lx equal ${xmax}-${xmin}
 variable        Ly equal ${ymax}-${ymin}
@@ -51,8 +51,9 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s"         # timestep set at end of script
 
-global          gridcut 0.03               # each processor only stores ghost cells within 0.03 m of its own cells
-create_grid	    1500 1000 1000 block * * *
+global          gridcut 0.01              # ghost layer ~6 cells deep (above particle travel per dt)
+global          mem/limit 1024             # cap MPI send buffers at 1 GB to avoid >2 GB overflow
+create_grid      1500 800 800 block * * *
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
@@ -70,7 +71,7 @@ group           ampt_yznorm surf id 5:12             # walls
 mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 3000000000.0
+variable        Ns_target equal 2000000000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 global          fnum ${fnum} # global bc will be queried by each new particle
@@ -114,14 +115,14 @@ compute         prop_grid_press thermal/grid all atm press
                 # per-grid velocity components (for streamlines)
 compute         prop_grid_flow grid all atm u v w
                 # single grid dump with all properties
-dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc &
+#dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc &
                     c_prop_grid[*] c_prop_grid_temp[*] c_prop_grid_press[*] c_prop_grid_flow[*]
 
                 # ID, data type, mixture, every _ steps, filename, columns (particle data)
-dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+#dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
 
 		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
-dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
+#dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # Measure simulated flow properties for domain ---------------------
 
