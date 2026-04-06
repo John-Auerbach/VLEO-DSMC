@@ -11,7 +11,8 @@ import os
 import re
 import sys
 import argparse
-sys.path.append(os.path.expanduser("~/AMPT/tools"))
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from load_dumps import load_parquet_timesteps, load_parquet_single
 
 # create outputs directory

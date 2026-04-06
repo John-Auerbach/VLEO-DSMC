@@ -7,7 +7,8 @@ import argparse
 import copy as _copy
 import warnings
 import sys
-sys.path.append(os.path.expanduser("~/AMPT/tools"))
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from load_dumps import load_parquet_timesteps, load_parquet_single
 
 # Create outputs directory
@@ -20,7 +21,7 @@ parser.add_argument('folder', nargs='?', default='dumps',
 args = parser.parse_args()
 
 # I/O
-folder_path = os.path.expanduser(f"~/AMPT/{args.folder}")
+folder_path = os.path.join(_REPO_ROOT, args.folder)
 timesteps = load_parquet_timesteps("particle", folder_path)
 print(f"Found {len(timesteps)} particle timesteps in {args.folder}")
 
@@ -105,7 +106,7 @@ def extract_tstep_from_input(path):
                 return float(m.group(1))
     raise ValueError("tstep not found in input")
 
-tstep = extract_tstep_from_input(os.path.expanduser("~/AMPT/in.ampt"))
+tstep = extract_tstep_from_input(os.path.join(_REPO_ROOT, 'in.ampt'))
 
 
 def init():

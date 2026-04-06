@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import sys
 
-sys.path.append(os.path.expanduser('~/AMPT/tools'))
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from load_dumps import load_parquet_timesteps, load_parquet_single, read_sparta_grid_dump
 
-DUMPS_DIR = os.path.expanduser('~/AMPT/dumps')
+DUMPS_DIR = os.path.join(_REPO_ROOT, 'dumps')
 OUTPUT_PATH = 'outputs/streamlines_2d.png'
 ANIM_OUTPUT_PATH = 'outputs/streamlines_anim.mp4'
 SLICE_FRAC = 0.05 # fraction of box height for z slice
@@ -18,7 +19,7 @@ EMPTY_SPEED_EPS = 1e-3 # speed below which a cell is considered empty
 
 def read_timestep_size():
     """look up the timestep in in.ampt to label the figure with physical time"""
-    input_path = os.path.expanduser('~/AMPT/in.ampt')
+    input_path = os.path.join(_REPO_ROOT, 'in.ampt')
     try:
         with open(input_path, 'r', encoding='utf-8') as fh:
             for line in fh:

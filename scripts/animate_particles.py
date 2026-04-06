@@ -4,7 +4,8 @@ import numpy as np
 import os
 import argparse
 import sys
-sys.path.append(os.path.expanduser("~/AMPT/tools"))
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from load_dumps import load_parquet_timesteps, load_parquet_single
 
 # create outputs directory
@@ -17,7 +18,7 @@ parser.add_argument('folder', nargs='?', default='dumps',
 args = parser.parse_args()
 
 # load timestep list (memory efficient)
-folder_path = os.path.expanduser(f"~/AMPT/{args.folder}")
+folder_path = os.path.join(_REPO_ROOT, args.folder)
 timesteps = load_parquet_timesteps("particle", folder_path)
 print(f"Found {len(timesteps)} particle timesteps in {args.folder}")
 

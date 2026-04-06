@@ -145,7 +145,8 @@ def process_and_save_dumps(pattern, reader, prefix, output_dir=None):
 
 def save_to_parquet(data, prefix):
     """Save trajectory data as individual parquet files per timestep"""
-    dumps_dir = os.path.expanduser("~/AMPT/dumps")
+    _TOOL_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    dumps_dir = os.path.join(_TOOL_ROOT, 'dumps')
     for step, df, box in data:
         # save dataframe
         df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
@@ -159,8 +160,10 @@ def save_to_parquet(data, prefix):
 if __name__ == "__main__":
     # parse command line arguments
     parser = argparse.ArgumentParser(description='Convert SPARTA dumps to Parquet format')
-    parser.add_argument('dumps_dir', nargs='?', default='~/AMPT/dumps', 
-                       help='Directory containing dump files (default: ~/AMPT/dumps)')
+    _TOOL_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    _DEFAULT_DUMPS = os.path.join(_TOOL_ROOT, 'dumps')
+    parser.add_argument('dumps_dir', nargs='?', default=_DEFAULT_DUMPS, 
+                       help='Directory containing dump files (default: dumps/)')
     args = parser.parse_args()
     
     dumps_path = os.path.expanduser(args.dumps_dir)
@@ -180,8 +183,10 @@ if __name__ == "__main__":
     print(f"grid frames: {grid_count}")
     print(f"surface frames: {surf_count}")
 
-def load_parquet_data(prefix, dumps_dir="~/AMPT/dumps"):
+def load_parquet_data(prefix, dumps_dir=None):
     """Load parquet data back into the original format - MEMORY EFFICIENT VERSION"""
+    if dumps_dir is None:
+        dumps_dir = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')), 'dumps')
     dumps_dir = os.path.expanduser(dumps_dir)
     data_files = sorted(glob.glob(os.path.join(dumps_dir, f"{prefix}_[0-9]*.parquet")))
     
@@ -212,8 +217,10 @@ def load_parquet_data(prefix, dumps_dir="~/AMPT/dumps"):
     # convert generator to list (same interface as before)
     return list(data_generator())
 
-def load_parquet_timesteps(prefix, dumps_dir="~/AMPT/dumps"):
+def load_parquet_timesteps(prefix, dumps_dir=None):
     """Get list of available timesteps without loading data"""
+    if dumps_dir is None:
+        dumps_dir = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')), 'dumps')
     dumps_dir = os.path.expanduser(dumps_dir)
     data_files = glob.glob(os.path.join(dumps_dir, f"{prefix}_[0-9]*.parquet"))
     timesteps = []
@@ -222,8 +229,10 @@ def load_parquet_timesteps(prefix, dumps_dir="~/AMPT/dumps"):
         timesteps.append(step)
     return sorted(timesteps)
 
-def load_parquet_single(prefix, timestep, dumps_dir="~/AMPT/dumps"):
+def load_parquet_single(prefix, timestep, dumps_dir=None):
     """Load a single timestep from parquet"""
+    if dumps_dir is None:
+        dumps_dir = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')), 'dumps')
     dumps_dir = os.path.expanduser(dumps_dir)
     
     # Load dataframe

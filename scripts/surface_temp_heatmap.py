@@ -17,8 +17,9 @@ parser.add_argument('folder', nargs='?', default='dumps',
 args = parser.parse_args()
 
 # I/O
-dump_glob = os.path.expanduser(f"~/AMPT/{args.folder}/surf.*.dat")
-input_sparta = os.path.expanduser("~/AMPT/in.ampt")
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+dump_glob = os.path.join(_REPO_ROOT, args.folder, 'surf.*.dat')
+input_sparta = os.path.join(_REPO_ROOT, 'in.ampt')
 outfile = "outputs/surface_temp_heatmap.mp4"
 fps = 25
 
