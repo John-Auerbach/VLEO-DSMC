@@ -1,4 +1,4 @@
-Updated Dec 19 2025
+Updated April 6 2025
 
 # VLEO-DSMC: Satellite Atmospheric Simulation with SPARTA
 
@@ -34,7 +34,7 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 8. [Input File Configurations](#8-input-file-configurations)
 9. [Drag Calculation Methods](#9-drag-calculation-methods)
 10. [Best Practices](#11-best-practices)
-11. [Running on ROAR Supercomputer](#11-running-on-roar-supercomputer)
+11. [Running on Penn State ROAR Supercomputer](#11-running-on-roar-supercomputer)
 
 ## 0. Simulation Overview
 
@@ -705,7 +705,7 @@ For critical applications, perform convergence studies by varying:
 - Timestep size
 - Simulation duration
 
-## 11. Running on ROAR Supercomputer
+## 11. Running on Penn State ROAR Supercomputer
 
 These instructions are for Penn State's ROAR cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
 
@@ -801,7 +801,7 @@ Tested on ROAR `himem` partition (48 cores, 950 GB RAM requested):
 **Differences from Basic:**
 - Use `gridcut 0.01` (not 0.03) to reduce ghost cell overhead; each proc stores ghosts within 1 cm instead of 3 cm
 - Use `global mem/limit 1024` to prevent MPI send buffer overflow (>2 GB) for billion-cell grids
-- 2.78× credit multiplier vs basic — monitor usage with `credit_estimate -j <jobid>`
+- 2.78× credit multiplier vs basic. Monitor usage with `credit_estimate -j <jobid>`
 
 Example configuration:
 ```
@@ -838,7 +838,7 @@ sacct -j <jobid> --format=JobID,JobName,Elapsed,State,MaxRSS
 
 ### Scratch Storage for Dump Files
 
-Your home directory has a **16 GB quota**. Large simulations can produce dump files of 30+ GB per timestep, which will fill your home and cause jobs and file saves to fail. Use scratch storage instead by replacing the `dumps/` directory with a symlink:
+ROAR home directory has a **16 GB quota**. Large simulations can produce dump files of 30+ GB per timestep, which will fill your home and cause jobs and file saves to fail. Use scratch storage instead by replacing the `dumps/` directory with a symlink:
 
 ```bash
 rm -rf dumps
