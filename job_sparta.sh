@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=48
 #SBATCH --time=04:00:00
-#SBATCH --mem=1000G
+#SBATCH --mem=950G
 #SBATCH --output=slurm_%j.out
 #SBATCH --error=slurm_%j.err
 
