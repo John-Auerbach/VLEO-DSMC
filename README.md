@@ -44,13 +44,15 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 
 ### How It Works
 
-The following parameters are ideal for a high-fidelity ~30 minute simulation on my laptop (AMD Ryzen 9 5900HS, 8 cores/16 threads, 40GB RAM). For accuracy in transition/continuum regimes, you will likely need to run simulations on a cluster. See [Running on Penn State ROAR Supercomputer](#11-running-on-roar-supercomputer) for more details. For lower fidelity, decrease grid dimensions, number of particles, and time steps, but make sure that constraints are followed for computational accuracy. You can test run the program and it will immediately output what the maximum cell size and timesteps can be:
+The following parameters are shown for a ~30 minute simulation on my laptop (AMD Ryzen 9 5900HS, 8 cores/16 threads, 40GB RAM). Simulations in the free-molecular regime can be run on this setup. For analysis into the continuum regime, a cluster may be required, since a shorter mean-free path requires higher resolution to accurately simulate. See [Running on Penn State ROAR Supercomputer](#11-running-on-roar-supercomputer) for more details. You can test run the program and it will immediately output what the maximum cell size and timesteps can be:
 
 (example)
 ```
 CELL SIZE MUST BE < 0.01 m
 TIMESTEP MUST BE < 1*10^-6 s
 ```
+
+For lower fidelity, decrease grid dimensions, number of particles, and time steps, but make sure that constraints are followed for computational accuracy. 
 
 #### Physical Domain
 - **3D Cartesian domain:** 2.2m × 2.2m × 2.2m cube (±1.1m in each direction)
