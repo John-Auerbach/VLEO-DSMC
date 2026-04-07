@@ -64,7 +64,7 @@ def update(frame_idx):
     x = dff['x'].values
     y = dff['y'].values
     z = dff['z'].values
-    t = dff['type'].astype(int).map(type_to_color).fillna(0).values
+    t = dff['type'].astype(int).map(type_to_color).fillna(0).astype(int).values
     c = [colors_cycle[i % len(colors_cycle)] for i in t]
     scat._offsets3d = (x, y, z)
     scat.set_color(c)

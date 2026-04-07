@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import argparse
 
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
 
 def load_grid_origin_data(grid_files):
     """
@@ -90,7 +92,7 @@ def main():
     os.makedirs('outputs', exist_ok=True)
 
     # find altitude directories
-    alt_dirs = sorted(glob.glob('dumps/alt_*km'))
+    alt_dirs = sorted(glob.glob(os.path.join(_REPO_ROOT, 'dumps/alt_*km')))
     if not alt_dirs:
         print('No altitude directories found under dumps/alt_*km')
         return
@@ -220,10 +222,10 @@ def main():
                             interval=200, blit=False)
 
     # save both animations
-    ani_nrho.save('outputs/density_at_origin_vs_altitude.mp4', fps=10, dpi=150)
+    ani_nrho.save(os.path.join(_REPO_ROOT, 'outputs/density_at_origin_vs_altitude.mp4'), fps=10, dpi=150)
     print('Saved outputs/density_at_origin_vs_altitude.mp4')
     
-    ani_press.save('outputs/pressure_at_origin_vs_altitude.mp4', fps=10, dpi=150)
+    ani_press.save(os.path.join(_REPO_ROOT, 'outputs/pressure_at_origin_vs_altitude.mp4'), fps=10, dpi=150)
     print('Saved outputs/pressure_at_origin_vs_altitude.mp4')
 
 

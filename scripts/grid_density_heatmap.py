@@ -25,7 +25,7 @@ parser.add_argument('folder', nargs='?', default='dumps',
 args = parser.parse_args()
 
 # get timesteps
-folder_path = args.folder
+folder_path = os.path.join(_REPO_ROOT, args.folder)
 timesteps = load_parquet_timesteps("grid", folder_path)
 print(f"Found {len(timesteps)} grid timesteps in {args.folder}")
 
@@ -112,7 +112,7 @@ def extract_tstep_from_input(path):
                 return float(m.group(1))
     raise ValueError("tstep not found in input")
 
-tstep = extract_tstep_from_input("in.ampt")
+tstep = extract_tstep_from_input(os.path.join(_REPO_ROOT, "in.ampt"))
 
 def init():
     im.set_data(np.ma.masked_all((ny, nx)))

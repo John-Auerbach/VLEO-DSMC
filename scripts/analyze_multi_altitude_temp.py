@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 # import pandas as pd  # Uncomment for CSV export
 
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
 def extract_tstep_from_input(path):
     """Extract timestep from SPARTA input file"""
     with open(path, "r") as f:
@@ -46,17 +48,17 @@ def load_surface_data(surf_file):
 
 def main():
     # create outputs directory
-    os.makedirs('outputs', exist_ok=True)
+    os.makedirs(os.path.join(_REPO_ROOT, 'outputs'), exist_ok=True)
     
     # get timestep from input file
     try:
-        tstep = extract_tstep_from_input("in.ampt")
+        tstep = extract_tstep_from_input(os.path.join(_REPO_ROOT, "in.ampt"))
     except:
         print("Warning: Could not extract timestep from in.ampt, using default")
         tstep = 1e-6
     
     # Find all altitude directories
-    alt_dirs = glob.glob('dumps/alt_*km')
+    alt_dirs = glob.glob(os.path.join(_REPO_ROOT, 'dumps/alt_*km'))
     if not alt_dirs:
         print("No altitude directories found. Run multi_altitude.py first.")
         return
@@ -125,7 +127,7 @@ def main():
         spreadsheet_data['Mean_Temperature_K'] = [np.mean(final_results[alt]) for alt in alts]
         
         df = pd.DataFrame(spreadsheet_data)
-        df.to_csv('outputs/multi_altitude_results.csv', index=False)
+        df.to_csv(os.path.join(_REPO_ROOT, 'outputs/multi_altitude_results.csv'), index=False)
         print(f"Exported final timestep data to outputs/multi_altitude_results.csv")
         
         # Plot static results
@@ -140,7 +142,7 @@ def main():
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        plt.savefig('outputs/surface_temps_vs_altitude.png', dpi=150)
+        plt.savefig(os.path.join(_REPO_ROOT, 'outputs/surface_temps_vs_altitude.png'), dpi=150)
         print("Static plot saved as outputs/surface_temps_vs_altitude.png")
     """
     
@@ -217,7 +219,7 @@ def main():
                           blit=False, interval=200, repeat=True)
         
         # save animation at 30fps
-        ani.save("outputs/multi_altitude_temp_evolution.mp4", fps=30, dpi=150)
+        ani.save(os.path.join(_REPO_ROOT, "outputs/multi_altitude_temp_evolution.mp4"), fps=30, dpi=150)
         print("Animation saved as outputs/multi_altitude_temp_evolution.mp4")
         
     else:

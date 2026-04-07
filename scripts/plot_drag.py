@@ -14,6 +14,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
 
 def read_drag(path):
 	"""
@@ -39,8 +41,8 @@ def read_drag(path):
 
 def main():
 	p = argparse.ArgumentParser()
-	p.add_argument('--file', '-f', default='dumps/direct_drag.dat')
-	p.add_argument('--out', '-o', default='outputs/drag.png')
+	p.add_argument('--file', '-f', default=os.path.join(_REPO_ROOT, 'dumps/direct_drag.dat'))
+	p.add_argument('--out', '-o', default=os.path.join(_REPO_ROOT, 'outputs/drag.png'))
 	p.add_argument('--csv', help='optional CSV output file')
 	p.add_argument('--show', action='store_true')
 	p.add_argument('dir', nargs='?', help='directory containing dump files (optional positional argument)')

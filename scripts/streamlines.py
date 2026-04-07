@@ -130,12 +130,24 @@ def _safe_start_points(xc, yc, n_tracks):
 
 # --------------------------------------------------------------------------------------
 
+def _fill_nan_nearest(arr):
+    """Fill NaN holes in a 2-D array using nearest-neighbour interpolation."""
+    from scipy.ndimage import distance_transform_edt
+    mask = np.isnan(arr)
+    if not mask.any():
+        return arr
+    ind = distance_transform_edt(mask, return_distances=False, return_indices=True)
+    return arr[tuple(ind)]
+
+
 def plot_streamlines(x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, speed_grid, step, dt, output_path=OUTPUT_PATH):
     """draw a speed heatmap with white streamlines so the flow direction is obvious"""
     X, Y = np.meshgrid(x_centers, y_centers)
-    u_plot = np.ma.masked_invalid(u_grid)
-    v_plot = np.ma.masked_invalid(v_grid)
     speed_plot = np.ma.masked_invalid(speed_grid)
+
+    # fill NaN gaps so streamplot can trace continuous lines
+    u_filled = _fill_nan_nearest(u_grid.copy())
+    v_filled = _fill_nan_nearest(v_grid.copy())
 
     # paint the speed background in color and overlay white streamlines
     fig, ax = plt.subplots(figsize=(7, 3.5))
@@ -152,8 +164,8 @@ def plot_streamlines(x_centers, y_centers, x_edges, y_edges, u_grid, v_grid, spe
     ax.streamplot(
         X,
         Y,
-        u_plot,
-        v_plot,
+        u_filled,
+        v_filled,
         color='white',
         density=1.0,
         linewidth=0.3,
@@ -264,7 +276,7 @@ def animate_streamlines(dump_prefix='grid', dumps_dir=DUMPS_DIR, out_path=ANIM_O
         # redraw streamlines
         Xf, Yf = np.meshgrid(x_centers_f, y_centers_f)
         before = set(ax.get_children())
-        ax.streamplot(Xf, Yf, np.ma.masked_invalid(u_grid_f), np.ma.masked_invalid(v_grid_f), color='white', density=1.0, linewidth=0.3, arrowsize=0.5, broken_streamlines=False, start_points=fresh_start_points(x_centers_f, y_centers_f))
+        ax.streamplot(Xf, Yf, _fill_nan_nearest(u_grid_f.copy()), _fill_nan_nearest(v_grid_f.copy()), color='white', density=1.0, linewidth=0.3, arrowsize=0.5, broken_streamlines=False, start_points=fresh_start_points(x_centers_f, y_centers_f))
         stream_artists = [a for a in ax.get_children() if a not in before]
 
         # update title
@@ -283,7 +295,7 @@ def animate_streamlines(dump_prefix='grid', dumps_dir=DUMPS_DIR, out_path=ANIM_O
     print(f'saved {out_path}')
 
 
-def create_snapshot(dump_prefix='flow', dumps_dir=DUMPS_DIR, out_path=OUTPUT_PATH):
+def create_snapshot(dump_prefix='grid', dumps_dir=DUMPS_DIR, out_path=OUTPUT_PATH):
     """generate a single streamline snapshot for the latest timestep"""
     dumps_dir = os.path.expanduser(dumps_dir)
     timesteps = discover_timesteps(dump_prefix, dumps_dir)
