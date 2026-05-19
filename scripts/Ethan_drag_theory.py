@@ -244,14 +244,26 @@ def main():
     fig1.patch.set_facecolor("w")
 
     fig2, ax2 = plt.subplots()
-    ax2.plot(alt / 1000.0, Cd_C)
+    alt_km_all = alt / 1000.0
+    mask = (alt_km_all >= 70) & (alt_km_all <= 100)
+    ax2.plot(alt_km_all[mask], Cd_C[mask])
     ax2.set_xlabel("Altitude [km]")
     ax2.set_ylabel(r"$C_d$")
     ax2.set_xlim([70, 100])
     ax2.grid(True)
     fig2.patch.set_facecolor("w")
 
-    plt.show()
+    out_dir = os.path.join(os.path.dirname(script_dir), "outputs")
+    os.makedirs(out_dir, exist_ok=True)
+    drag_path = os.path.join(out_dir, "Ethan_drag_theory_drag.png")
+    cd_path = os.path.join(out_dir, "Ethan_drag_theory_Cd.png")
+    fig1.savefig(drag_path, dpi=150, bbox_inches="tight")
+    fig2.savefig(cd_path, dpi=150, bbox_inches="tight")
+    print(f"Saved {drag_path}")
+    print(f"Saved {cd_path}")
+
+    if os.environ.get("DISPLAY"):
+        plt.show()
 
 
 if __name__ == "__main__":
