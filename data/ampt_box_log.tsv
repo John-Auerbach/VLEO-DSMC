@@ -1,2 +1,2 @@
-altitude	drag	cell size (req/actual)  timestep (req/actual)	cells	particles	ppc partition	cores	speed/step	total steps	credits used
-300	0.000169	439/0.01  0.145/1e-07	150x100x100	10M	6.67  himem	48	27.59 ms	8000	
+altitude	drag	cell size (req/actual)	timestep (req/actual)	cells	particles	ppc	partition	cores	speed/step	total steps	credits used
+

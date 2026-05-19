@@ -909,14 +909,13 @@ The purpose of this section is to test agreement between DSMC and theoretical dr
 
 Run data is recorded in [`data/ampt_box_log.tsv`](data/ampt_box_log.tsv) and can be plotted against the `scripts/Ethan_drag_theory.py` file, which gives predicted drag for the 'ampt_box.surf' file using the same `nrlmsis_Ethan` data by combining free molecular and continuum drag equations. The recorded data is also presented below.
 
-The table is populated automatically by `tools/log_run.py`, which parses `log.sparta`, `in.ampt_box_Roar`, `job_sparta.sh`, and (when running under SLURM) `sacct $SLURM_JOB_ID`, then appends a new row to the TSV and rewrites the markdown table between the `AMPT_BOX_LOG` markers below. Each run produces one new row so history is preserved. `job_sparta.sh` invokes it automatically after `mpirun` finishes; to refresh manually run:
+The table is populated automatically by `tools/log_run.py`, which parses `log.sparta`, `in.ampt_box_Roar`, `job_sparta.sh`, and `sacct $SLURM_JOB_ID` (for credits) then appends a new row to the TSV and rewrites the markdown table between the `AMPT_BOX_LOG` markers below. Each run produces one new row so history is preserved. `job_sparta.sh` invokes the script automatically after `mpirun` finishes — Slurm sets `$SLURM_JOB_ID` in the job's environment so credits get filled in. Running it manually from a login shell still works (TSV/README get updated), but the credits column will be blank since there's no associated job. To refresh manually:
 
 ```bash
 python tools/log_run.py
 ```
 
 <!-- AMPT_BOX_LOG_START -->
-| altitude | drag | cell size (req/actual)  timestep (req/actual) | cells | particles | ppc partition | cores | speed/step | total steps | credits used |
-|---|---|---|---|---|---|---|---|---|---|
-| 300 | 0.000169 | 439/0.01  0.145/1e-07 | 150x100x100 | 10M | 6.67  himem | 48 | 27.59 ms | 8000 |   |
+| altitude | drag | cell size (req/actual) | timestep (req/actual) | cells | particles | ppc | partition | cores | speed/step | total steps | credits used |
+|---|---|---|---|---|---|---|---|---|---|---|---|
 <!-- AMPT_BOX_LOG_END -->
