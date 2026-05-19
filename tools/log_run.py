@@ -278,6 +278,8 @@ def main() -> None:
     job_d = parse_jobscript(JOBSCRIPT)
     jobid = os.environ.get("SLURM_JOB_ID", "")
     credits = parse_sacct(jobid) if jobid else ""
+    if jobid:
+        print(f"Using SLURM job id {jobid} for credits")
 
     # Compose fields
     drag = log_d.get("drag", "")
@@ -287,7 +289,6 @@ def main() -> None:
     ts = ""
     if log_d.get("ts_req") and log_d.get("ts_actual"):
         ts = f"{log_d['ts_req']}/{log_d['ts_actual']}"
-    cell_ts = f"{cell}  {ts}".strip()
 
     grid_str = log_d.get("grid_str", "")
     particles = (
@@ -298,14 +299,13 @@ def main() -> None:
     if inp_d.get("Ns_target") and log_d.get("total_cells"):
         ppc = f"{inp_d['Ns_target'] / log_d['total_cells']:.2f}"
     partition = job_d.get("partition", "")
-    ppc_partition = f"{ppc}  {partition}".strip()
     cores = str(job_d.get("cores") or log_d.get("cores") or "")
     speed = log_d.get("speed_per_step", "")
     total_steps = str(inp_d.get("total_steps") or log_d.get("loop_steps") or "")
 
     row = [
-        altitude, drag, cell_ts, grid_str, particles,
-        ppc_partition, cores, speed, total_steps, credits,
+        altitude, drag, cell, ts, grid_str, particles,
+        ppc, partition, cores, speed, total_steps, credits,
     ]
     print("Row:", row)
 
