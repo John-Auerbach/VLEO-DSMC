@@ -902,3 +902,24 @@ ln -s /scratch/$USER/VLEO-DSMC/dumps dumps
 All scripts continue to work unchanged; they still write to `dumps/`, but the data goes to `/scratch` (50 TB quota). **Scratch files are purged after ~30 days of inactivity**, so copy important results back to home when done.
 
 Good luck - and most importantly, have fun!
+
+## 12. DSMC vs. Theory agreement
+
+The purpose of this section is to test agreement between DSMC and theoretical drag calculations.  This can be compared to the DSMC data from actual runs, along with simulation and computational requirements for detailed analysis.
+
+Run data is manually recorded in [`data/ampt_box_log.tsv`](data/ampt_box_log.tsv) and can be plotted against the `scripts/Ethan_drag_theory.py` file, which gives predicted drag for the 'ampt_box.surf' file using the same `nrlmsis_Ethan` data by combining free molecular and continuum drag equations. The manually recorded data is also presented below. To refresh the presented table, run `python tools/update_ampt_box_log.py`.
+
+<!-- AMPT_BOX_LOG_START -->
+| altitude | drag | cell size (req/actual) | timestep (req/actual) | cells | particles | partition | cores | speed/step | total steps | credits used |
+|---|---|---|---|---|---|---|---|---|---|
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   |   |   |   |
+<!-- AMPT_BOX_LOG_END -->
