@@ -1,4 +1,4 @@
-Updated April 6 2026
+Updated May 19 2026
 
 # VLEO-DSMC: Satellite Atmospheric Simulation with SPARTA
 
@@ -709,6 +709,8 @@ For critical applications, perform convergence studies by varying:
 
 ## 11. Running on Penn State Roar Supercomputer
 
+![Penn State](https://icds.psu.edu/wp-content/uploads/2024/12/psu-mark-footer-1.png)
+
 For accuracy beyond the free molecular regime and into continuum, it is likely necessary to run the simulation on a cluster. These instructions are for Penn State's Roar cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
 
 ### Prerequisites
@@ -767,7 +769,9 @@ All partitions have a 14-day max wall time. Use `sinfo -p <partition> -o "%D %T"
 
 For a back-of-envelope estimate of how much RAM your job will need, use **152 bytes per cell** and **104 bytes per particle**, multiplied by a load factor of ~2 to cover ghost cells, MPI buffers, and SPARTA's internal bookkeeping:
 
-$$\text{memory (GB)} = \frac{152 \cdot N_\text{cells} + 104 \cdot N_\text{particles}}{10^9} \cdot \text{load\_factor}$$
+$$
+\text{memory (GB)} = \frac{152 \cdot N_{\text{cells}} + 104 \cdot N_{\text{particles}}}{10^9} \cdot \text{load factor}
+$$
 
 For example, a 250M-cell grid with 500M particles is (152·2.5×10⁸ + 104·5×10⁸) / 10⁹ · 2 ≈ **180 GB**, which is just above the ~132 GB observed on the basic-partition benchmark below (load factor for that run was closer to 1.5 because `gridcut 0.03` keeps ghost overhead modest).
 
@@ -784,11 +788,13 @@ Roar provides two command-line utilities for credit accounting:
 
 Rough formula (Basic core-month ≈ 1 credit ≈ $2.96, prorated by runtime):
 
-$$\text{credits} \approx \frac{N_\text{cores} \cdot t_\text{hours} \cdot \text{multiplier}}{720}$$
+$$
+\text{credits} \approx \frac{N_{\text{cores}} \cdot t_{\text{hours}} \cdot \text{multiplier}}{720}
+$$
 
 The multiplier depends on partition: Basic = 1, Standard = 1.99, High Memory = 2.78, plus higher rates for GPU partitions. The full credit/allocation pricing table is on the ICDS site:
 
-[![Roar Credit Pricing](https://icds.psu.edu/wp-content/uploads/2024/12/psu-mark-footer-1.png)](https://icds.psu.edu/services/roar/details-rates/)
+[Roar Credit Pricing](https://icds.psu.edu/services/roar/details-rates/)
 
 **[ICDS Roar — Service Details and Rates](https://icds.psu.edu/services/roar/details-rates/)**
 
