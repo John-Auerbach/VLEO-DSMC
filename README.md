@@ -763,6 +763,51 @@ Edit the script to change:
 
 All partitions have a 14-day max wall time. Use `sinfo -p <partition> -o "%D %T" | grep idle` to check idle node count before submitting.
 
+### Estimating Memory Requirements
+
+For a back-of-envelope estimate of how much RAM your job will need, use **152 bytes per cell** and **104 bytes per particle**, multiplied by a load factor of ~2 to cover ghost cells, MPI buffers, and SPARTA's internal bookkeeping:
+
+$$\text{memory (GB)} = \frac{152 \cdot N_\text{cells} + 104 \cdot N_\text{particles}}{10^9} \cdot \text{load\_factor}$$
+
+For example, a 250M-cell grid with 500M particles is (152·2.5×10⁸ + 104·5×10⁸) / 10⁹ · 2 ≈ **180 GB**, which is just above the ~132 GB observed on the basic-partition benchmark below (load factor for that run was closer to 1.5 because `gridcut 0.03` keeps ghost overhead modest).
+
+For the himem benchmark (960M cells, ~1.95B particles), the formula gives (152·9.6×10⁸ + 104·1.95×10⁹) / 10⁹ · 2 ≈ **697 GB**, which matches the ~674 GB observed (effective load factor ≈ 1.93, since `gridcut 0.01` plus billion-particle MPI buffers push ghost/communication overhead up to ~60%).
+
+Pick a partition whose RAM/node comfortably exceeds this estimate, or split across nodes.
+
+### Estimating Credit Cost
+
+ROAR provides two command-line utilities for credit accounting:
+
+- `job_estimate <batch_script>` — predicts credits **before** submitting, from the resource requests in a Slurm script.
+- `credit_estimate -j <jobid>` — reports credits **actually consumed** by a completed job.
+
+Rough formula (Basic core-month ≈ 1 credit ≈ $2.96, prorated by runtime):
+
+$$\text{credits} \approx \frac{N_\text{cores} \cdot t_\text{hours} \cdot \text{multiplier}}{720}$$
+
+The multiplier depends on partition: Basic = 1, Standard = 1.99, High Memory = 2.78, plus higher rates for GPU partitions. The full credit/allocation pricing table is on the ICDS site:
+
+[![ROAR Credit Pricing](https://icds.psu.edu/wp-content/uploads/2024/12/psu-mark-footer-1.png)](https://icds.psu.edu/services/roar/details-rates/)
+
+**[ICDS ROAR — Service Details and Rates](https://icds.psu.edu/services/roar/details-rates/)**
+
+| Compute Type | Credit Multiplier | Allocation $/core/month |
+|---|---|---|
+| Basic | 1.00 | $2.96 |
+| Standard | 1.99 | $5.89 |
+| High Memory | 2.78 | $8.23 |
+| P100 GPU | 4.99 | $179.70* |
+| A100 (full) | 50.55 | $291.00* |
+| A100 (half) | 25.28 | $145.50* |
+| A100 MIG slice | 7.22 | — |
+| A40 GPU | 50.48 | — |
+| V100 GPU | 22.68 | — |
+
+A single credit costs **$2.96**. GPU allocation prices include the bundled Standard cores (28 for P100, 24 for full A100, 12 for half A100). Storage is billed separately (Active Group $3.09, Archive $1.34 per TB/month). See the [interactive cost estimator](https://icds.psu.edu/services/roar/details-rates/estimator/) for monthly budgeting.
+
+**Free credits through the READ program:** Every Roar account holder gets a baseline of **3 READ Credits per month** (use-or-lose, deposited in your personal `open` account; submit jobs with `--account=open` to spend them). That's enough for incidental testing but will not cover a production VLEO-DSMC run. For unfunded or under-funded research, Penn State faculty (PIs) can [**apply for additional subsidized READ "discovery" Credits**](https://icds.psu.edu/services/roar/read-credits/); these are sharable across a group and valid for up to a year. If you need more than that, or aren't eligible for READ, you can [**purchase Credits or an Allocation via iLab**](https://icds.psu.edu/services/roar/details-rates/).
+
 ### Benchmark (70 km altitude, basic partition)
 
 Tested on ROAR `basic` partition (64 cores, 240 GB RAM requested):
