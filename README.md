@@ -916,6 +916,7 @@ python tools/log_run.py
 ```
 
 <!-- AMPT_BOX_LOG_START -->
-| altitude | drag | cell size (req/actual) | timestep (req/actual) | cells | particles | ppc | partition | cores | speed/step | total steps | credits used |
-|---|---|---|---|---|---|---|---|---|---|---|---|
+| altitude | drag | cell size (req/actual) | timestep (req/actual) | cells | particles | ppc | partition | cores | speed/step | total steps | runtime | credits used |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 300 | 0.000169 | 439/0.01 | 0.145/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 28.82 ms | 5000 | 00:03:53 | 0.009 |
 <!-- AMPT_BOX_LOG_END -->

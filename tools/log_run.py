@@ -182,14 +182,11 @@ def parse_jobscript(script_path: Path) -> dict:
     return out
 
 
-def parse_sacct(jobid: str) -> str:
-    """Return approximate credits = billing(per-hour) * elapsed_hours."""
+def parse_elapsed(jobid: str) -> str:
+    """Return wallclock elapsed time as 'HH:MM:SS' from sacct, or ''."""
     try:
         res = subprocess.run(
-            [
-                "sacct", "-j", str(jobid), "-P", "-n",
-                "--format=Elapsed,AllocTRES",
-            ],
+            ["sacct", "-X", "-j", str(jobid), "-P", "-n", "--format=Elapsed"],
             capture_output=True, text=True, timeout=20,
         )
     except (FileNotFoundError, subprocess.TimeoutExpired):
@@ -197,24 +194,25 @@ def parse_sacct(jobid: str) -> str:
     if res.returncode != 0:
         return ""
     for line in res.stdout.splitlines():
-        parts = line.split("|")
-        if len(parts) < 2:
-            continue
-        elapsed, tres = parts[0], parts[1]
-        m = re.search(r"billing=(\d+)", tres)
-        if not m:
-            continue
-        billing = int(m.group(1))
-        # parse Elapsed "HH:MM:SS" (possibly "D-HH:MM:SS")
-        days = 0
-        if "-" in elapsed:
-            d, elapsed = elapsed.split("-", 1)
-            days = int(d)
-        h, m_, s = (int(v) for v in elapsed.split(":"))
-        hours = days * 24 + h + m_ / 60 + s / 3600
-        credits = billing * hours
-        return f"{credits:.1f}"
+        line = line.strip()
+        if line:
+            return line
     return ""
+
+
+def parse_credits(jobid: str) -> str:
+    """Use Roar's credit_estimate tool for authoritative credit cost."""
+    try:
+        res = subprocess.run(
+            ["credit_estimate", "-j", str(jobid)],
+            capture_output=True, text=True, timeout=20,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return ""
+    if res.returncode != 0:
+        return ""
+    m = re.search(r"Estimated Cost:\s*([\d.]+)\s*credits", res.stdout)
+    return m.group(1) if m else ""
 
 
 # ---------- TSV append ----------
@@ -277,9 +275,10 @@ def main() -> None:
     log_d = parse_log(LOG)
     job_d = parse_jobscript(JOBSCRIPT)
     jobid = os.environ.get("SLURM_JOB_ID", "")
-    credits = parse_sacct(jobid) if jobid else ""
+    credits = parse_credits(jobid) if jobid else ""
+    runtime = parse_elapsed(jobid) if jobid else ""
     if jobid:
-        print(f"Using SLURM job id {jobid} for credits")
+        print(f"Using SLURM job id {jobid} for runtime/credits")
 
     # Compose fields
     drag = log_d.get("drag", "")
@@ -305,7 +304,7 @@ def main() -> None:
 
     row = [
         altitude, drag, cell, ts, grid_str, particles,
-        ppc, partition, cores, speed, total_steps, credits,
+        ppc, partition, cores, speed, total_steps, runtime, credits,
     ]
     print("Row:", row)
 
