@@ -34,7 +34,7 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 8. [Input File Configurations](#8-input-file-configurations)
 9. [Drag Calculation Methods](#9-drag-calculation-methods)
 10. [Best Practices](#11-best-practices)
-11. [Running on Penn State ROAR Supercomputer](#11-running-on-roar-supercomputer)
+11. [Running on Penn State Roar Supercomputer](#11-running-on-roar-supercomputer)
 
 ## 0. Simulation Overview
 
@@ -44,7 +44,7 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 
 ### How It Works
 
-The following parameters are shown for a ~30 minute simulation on my laptop (AMD Ryzen 9 5900HS, 8 cores/16 threads, 40GB RAM). Simulations in the free-molecular regime can be run on this setup. For analysis into the continuum regime, a cluster may be required, since a shorter mean-free path requires higher resolution to accurately simulate. See [Running on Penn State ROAR Supercomputer](#11-running-on-roar-supercomputer) for more details. You can test run the program and it will immediately output what the maximum cell size and timesteps can be:
+The following parameters are shown for a ~30 minute simulation on my laptop (AMD Ryzen 9 5900HS, 8 cores/16 threads, 40GB RAM). Simulations in the free-molecular regime can be run on this setup. For analysis into the continuum regime, a cluster may be required, since a shorter mean-free path requires higher resolution to accurately simulate. See [Running on Penn State Roar Supercomputer](#11-running-on-roar-supercomputer) for more details. You can test run the program and it will immediately output what the maximum cell size and timesteps can be:
 
 (example)
 ```
@@ -707,13 +707,13 @@ For critical applications, perform convergence studies by varying:
 - Timestep size
 - Simulation duration
 
-## 11. Running on Penn State ROAR Supercomputer
+## 11. Running on Penn State Roar Supercomputer
 
-For accuracy beyond the free molecular regime and into continuum, it is likely necessary to run the simulation on a cluster. These instructions are for Penn State's ROAR cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
+For accuracy beyond the free molecular regime and into continuum, it is likely necessary to run the simulation on a cluster. These instructions are for Penn State's Roar cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
 
 ### Prerequisites
 
-Make sure SPARTA is built on ROAR and the symlink is in place:
+Make sure SPARTA is built on Roar and the symlink is in place:
 ```bash
 ls -la sparta   # should point to ../sparta/src/spa_mpi
 ```
@@ -777,7 +777,7 @@ Pick a partition whose RAM/node comfortably exceeds this estimate, or split acro
 
 ### Estimating Credit Cost
 
-ROAR provides two command-line utilities for credit accounting:
+Roar provides two command-line utilities for credit accounting:
 
 - `job_estimate <batch_script>` — predicts credits **before** submitting, from the resource requests in a Slurm script.
 - `credit_estimate -j <jobid>` — reports credits **actually consumed** by a completed job.
@@ -788,9 +788,9 @@ $$\text{credits} \approx \frac{N_\text{cores} \cdot t_\text{hours} \cdot \text{m
 
 The multiplier depends on partition: Basic = 1, Standard = 1.99, High Memory = 2.78, plus higher rates for GPU partitions. The full credit/allocation pricing table is on the ICDS site:
 
-[![ROAR Credit Pricing](https://icds.psu.edu/wp-content/uploads/2024/12/psu-mark-footer-1.png)](https://icds.psu.edu/services/roar/details-rates/)
+[![Roar Credit Pricing](https://icds.psu.edu/wp-content/uploads/2024/12/psu-mark-footer-1.png)](https://icds.psu.edu/services/roar/details-rates/)
 
-**[ICDS ROAR — Service Details and Rates](https://icds.psu.edu/services/roar/details-rates/)**
+**[ICDS Roar — Service Details and Rates](https://icds.psu.edu/services/roar/details-rates/)**
 
 | Compute Type | Credit Multiplier | Allocation $/core/month |
 |---|---|---|
@@ -810,7 +810,7 @@ A single credit costs **$2.96**. GPU allocation prices include the bundled Stand
 
 ### Benchmark (70 km altitude, basic partition)
 
-Tested on ROAR `basic` partition (64 cores, 240 GB RAM requested):
+Tested on Roar `basic` partition (64 cores, 240 GB RAM requested):
 
 | Parameter | Value |
 |-----------|-------|
@@ -831,7 +831,7 @@ Without these, a 250M-cell grid with 1.25B particles requires >1 TB of RAM. With
 
 ### Benchmark (70 km altitude, himem partition)
 
-Tested on ROAR `himem` partition (48 cores, 950 GB RAM requested):
+Tested on Roar `himem` partition (48 cores, 950 GB RAM requested):
 
 | Parameter | Value |
 |-----------|-------|
@@ -885,7 +885,7 @@ sacct -j <jobid> --format=JobID,JobName,Elapsed,State,MaxRSS
 
 ### Scratch Storage for Dump Files
 
-ROAR home directory has a **16 GB quota**. Large simulations can produce dump files of 30+ GB per timestep, which will fill your home and cause jobs and file saves to fail. Use scratch storage instead by replacing the `dumps/` directory with a symlink:
+Roar home directory has a **16 GB quota**. Large simulations can produce dump files of 30+ GB per timestep, which will fill your home and cause jobs and file saves to fail. Use scratch storage instead by replacing the `dumps/` directory with a symlink:
 
 ```bash
 rm -rf dumps
