@@ -1,0 +1,48 @@
+SPARTA (24 Sep 2025)
+Running on 48 MPI task(s)
+Created orthogonal box = (-0.75 -0.5 -0.5) to (0.75 0.5 0.5)
+Loaded NRLMSIS data: rho=5.795833478261e-07 nrho=1.205008e+19 T=182.236065 vx=7844.2
+MEAN FREE PATH = 0.136439938090381 m
+MEAN MOLEC VEL = 364.977320611674 m/s
+CELL SIZE MUST BE LESS THAN 0.0454799793634603 m
+MEAN COLL TIME = 0.000373831277685195 s
+MEAN TRANSIT TIME = 0.000124610425895065 s
+TIMESTEP MUST BE < 4.15368086316883e-05 s
+Created 324000000 child grid cells
+  CPU time = 4.74616 secs
+  create/ghost percent = 22.6345 77.3655
+Balance grid migrated 308250000 cells
+  CPU time = 15.0657 secs
+  reassign/sort/migrate/ghost percent = 34.0608 1.13914 42.3356 22.4645
+Reading surface file ...
+  12 triangles
+  -0.5 0.5 xlo xhi
+  -0.1 0.1 ylo yhi
+  -0.1 0.1 zlo zhi
+  0.2 min triangle edge length
+  0.02 min triangle area
+  348968 = cells with surfs
+  357788 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  120 = min surf-size/cell-size ratio
+  348968 8 = cells overlapping surfs, overlap cells with unmarked corner pts
+  15474 tiny edges removed
+  315039832 8611200 348968 = cells outside/inside/overlapping surfs
+  348968 = surf cells with 1,2,etc splits
+  1.46000000018045 1.46 = cell-wise and global flow volume
+  CPU time = 5.20142 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0559543 0.0559868 17.3209 11.7417 70.8255 59.1343 0.000459105
+  surf2grid time = 0.610737 secs
+  map/comm1/comm2/comm3/comm4/split percent = 22.7355 0 0 0 0 58.0334
+0 = initial surface count in group ampt_xnorm
+4 = final surface count in group ampt_xnorm
+0 = initial surface count in group ampt_yznorm
+8 = final surface count in group ampt_yznorm
+particles per particle = 1205008000
+Creating particles ...
+Using SLURM job id 53123958 for runtime/credits
+Row: ['100', '', '', '0.0455/0.001667', '', '900x600x600', '10000M', '30.86', 'himem', '48', '', '1000', '00:01:17', '', '0.003085']
+Appended row for altitude=100 km to /storage/home/jxa5508/VLEO-DSMC/data/ampt_box_log.tsv
+Updated table in /storage/home/jxa5508/VLEO-DSMC/README.md
+Saved /storage/home/jxa5508/VLEO-DSMC/outputs/Ethan_drag_theory_drag.png
+Saved /storage/home/jxa5508/VLEO-DSMC/outputs/Ethan_drag_theory_Cd.png
