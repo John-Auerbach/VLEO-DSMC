@@ -781,8 +781,9 @@ Pick a partition whose RAM/node comfortably exceeds this estimate, or split acro
 
 ### Estimating Credit Cost
 
-Roar provides two command-line utilities for credit accounting:
+Roar provides several command-line utilities for credit accounting, including:
 
+- `get_balance` — shows your **current credit balance** across all accounts.
 - `job_estimate <batch_script>` — predicts credits **before** submitting, from the resource requests in a Slurm script.
 - `credit_estimate -j <jobid>` — reports credits **actually consumed** by a completed job.
 
@@ -916,7 +917,11 @@ python tools/log_run.py
 ```
 
 <!-- AMPT_BOX_LOG_START -->
-| altitude | drag | cell size (req/actual) | timestep (req/actual) | cells | particles | ppc | partition | cores | speed/step | total steps | runtime | credits used |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 300 | 0.000169 | 439/0.01 | 0.145/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 28.82 ms | 5000 | 00:03:53 | 0.009 |
+| altitude | drag | c_d | cell size (req/actual) | timestep (req/actual) | cells | particles | ppc | partition | cores | speed/step | total steps | runtime | memory | credits used |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 300 | 0.000169 | 2.36 | 439/0.01 | 0.145/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 28.82 ms | 8000 | 00:03:53 |   | 0.009 |
+| 200 | 0.00132 | 2.54 | 61.5/0.01 | 0.0223/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 23.05 ms | 5000 | 00:01:58 |   | 0.003085 |
+| 100 | 1.89 | 2.65 | 0.0455/0.01 | 4.15e-05/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 19.77 ms | 5000 | 00:01:41 |   | 0.003085 |
+| 80 | 53.2 | 2.39 | 0.00146/0.01 | 1.26e-06/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 24.18 ms | 5000 | 00:02:03 |   | 0.006170 |
+| 120 | 0.0709 | 2.53 | 1.15/0.01 | 0.000724/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 21.51 ms | 5000 | 00:01:50 |   | 0.003085 |
 <!-- AMPT_BOX_LOG_END -->

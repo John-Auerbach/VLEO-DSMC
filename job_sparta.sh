@@ -4,7 +4,7 @@
 #SBATCH --partition=himem
 #SBATCH --nodes=1
 #SBATCH --ntasks=48
-#SBATCH --time=1:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=950G
 #SBATCH --output=slurm_%j.out
 #SBATCH --error=slurm_%j.err
@@ -22,3 +22,6 @@ mpirun -np $SLURM_NTASKS ./sparta -in in.ampt_box_Roar
 # Auto-log the run: parse log.sparta + sacct and update data/ampt_box_log.tsv
 # (uses $SLURM_JOB_ID implicitly; safe to skip if python/sacct unavailable)
 python3 tools/log_run.py || echo "log_run.py failed (non-fatal)"
+
+# Update theory vs DSMC comparison
+python3 scripts/Ethan_drag_theory.py

@@ -34,6 +34,9 @@ README = ROOT / "README.md"
 README_START = "<!-- AMPT_BOX_LOG_START -->"
 README_END = "<!-- AMPT_BOX_LOG_END -->"
 
+# Reference frontal area for C_d (ram face of 0.2 x 0.2 x 1.0 m box) [m^2]
+A_REF = 0.04
+
 
 # ---------- helpers ----------
 
@@ -69,6 +72,21 @@ def parse_altitude(atm_path: Path) -> str:
             v = float(m.group(1))
             return str(int(v)) if v.is_integer() else str(v)
     return ""
+
+
+def parse_atm_props(atm_path: Path) -> dict:
+    """Pull rho (kg/m^3) and vx (m/s) from atm.sparta variable definitions."""
+    out: dict = {}
+    if not atm_path.exists():
+        return out
+    text = atm_path.read_text()
+    rho = _find(r"variable\s+rho\s+equal\s+([\deE.+-]+)", text)
+    vx = _find(r"variable\s+vx\s+equal\s+([\deE.+-]+)", text)
+    if rho:
+        out["rho"] = float(rho)
+    if vx:
+        out["vx"] = float(vx)
+    return out
 
 
 def parse_input(input_path: Path) -> dict:
@@ -215,6 +233,44 @@ def parse_credits(jobid: str) -> str:
     return m.group(1) if m else ""
 
 
+def parse_memory(jobid: str) -> str:
+    """Return peak resident memory used by the job from sacct MaxRSS.
+
+    sacct reports MaxRSS per task; we take the max across all steps and
+    format as a human-readable string (e.g. '12.3 GB').
+    """
+    try:
+        res = subprocess.run(
+            ["sacct", "-j", str(jobid), "-P", "-n", "--format=MaxRSS"],
+            capture_output=True, text=True, timeout=20,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return ""
+    if res.returncode != 0:
+        return ""
+    max_kb = 0.0
+    for line in res.stdout.splitlines():
+        tok = line.strip()
+        if not tok:
+            continue
+        m = re.match(r"([\d.]+)\s*([KMGT]?)", tok)
+        if not m:
+            continue
+        val = float(m.group(1))
+        unit = m.group(2)
+        mult = {"": 1 / 1024, "K": 1, "M": 1024, "G": 1024**2, "T": 1024**3}
+        kb = val * mult.get(unit, 1)
+        if kb > max_kb:
+            max_kb = kb
+    if max_kb <= 0:
+        return ""
+    gb = max_kb / (1024 * 1024)
+    if gb >= 1.0:
+        return f"{gb:.2f} GB"
+    mb = max_kb / 1024
+    return f"{mb:.1f} MB"
+
+
 # ---------- TSV append ----------
 
 def append_row(row: list[str]) -> bool:
@@ -274,14 +330,25 @@ def main() -> None:
     inp_d = parse_input(INPUT)
     log_d = parse_log(LOG)
     job_d = parse_jobscript(JOBSCRIPT)
+    atm_d = parse_atm_props(ATM)
     jobid = os.environ.get("SLURM_JOB_ID", "")
     credits = parse_credits(jobid) if jobid else ""
     runtime = parse_elapsed(jobid) if jobid else ""
+    memory = parse_memory(jobid) if jobid else ""
     if jobid:
         print(f"Using SLURM job id {jobid} for runtime/credits")
 
     # Compose fields
     drag = log_d.get("drag", "")
+    cd = ""
+    if log_d.get("drag") and atm_d.get("rho") and atm_d.get("vx"):
+        try:
+            cd_val = float(log_d["drag"]) / (
+                0.5 * atm_d["rho"] * atm_d["vx"] ** 2 * A_REF
+            )
+            cd = f"{cd_val:.3g}"
+        except (ValueError, ZeroDivisionError):
+            pass
     cell = ""
     if log_d.get("cell_req") and log_d.get("cell_actual"):
         cell = f"{log_d['cell_req']}/{log_d['cell_actual']}"
@@ -303,8 +370,8 @@ def main() -> None:
     total_steps = str(inp_d.get("total_steps") or log_d.get("loop_steps") or "")
 
     row = [
-        altitude, drag, cell, ts, grid_str, particles,
-        ppc, partition, cores, speed, total_steps, runtime, credits,
+        altitude, drag, cd, cell, ts, grid_str, particles,
+        ppc, partition, cores, speed, total_steps, runtime, memory, credits,
     ]
     print("Row:", row)
 

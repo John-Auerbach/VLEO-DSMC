@@ -151,15 +151,15 @@ def get_atmosphere(alt_m):
 
 def load_ampt_box_log(path):
     """
-    Load altitude [km] and drag [N] from data/ampt_box_log.tsv.
+    Load altitude [km], drag [N], and C_d from data/ampt_box_log.tsv.
 
-    Returns two 1-D numpy arrays (alt_km, drag_N). Returns empty arrays if
-    the file is missing or contains no valid numeric rows.
+    Returns three 1-D numpy arrays (alt_km, drag_N, c_d). Returns empty
+    arrays if the file is missing or contains no valid numeric rows.
     """
     if not os.path.isfile(path):
-        return np.array([]), np.array([])
+        return np.array([]), np.array([]), np.array([])
 
-    alts, drags = [], []
+    alts, drags, cds = [], [], []
     with open(path, "r", newline="") as f:
         reader = csv.reader(f, delimiter="\t")
         header = next(reader, None)
@@ -170,11 +170,20 @@ def load_ampt_box_log(path):
             if not a_str or not d_str:
                 continue
             try:
-                alts.append(float(a_str))
-                drags.append(float(d_str))
+                a = float(a_str)
+                d = float(d_str)
             except ValueError:
                 continue
-    return np.array(alts), np.array(drags)
+            alts.append(a)
+            drags.append(d)
+            cd_val = np.nan
+            if len(row) >= 3 and row[2].strip():
+                try:
+                    cd_val = float(row[2].strip())
+                except ValueError:
+                    pass
+            cds.append(cd_val)
+    return np.array(alts), np.array(drags), np.array(cds)
 
 
 # ---------------------------------------------------------------------------
@@ -193,16 +202,17 @@ def main():
 
     T_wall = 300.0  # [K]
 
-    # FMF drag: one ram face (xsec = 0.04 m^2) + four lateral faces (0.2 m^2)
+    # FMF drag: one ram face (xsec = 0.04 m^2, broadside -> AoA=90 deg) +
+    # four lateral faces (xsec = 0.2 m^2 each, edge-on -> AoA=0 deg).
     drag_FMF = np.zeros_like(alt)
     for n in range(len(alt)):
         drag_FMF[n] = (
             fmf_flat_plate(
-                v[n], rho[n, :], MW, T_atm[n], 0.04, 0.0, 0.9, T_wall, kB, NA
+                v[n], rho[n, :], MW, T_atm[n], 0.04, 90.0, 0.9, T_wall, kB, NA
             )
             + 4.0
             * fmf_flat_plate(
-                v[n], rho[n, :], MW, T_atm[n], 0.2, 90.0, 0.9, T_wall, kB, NA
+                v[n], rho[n, :], MW, T_atm[n], 0.2, 0.0, 0.9, T_wall, kB, NA
             )
         )
 
@@ -215,8 +225,9 @@ def main():
         drag_C[n] = prism_drag(mu_0, T_atm[n], T0, rho[n, 5], v[n], 0.04, 0.2) # 0.2x0.2x1 prism with 0.04 m^2 frontal area and 0.2 m length
 
     # Cube Cd in continuum regime (reference area = ram face)
-    with np.errstate(invalid="ignore"):
+    with np.errstate(invalid="ignore", divide="ignore"):
         Cd_C = drag_C / (0.5 * rho[:, 5] * v**2 * 0.04)
+        Cd_FMF = drag_FMF / (0.5 * rho[:, 5] * v**2 * 0.04)
 
     # -----------------------------------------------------------------------
     # Plotting
@@ -230,7 +241,7 @@ def main():
     log_path = os.path.join(
         os.path.dirname(script_dir), "data", "ampt_box_log.tsv"
     )
-    dsmc_alt, dsmc_drag = load_ampt_box_log(log_path)
+    dsmc_alt, dsmc_drag, dsmc_cd = load_ampt_box_log(log_path)
     if dsmc_alt.size > 0:
         ax1.scatter(dsmc_alt, dsmc_drag, marker="*", color="k", label="DSMC")
     else:
@@ -245,12 +256,20 @@ def main():
 
     fig2, ax2 = plt.subplots()
     alt_km_all = alt / 1000.0
-    mask = (alt_km_all >= 70) & (alt_km_all <= 100)
-    ax2.plot(alt_km_all[mask], Cd_C[mask])
+    ax2.plot(alt_km_all, Cd_FMF, label="FMF")
+    ax2.plot(alt_km_all, Cd_C, label="Continuum")
+    if dsmc_alt.size > 0:
+        mask = np.isfinite(dsmc_cd)
+        if mask.any():
+            ax2.scatter(
+                dsmc_alt[mask], dsmc_cd[mask],
+                marker="*", color="k", label="DSMC",
+            )
     ax2.set_xlabel("Altitude [km]")
     ax2.set_ylabel(r"$C_d$")
-    ax2.set_xlim([70, 100])
-    ax2.grid(True)
+    ax2.set_yscale("log")
+    ax2.grid(True, which="both")
+    ax2.legend()
     fig2.patch.set_facecolor("w")
 
     out_dir = os.path.join(os.path.dirname(script_dir), "outputs")
