@@ -1,4 +1,4 @@
-Updated April 6 2025
+Updated May 19 2026
 
 # VLEO-DSMC: Satellite Atmospheric Simulation with SPARTA
 
@@ -34,7 +34,7 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 8. [Input File Configurations](#8-input-file-configurations)
 9. [Drag Calculation Methods](#9-drag-calculation-methods)
 10. [Best Practices](#11-best-practices)
-11. [Running on Penn State ROAR Supercomputer](#11-running-on-roar-supercomputer)
+11. [Running on Penn State Roar Supercomputer](#11-running-on-roar-supercomputer)
 
 ## 0. Simulation Overview
 
@@ -44,13 +44,15 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 
 ### How It Works
 
-The following parameters are ideal for a high-fidelity ~30 minute simulation on my laptop (AMD Ryzen 9 5900HS, 8 cores/16 threads, 40GB RAM). For accuracy in transition/continuum regimes, you will likely need to run simulations on a cluster. See [Running on Penn State ROAR Supercomputer](#11-running-on-roar-supercomputer) for more details. For lower fidelity, decrease grid dimensions, number of particles, and time steps, but make sure that constraints are followed for computational accuracy. You can test run the program and it will immediately output what the maximum cell size and timesteps can be:
+The following parameters are shown for a ~30 minute simulation on my laptop (AMD Ryzen 9 5900HS, 8 cores/16 threads, 40GB RAM). Simulations in the free-molecular regime can be run on this setup. For analysis into the continuum regime, a cluster may be required, since a shorter mean-free path requires higher resolution to accurately simulate. See [Running on Penn State Roar Supercomputer](#11-running-on-roar-supercomputer) for more details. You can test run the program and it will immediately output what the maximum cell size and timesteps can be:
 
 (example)
 ```
 CELL SIZE MUST BE < 0.01 m
 TIMESTEP MUST BE < 1*10^-6 s
 ```
+
+For lower fidelity, decrease grid dimensions, number of particles, and time steps, but make sure that constraints are followed for computational accuracy. 
 
 #### Physical Domain
 - **3D Cartesian domain:** 2.2m × 2.2m × 2.2m cube (±1.1m in each direction)
@@ -705,13 +707,15 @@ For critical applications, perform convergence studies by varying:
 - Timestep size
 - Simulation duration
 
-## 11. Running on Penn State ROAR Supercomputer
+## 11. Running on Penn State Roar Supercomputer
 
-For accuracy beyond the free molecular regime and into continuum, it is likely necessary to run the simulation on a cluster. These instructions are for Penn State's ROAR cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
+![Penn State](https://icds.psu.edu/wp-content/uploads/2024/12/psu-mark-footer-1.png)
+
+For accuracy beyond the free molecular regime and into continuum, it is likely necessary to run the simulation on a cluster. These instructions are for Penn State's Roar cluster (Slurm scheduler). If you're SSH'd into the submit node, you can submit batch jobs to run SPARTA on compute nodes.
 
 ### Prerequisites
 
-Make sure SPARTA is built on ROAR and the symlink is in place:
+Make sure SPARTA is built on Roar and the symlink is in place:
 ```bash
 ls -la sparta   # should point to ../sparta/src/spa_mpi
 ```
@@ -743,7 +747,7 @@ module load openmpi/4.1.1-pmi2
 cd $SLURM_SUBMIT_DIR
 
 # Run SPARTA with MPI
-mpirun -np $SLURM_NTASKS ./sparta -in in.ampt
+mpirun -np $SLURM_NTASKS ./sparta -in in.ampt_box_Roar
 ```
 
 Edit the script to change:
@@ -761,9 +765,59 @@ Edit the script to change:
 
 All partitions have a 14-day max wall time. Use `sinfo -p <partition> -o "%D %T" | grep idle` to check idle node count before submitting.
 
+### Estimating Memory Requirements
+
+For a back-of-envelope estimate of how much RAM your job will need, use **152 bytes per cell** and **104 bytes per particle**, multiplied by a load factor of ~2 to cover ghost cells, MPI buffers, and SPARTA's internal bookkeeping:
+
+$$
+\text{memory (GB)} = \frac{152 \cdot N_{\text{cells}} + 104 \cdot N_{\text{particles}}}{10^9} \cdot \text{load factor}
+$$
+
+For example, a 250M-cell grid with 500M particles is (152·2.5×10⁸ + 104·5×10⁸) / 10⁹ · 2 ≈ **180 GB**, which is just above the ~132 GB observed on the basic-partition benchmark below (load factor for that run was closer to 1.5 because `gridcut 0.03` keeps ghost overhead modest).
+
+For the himem benchmark (960M cells, ~1.95B particles), the formula gives (152·9.6×10⁸ + 104·1.95×10⁹) / 10⁹ · 2 ≈ **697 GB**, which matches the ~674 GB observed (effective load factor ≈ 1.93, since `gridcut 0.01` plus billion-particle MPI buffers push ghost/communication overhead up to ~60%).
+
+Pick a partition whose RAM/node comfortably exceeds this estimate, or split across nodes.
+
+### Estimating Credit Cost
+
+Roar provides several command-line utilities for credit accounting, including:
+
+- `get_balance` — shows your **current credit balance** across all accounts.
+- `job_estimate <batch_script>` — predicts credits **before** submitting, from the resource requests in a Slurm script.
+- `credit_estimate -j <jobid>` — reports credits **actually consumed** by a completed job.
+
+Rough formula (Basic core-month ≈ 1 credit ≈ $2.96, prorated by runtime):
+
+$$
+\text{credits} \approx \frac{N_{\text{cores}} \cdot t_{\text{hours}} \cdot \text{multiplier}}{720}
+$$
+
+The multiplier depends on partition: Basic = 1, Standard = 1.99, High Memory = 2.78, plus higher rates for GPU partitions. The full credit/allocation pricing table is on the ICDS site:
+
+[Roar Credit Pricing](https://icds.psu.edu/services/roar/details-rates/)
+
+**[ICDS Roar — Service Details and Rates](https://icds.psu.edu/services/roar/details-rates/)**
+
+| Compute Type | Credit Multiplier | Allocation $/core/month |
+|---|---|---|
+| Basic | 1.00 | $2.96 |
+| Standard | 1.99 | $5.89 |
+| High Memory | 2.78 | $8.23 |
+| P100 GPU | 4.99 | $179.70* |
+| A100 (full) | 50.55 | $291.00* |
+| A100 (half) | 25.28 | $145.50* |
+| A100 MIG slice | 7.22 | — |
+| A40 GPU | 50.48 | — |
+| V100 GPU | 22.68 | — |
+
+A single credit costs **$2.96**. GPU allocation prices include the bundled Standard cores (28 for P100, 24 for full A100, 12 for half A100). Storage is billed separately (Active Group $3.09, Archive $1.34 per TB/month). See the [interactive cost estimator](https://icds.psu.edu/services/roar/details-rates/estimator/) for monthly budgeting.
+
+**Free credits through the READ program:** Every Roar account holder gets a baseline of **3 READ Credits per month** (use-or-lose, deposited in your personal `open` account; submit jobs with `--account=open` to spend them). That's enough for incidental testing but will not cover a production VLEO-DSMC run. For unfunded or under-funded research, Penn State faculty (PIs) can [**apply for additional subsidized READ "discovery" Credits**](https://icds.psu.edu/services/roar/read-credits/); these are sharable across a group and valid for up to a year. If you need more than that, or aren't eligible for READ, you can [**purchase Credits or an Allocation via iLab**](https://icds.psu.edu/services/roar/details-rates/).
+
 ### Benchmark (70 km altitude, basic partition)
 
-Tested on ROAR `basic` partition (64 cores, 240 GB RAM requested):
+Tested on Roar `basic` partition (64 cores, 240 GB RAM requested):
 
 | Parameter | Value |
 |-----------|-------|
@@ -784,7 +838,7 @@ Without these, a 250M-cell grid with 1.25B particles requires >1 TB of RAM. With
 
 ### Benchmark (70 km altitude, himem partition)
 
-Tested on ROAR `himem` partition (48 cores, 950 GB RAM requested):
+Tested on Roar `himem` partition (48 cores, 950 GB RAM requested):
 
 | Parameter | Value |
 |-----------|-------|
@@ -838,7 +892,7 @@ sacct -j <jobid> --format=JobID,JobName,Elapsed,State,MaxRSS
 
 ### Scratch Storage for Dump Files
 
-ROAR home directory has a **16 GB quota**. Large simulations can produce dump files of 30+ GB per timestep, which will fill your home and cause jobs and file saves to fail. Use scratch storage instead by replacing the `dumps/` directory with a symlink:
+Roar home directory has a **16 GB quota**. Large simulations can produce dump files of 30+ GB per timestep, which will fill your home and cause jobs and file saves to fail. Use scratch storage instead by replacing the `dumps/` directory with a symlink:
 
 ```bash
 rm -rf dumps
@@ -849,3 +903,33 @@ ln -s /scratch/$USER/VLEO-DSMC/dumps dumps
 All scripts continue to work unchanged; they still write to `dumps/`, but the data goes to `/scratch` (50 TB quota). **Scratch files are purged after ~30 days of inactivity**, so copy important results back to home when done.
 
 Good luck - and most importantly, have fun!
+
+## 12. DSMC vs. Theory agreement
+
+The purpose of this section is to test agreement between DSMC and theoretical drag calculations.  This can be compared to the DSMC data from actual runs, along with simulation and computational requirements for detailed analysis.
+
+Run data is recorded in [`data/ampt_box_log.tsv`](data/ampt_box_log.tsv) and can be plotted against the `scripts/Ethan_drag_theory.py` file, which gives predicted drag for the 'ampt_box.surf' file using the same `nrlmsis_Ethan` data by combining free molecular and continuum drag equations. The recorded data is also presented below.
+
+The table is populated automatically by `tools/log_run.py`, which parses `log.sparta`, `in.ampt_box_Roar`, `job_sparta.sh`, and `sacct $SLURM_JOB_ID` (for credits) then appends a new row to the TSV and rewrites the markdown table between the `AMPT_BOX_LOG` markers below. Each run produces one new row so history is preserved. `job_sparta.sh` invokes the script automatically after `mpirun` finishes — Slurm sets `$SLURM_JOB_ID` in the job's environment so credits get filled in. Running it manually from a login shell still works (TSV/README get updated), but the credits column will be blank since there's no associated job. To refresh manually:
+
+```bash
+python tools/log_run.py
+```
+
+<!-- AMPT_BOX_LOG_START -->
+| altitude | drag | c_d | cell size (req/actual) | timestep (req/actual) | cells | particles | ppc | partition | cores | speed/step | total steps | runtime | memory | credits used |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 300 | 0.000169 | 2.36 | 439/0.01 | 0.145/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 28.82 ms | 8000 | 00:03:53 |   | 0.009 |
+| 200 | 0.00132 | 2.54 | 61.5/0.01 | 0.0223/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 23.05 ms | 5000 | 00:01:58 |   | 0.003085 |
+| 100 | 1.89 | 2.65 | 0.0455/0.01 | 4.15e-05/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 19.77 ms | 5000 | 00:01:41 |   | 0.003085 |
+| 80 | 53.2 | 2.39 | 0.00146/0.01 | 1.26e-06/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 24.18 ms | 5000 | 00:02:03 |   | 0.006170 |
+| 120 | 0.0709 | 2.53 | 1.15/0.01 | 0.000724/1e-07 | 150x100x100 | 10M | 6.67 | himem | 48 | 21.51 ms | 5000 | 00:01:50 |   | 0.003085 |
+| 100 | 1.81 | 2.54 | 0.0455/0.001667 | 4.15e-05/1e-07 | 900x600x600 | 2000M | 6.17 | himem | 48 | 8070.25 ms | 1000 | 02:15:21 |   | 0.416506 |
+| 100 | 1.81 | 2.54 | 0.0455/0.001667 | 4.15e-05/1e-07 | 900x600x600 | 2000M | 6.17 | himem | 48 | 8163.79 ms | 1000 | 02:16:57 |   | 0.419591 |
+| 90 | 11.3 | 2.58 | 0.00741/0.0015 | 6.71e-06/1e-07 | 1000x667x667 | 2000M | 4.50 | himem | 48 | 9814 ms | 3600/10000 | 10:00:25 | 451 GB | 1.851138 |
+<!-- AMPT_BOX_LOG_END -->
+
+<div align="center">
+  <img src="outputs/Ethan_drag_theory_drag.png" width="500"><br>
+  <sub>DSMC results overlaid on FMF and continuum theoretical drag predictions (from <code>scripts/Ethan_drag_theory.py</code>).</sub>
+</div>
