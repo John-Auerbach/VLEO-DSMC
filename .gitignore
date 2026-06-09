@@ -1,6 +1,4 @@
 .venv/
-dumps/*
-!dumps/.gitkeep
 #outputs/
 data/T.dat
 data/nrho.dat
