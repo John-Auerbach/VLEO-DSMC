@@ -4,108 +4,56 @@ import pandas as pd
 import os
 import sys
 import argparse
+from functools import partial
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+def _read_sparta_dump(fname, count_prefix, data_prefix):
+    """Stream a SPARTA dump file.
+
+    Parses the header line-by-line and feeds the data section directly from the
+    open file handle into np.loadtxt. This avoids materialising the whole file
+    as a Python list of strings (and the extra sliced copy), keeping peak memory
+    at roughly the size of the final data array rather than several times the
+    file size. Required for large particle/grid dumps that would otherwise OOM.
+    """
+    step = n = None
+    box = {}
+    cols = None
+    raw = None
+    with open(fname) as f:
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            s = line.strip()
+            if s.startswith("ITEM: TIMESTEP"):
+                step = int(f.readline().strip())
+            elif s.startswith(count_prefix):
+                n = int(f.readline().strip())
+            elif s.startswith("ITEM: BOX BOUNDS"):
+                xlo, xhi = map(float, f.readline().split())
+                ylo, yhi = map(float, f.readline().split())
+                zlo, zhi = map(float, f.readline().split())
+                box = dict(xlo=xlo, xhi=xhi, ylo=ylo, yhi=yhi, zlo=zlo, zhi=zhi)
+            elif s.startswith(data_prefix):
+                cols = s.split()[2:]
+                # read directly from the file stream, no intermediate line list
+                raw = np.loadtxt(f, dtype=float, max_rows=n)
+                break
+    if raw is None:
+        raw = np.empty((0, len(cols) if cols else 0), dtype=float)
+    raw = raw.reshape(1, -1) if raw.ndim == 1 else raw
+    df = pd.DataFrame(raw, columns=cols)
+    return step, df, box
 
 def read_sparta_particle_dump(fname):
-    step = natoms = None
-    box = {}
-    cols = None
-    data_start = None
-    lines = open(fname).read().splitlines()
-    i = 0
-    while i < len(lines):
-        line = lines[i].strip()
-        if line.startswith("ITEM: TIMESTEP"):
-            step = int(lines[i + 1].strip())
-            i += 2
-            continue
-        if line.startswith("ITEM: NUMBER OF ATOMS"):
-            natoms = int(lines[i + 1].strip())
-            i += 2
-            continue
-        if line.startswith("ITEM: BOX BOUNDS"):
-            xlo, xhi = map(float, lines[i + 1].split())
-            ylo, yhi = map(float, lines[i + 2].split())
-            zlo, zhi = map(float, lines[i + 3].split())
-            box = dict(xlo=xlo, xhi=xhi, ylo=ylo, yhi=yhi, zlo=zlo, zhi=zhi)
-            i += 4
-            continue
-        if line.startswith("ITEM: ATOMS"):
-            cols = line.split()[2:]
-            data_start = i + 1
-            break
-        i += 1
-    raw = np.loadtxt(lines[data_start:], dtype=float, max_rows=natoms)
-    raw = raw.reshape(1, -1) if raw.ndim == 1 else raw
-    df = pd.DataFrame(raw, columns=cols)
-    return step, df, box
+    return _read_sparta_dump(fname, "ITEM: NUMBER OF ATOMS", "ITEM: ATOMS")
 
 def read_sparta_grid_dump(fname):
-    step = ncells = None
-    box = {}
-    cols = None
-    data_start = None
-    lines = open(fname).read().splitlines()
-    i = 0
-    while i < len(lines):
-        line = lines[i].strip()
-        if line.startswith("ITEM: TIMESTEP"):
-            step = int(lines[i + 1].strip())
-            i += 2
-            continue
-        if line.startswith("ITEM: NUMBER OF CELLS"):
-            ncells = int(lines[i + 1].strip())
-            i += 2
-            continue
-        if line.startswith("ITEM: BOX BOUNDS"):
-            xlo, xhi = map(float, lines[i + 1].split())
-            ylo, yhi = map(float, lines[i + 2].split())
-            zlo, zhi = map(float, lines[i + 3].split())
-            box = dict(xlo=xlo, xhi=xhi, ylo=ylo, yhi=yhi, zlo=zlo, zhi=zhi)
-            i += 4
-            continue
-        if line.startswith("ITEM: CELLS"):
-            cols = line.split()[2:]
-            data_start = i + 1
-            break
-        i += 1
-    raw = np.loadtxt(lines[data_start:], dtype=float, max_rows=ncells)
-    raw = raw.reshape(1, -1) if raw.ndim == 1 else raw
-    df = pd.DataFrame(raw, columns=cols)
-    return step, df, box
+    return _read_sparta_dump(fname, "ITEM: NUMBER OF CELLS", "ITEM: CELLS")
 
 def read_sparta_surface_dump(fname):
-    step = nsurf = None
-    box = {}
-    cols = None
-    data_start = None
-    lines = open(fname).read().splitlines()
-    i = 0
-    while i < len(lines):
-        line = lines[i].strip()
-        if line.startswith("ITEM: TIMESTEP"):
-            step = int(lines[i + 1].strip())
-            i += 2
-            continue
-        if line.startswith("ITEM: NUMBER OF SURFS"):
-            nsurf = int(lines[i + 1].strip())
-            i += 2
-            continue
-        if line.startswith("ITEM: BOX BOUNDS"):
-            xlo, xhi = map(float, lines[i + 1].split())
-            ylo, yhi = map(float, lines[i + 2].split())
-            zlo, zhi = map(float, lines[i + 3].split())
-            box = dict(xlo=xlo, xhi=xhi, ylo=ylo, yhi=yhi, zlo=zlo, zhi=zhi)
-            i += 4
-            continue
-        if line.startswith("ITEM: SURFS"):
-            cols = line.split()[2:]
-            data_start = i + 1
-            break
-        i += 1
-    raw = np.loadtxt(lines[data_start:], dtype=float, max_rows=nsurf)
-    raw = raw.reshape(1, -1) if raw.ndim == 1 else raw
-    df = pd.DataFrame(raw, columns=cols)
-    return step, df, box
+    return _read_sparta_dump(fname, "ITEM: NUMBER OF SURFS", "ITEM: SURFS")
 
 def load_all(pattern, reader):
     files = sorted(glob.glob(os.path.expanduser(pattern)))
@@ -116,31 +64,56 @@ def load_all(pattern, reader):
         results.append(reader(f))
     return results
 
-def process_and_save_dumps(pattern, reader, prefix, output_dir=None):
-    """Process dump files one by one and save as Parquet to avoid memory overload"""
+def _convert_one_file(fname, reader, prefix, dumps_dir):
+    """Read a single dump file and write its Parquet outputs.
+
+    Module-level (picklable) so it can be dispatched to worker processes.
+    Returns the basename processed for progress reporting.
+    """
+    step, df, box = reader(fname)
+
+    df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
+    df.to_parquet(df_path, index=False)
+
+    box_df = pd.DataFrame([box])
+    box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
+    box_df.to_parquet(box_path, index=False)
+
+    return os.path.basename(fname)
+
+def process_and_save_dumps(pattern, reader, prefix, output_dir=None, jobs=1):
+    """Process dump files one by one and save as Parquet to avoid memory overload.
+
+    jobs=1 (default) processes files serially, identical to the original
+    behaviour. jobs>1 fans the per-file conversion across that many worker
+    processes (one file per worker). Files are independent, so this scales
+    nearly linearly with cores; peak memory is roughly jobs x one-frame size,
+    so only raise jobs on a high-memory node.
+    """
     files = sorted(glob.glob(os.path.expanduser(pattern)))
     if output_dir is None:
         dumps_dir = os.path.dirname(os.path.expanduser(pattern))
     else:
         dumps_dir = os.path.expanduser(output_dir)
     total = len(files)
-    
-    for i, f in enumerate(files, 1):
-        print(f"{i:02d}/{total:02d}: {os.path.basename(f)}")
-        step, df, box = reader(f)
-        
-        # save dataframe immediately
-        df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
-        df.to_parquet(df_path, index=False)
-        
-        # save box info
-        box_df = pd.DataFrame([box])
-        box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
-        box_df.to_parquet(box_path, index=False)
-        
-        # clear from memory immediately
-        del df, box_df
-    
+
+    if total == 0:
+        return 0
+
+    if jobs <= 1:
+        for i, f in enumerate(files, 1):
+            print(f"{i:02d}/{total:02d}: {os.path.basename(f)}")
+            _convert_one_file(f, reader, prefix, dumps_dir)
+        return total
+
+    worker = partial(_convert_one_file, reader=reader, prefix=prefix, dumps_dir=dumps_dir)
+    done = 0
+    with ProcessPoolExecutor(max_workers=jobs) as ex:
+        futures = {ex.submit(worker, f): f for f in files}
+        for fut in as_completed(futures):
+            name = fut.result()
+            done += 1
+            print(f"{done:02d}/{total:02d}: {name}")
     return total
 
 def save_to_parquet(data, prefix):
@@ -164,19 +137,25 @@ if __name__ == "__main__":
     _DEFAULT_DUMPS = os.path.join(_TOOL_ROOT, 'dumps')
     parser.add_argument('dumps_dir', nargs='?', default=_DEFAULT_DUMPS, 
                        help='Directory containing dump files (default: dumps/)')
+    parser.add_argument('-j', '--jobs', type=int, default=1,
+                       help='Number of parallel worker processes (default: 1 = serial). '
+                            'Use the node core count on ROAR, e.g. -j 48.')
     args = parser.parse_args()
     
     dumps_path = os.path.expanduser(args.dumps_dir)
+    jobs = max(1, args.jobs)
     
     print(f"Processing dumps from: {dumps_path}")
+    if jobs > 1:
+        print(f"Using {jobs} parallel workers")
     print("Processing particle dumps (1/3)...")
-    particle_count = process_and_save_dumps(f"{dumps_path}/part.*.dat", read_sparta_particle_dump, "particle", dumps_path)
+    particle_count = process_and_save_dumps(f"{dumps_path}/part.*.dat", read_sparta_particle_dump, "particle", dumps_path, jobs=jobs)
 
     print("\nProcessing grid dumps (2/3)...")
-    grid_count = process_and_save_dumps(f"{dumps_path}/grid.*.dat", read_sparta_grid_dump, "grid", dumps_path)
+    grid_count = process_and_save_dumps(f"{dumps_path}/grid.*.dat", read_sparta_grid_dump, "grid", dumps_path, jobs=jobs)
 
     print("\nProcessing surface dumps (3/3)...")
-    surf_count = process_and_save_dumps(f"{dumps_path}/surf.*.dat", read_sparta_surface_dump, "surf", dumps_path)
+    surf_count = process_and_save_dumps(f"{dumps_path}/surf.*.dat", read_sparta_surface_dump, "surf", dumps_path, jobs=jobs)
 
     print(f"\nCompleted:")
     print(f"particle frames: {particle_count}")

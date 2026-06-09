@@ -36,15 +36,22 @@ dt = get_tstep(input_sparta)
 
 # parse one surf dump: return step, list of triangle vertices, temperature array
 def read_surf(fname):
+    step = None
+    headers = None
+    data = None
     with open(fname) as f:
-        lines = f.readlines()
-    step = int(lines[1].strip())
-    for i, line in enumerate(lines):
-        if line.startswith("ITEM: SURFS"):
-            headers = line.split()[2:]
-            start = i + 1
-            break
-    data = np.loadtxt(lines[start:])
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            s = line.strip()
+            if s.startswith("ITEM: TIMESTEP"):
+                step = int(f.readline().strip())
+            elif s.startswith("ITEM: SURFS"):
+                headers = s.split()[2:]
+                # stream the data section directly from the file handle
+                data = np.loadtxt(f, dtype=float)
+                break
     cols = {h: data[:, j] for j, h in enumerate(headers)}
 
     v1 = np.column_stack((cols["v1x"], cols["v1y"], cols["v1z"]))
