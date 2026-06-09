@@ -7,6 +7,7 @@ import sys
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from load_dumps import load_parquet_timesteps, load_parquet_single
+from anim_utils import compute_payloads_parallel, save_animation
 
 # create outputs directory
 os.makedirs('outputs', exist_ok=True)
@@ -15,6 +16,10 @@ os.makedirs('outputs', exist_ok=True)
 parser = argparse.ArgumentParser(description='Animate particle trajectories')
 parser.add_argument('folder', nargs='?', default='dumps', 
                    help='Folder containing dump files (default: dumps)')
+parser.add_argument('-j', '--jobs', type=int, default=1,
+                   help='Parallel worker processes for frame precompute '
+                        '(default: 1 = serial). Use the node core count on a '
+                        'cluster, e.g. -j 8 (memory scales with jobs).')
 args = parser.parse_args()
 
 # load timestep list (memory efficient)
@@ -36,9 +41,28 @@ def get_frame_data(df):
         return df.sample(subsample, random_state=0)
     return df
 
+def compute_frame(i):
+    """Load + subsample one particle frame, returning (step, (x, y, z, colors)).
+    Top-level so it is picklable for parallel workers."""
+    step = timesteps[i]
+    _, df, _ = load_parquet_single("particle", step, folder_path)
+    dff = get_frame_data(df)
+    x = dff['x'].values
+    y = dff['y'].values
+    z = dff['z'].values
+    t = dff['type'].astype(int).map(type_to_color).fillna(0).astype(int).values
+    c = [colors_cycle[k % len(colors_cycle)] for k in t]
+    return step, (x, y, z, c)
+
 xlim = (box0['xlo'], box0['xhi'])
 ylim = (box0['ylo'], box0['yhi'])
 zlim = (box0['zlo'], box0['zhi'])
+
+# Precompute every (subsampled) frame, optionally in parallel, with live
+# progress, so frames are read once and the animation assembles quickly.
+print(f"Precomputing {len(timesteps)} frames with {args.jobs} worker(s)...")
+frame_data = compute_payloads_parallel(range(len(timesteps)), compute_frame,
+                                       jobs=args.jobs, label="particle frame")
 
 # plot
 fig = plt.figure(figsize=(6, 5))
@@ -58,19 +82,12 @@ def init():
     return scat,
 
 def update(frame_idx):
-    step = timesteps[frame_idx]
-    _, df, _ = load_parquet_single("particle", step, folder_path)
-    dff = get_frame_data(df)
-    x = dff['x'].values
-    y = dff['y'].values
-    z = dff['z'].values
-    t = dff['type'].astype(int).map(type_to_color).fillna(0).astype(int).values
-    c = [colors_cycle[i % len(colors_cycle)] for i in t]
+    step, (x, y, z, c) = frame_data[frame_idx]
     scat._offsets3d = (x, y, z)
     scat.set_color(c)
     title.set_text(f"Step {step}")
     return scat, title
 
 ani = FuncAnimation(fig, update, frames=len(timesteps), init_func=init, blit=False, interval=200)
-ani.save("outputs/particle_anim.mp4", fps=5, dpi=150)
+save_animation(ani, "outputs/particle_anim.mp4", fps=5, dpi=150)
 print("Animation saved to outputs/particle_anim.mp4")

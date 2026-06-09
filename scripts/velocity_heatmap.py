@@ -10,6 +10,7 @@ import sys
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from load_dumps import load_parquet_timesteps, load_parquet_single
+from anim_utils import compute_payloads_parallel, save_animation
 
 # Create outputs directory
 os.makedirs('outputs', exist_ok=True)
@@ -18,6 +19,10 @@ os.makedirs('outputs', exist_ok=True)
 parser = argparse.ArgumentParser(description='Create velocity heatmap animation')
 parser.add_argument('folder', nargs='?', default='dumps', 
                    help='Folder containing dump files (default: dumps)')
+parser.add_argument('-j', '--jobs', type=int, default=1,
+                   help='Parallel worker processes for frame precompute '
+                        '(default: 1 = serial). Use the node core count on a '
+                        'cluster, e.g. -j 8 (memory scales with jobs).')
 args = parser.parse_args()
 
 # I/O
@@ -56,22 +61,35 @@ def speed_hist(df):
         mean_v = np.where(cnt_v > 0, sum_v / cnt_v, np.nan)
     return np.flipud(mean_v.T)  # flip y for imshow's origin='lower'
 
-# precompute vmin/vmax
-print("Computing min/max for color scale...")
-all_vals = []
-# suppress runtime warnings during histogram division (empty bins)
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore", RuntimeWarning)
-    for step in timesteps:
+def compute_frame(i):
+    """Load one particle frame and return (step, speed image). Top-level so it is
+    picklable for parallel workers; relies on inherited module globals."""
+    import warnings as _w
+    step = timesteps[i]
+    with _w.catch_warnings():
+        _w.simplefilter("ignore", RuntimeWarning)
         _, df, _ = load_parquet_single("particle", step, folder_path)
         img = speed_hist(df)
-        if np.isfinite(img).any():
-            all_vals.extend(img[np.isfinite(img)].flatten())
+    return step, img
 
-#vmin = 0 #np.percentile(all_vals, 5)
-#vmax = np.percentile(all_vals, 95)
-vmin = np.min(all_vals)
-vmax = np.max(all_vals)
+# Precompute every frame's image (the expensive load+histogram), optionally in
+# parallel, with live progress. This replaces the old serial vmin/vmax pre-pass:
+# the colour scale is derived from the cached images below, so each file is read
+# only once instead of twice.
+print(f"Precomputing {len(timesteps)} frames with {args.jobs} worker(s)...")
+frame_imgs = compute_payloads_parallel(range(len(timesteps)), compute_frame,
+                                       jobs=args.jobs, label="particle frame")
+
+# colour scale from the already-computed images (no extra file reads)
+vmin = np.inf
+vmax = -np.inf
+for _step, img in frame_imgs.values():
+    finite = img[np.isfinite(img)]
+    if finite.size:
+        vmin = min(vmin, float(finite.min()))
+        vmax = max(vmax, float(finite.max()))
+if not np.isfinite(vmin):
+    vmin, vmax = 0.0, 1.0
 print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 fig, ax = plt.subplots(figsize=(6, 3))
@@ -114,9 +132,7 @@ def init():
     return im,
 
 def update(i):
-    step = timesteps[i]
-    _, df, _ = load_parquet_single("particle", step, folder_path)
-    img = speed_hist(df)
+    step, img = frame_imgs[i]
     img_masked = np.ma.masked_invalid(img)
     im.set_data(img_masked)
     title.set_text(f"speed heatmap |z| ≤ {slice_frac:.2f}H  |  time = {step * tstep:.2e} s")
@@ -125,4 +141,4 @@ def update(i):
 ani = FuncAnimation(fig, update, frames=len(timesteps),
                     init_func=init, blit=False, interval=200)
 
-ani.save("outputs/velocity_heatmap.mp4", fps=30, dpi=500)
+save_animation(ani, "outputs/velocity_heatmap.mp4", fps=30, dpi=500)

@@ -1,0 +1,40 @@
+/storage/home/jxa5508/VLEO-DSMC/scripts/grid_density_heatmap.py:108: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = plt.cm.get_cmap("viridis").copy()
+MovieWriter stderr:
+[h264_v4l2m2m @ 0xa22d00] Could not find a valid device
+[h264_v4l2m2m @ 0xa22d00] can't configure encoder
+Error initializing output stream 0:0 -- Error while opening encoder for output stream #0:0 - maybe incorrect parameters such as bit_rate, rate, width or height
+
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 224, in saving
+    yield self
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 1126, in save
+    writer.grab_frame(**savefig_kwargs)
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 352, in grab_frame
+    self.fig.savefig(self._proc.stdin, format=self.frame_format,
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/figure.py", line 3490, in savefig
+    self.canvas.print_figure(fname, **kwargs)
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/backend_bases.py", line 2184, in print_figure
+    result = print_method(
+             ^^^^^^^^^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/backend_bases.py", line 2040, in <lambda>
+    print_method = functools.wraps(meth)(lambda *args, **kwargs: meth(
+                                                                 ^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/backends/backend_agg.py", line 420, in print_raw
+    fh.write(renderer.buffer_rgba())
+BrokenPipeError: [Errno 32] Broken pipe
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/scripts/grid_density_heatmap.py", line 147, in <module>
+    ani.save("outputs/grid_density_heatmap.mp4", fps=30, dpi=300)
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 1098, in save
+    with (writer.saving(self._fig, filename, dpi),
+  File "/storage/icds/RISE/sw8/python/3.11.2/lib/python3.11/contextlib.py", line 155, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 226, in saving
+    self.finish()
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 341, in finish
+    raise subprocess.CalledProcessError(
+subprocess.CalledProcessError: Command '['ffmpeg', '-f', 'rawvideo', '-vcodec', 'rawvideo', '-s', '1800x900', '-pix_fmt', 'rgba', '-framerate', '30', '-loglevel', 'error', '-i', 'pipe:', '-vcodec', 'h264', '-pix_fmt', 'yuv420p', '-y', 'outputs/grid_density_heatmap.mp4']' returned non-zero exit status 1.

@@ -6,6 +6,7 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from matplotlib import cm
 from matplotlib import gridspec
 import argparse
+import sys
 
 # Create outputs directory
 os.makedirs('outputs', exist_ok=True)
@@ -14,10 +15,16 @@ os.makedirs('outputs', exist_ok=True)
 parser = argparse.ArgumentParser(description='Create surface temperature heatmap animation')
 parser.add_argument('folder', nargs='?', default='dumps', 
                    help='Folder containing dump files (default: dumps)')
+parser.add_argument('-j', '--jobs', type=int, default=1,
+                   help='Parallel worker processes for frame loading '
+                        '(default: 1 = serial). Use the node core count on a '
+                        'cluster, e.g. -j 8 (memory scales with jobs).')
 args = parser.parse_args()
 
 # I/O
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
+from anim_utils import compute_payloads_parallel, save_animation
 dump_glob = os.path.join(_REPO_ROOT, args.folder, 'surf.*.dat')
 input_sparta = os.path.join(_REPO_ROOT, 'in.ampt')
 outfile = "outputs/surface_temp_heatmap.mp4"
@@ -64,7 +71,18 @@ def read_surf(fname):
 # load all frames
 files = sorted(glob.glob(dump_glob),
                key=lambda s: int(re.search(r"\.(\d+)\.dat$", s).group(1)))
-frames = [read_surf(f) for f in files]
+
+def compute_surf(i):
+    """Load one surf dump, returning (step, (triangles, temps, fluxes)).
+    Top-level so it is picklable for parallel workers."""
+    step, triangles, temps, fluxes = read_surf(files[i])
+    return step, (triangles, temps, fluxes)
+
+# Precompute every frame, optionally in parallel, with live progress.
+print(f"Loading {len(files)} surf frames with {args.jobs} worker(s)...")
+_loaded = compute_payloads_parallel(range(len(files)), compute_surf,
+                                    jobs=args.jobs, label="surf frame")
+frames = [(_loaded[i][0],) + _loaded[i][1] for i in range(len(files))]
 steps = np.array([f[0] for f in frames])
 t_phys = steps * dt
 
@@ -122,5 +140,5 @@ def update(i):
     return collection, title, text_display
 
 ani = FuncAnimation(fig, update, frames=nt, interval=1000 / fps, blit=False)
-ani.save(outfile, writer=writers["ffmpeg"](fps=fps, bitrate=1800))
+save_animation(ani, outfile, fps=fps, dpi=120, bitrate=1800)
 print(f"wrote {outfile}")

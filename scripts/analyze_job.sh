@@ -4,7 +4,7 @@
 #SBATCH --partition=himem
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=8
 #SBATCH --time=04:00:00
 #SBATCH --mem=950G
 #SBATCH --output=slurm_%j.out
@@ -17,22 +17,40 @@
 #   sbatch scripts/analyze_job.sh [dumps_dir]
 # Default dumps_dir is "dumps".
 #
-# Plotting is mostly serial numpy/pandas/matplotlib reading one Parquet frame
-# at a time, so it needs few cores but keeps the himem node for the heatmap
-# colour-scale passes. Comment/uncomment the scripts below as needed.
+# Plotting reads one Parquet frame at a time. Each animation script can
+# precompute frames across several workers (-j); peak memory scales with the
+# number of workers, so keep this modest for the large grid frames. Comment/
+# uncomment the scripts below as needed.
 
 set -euo pipefail
 
 cd "$SLURM_SUBMIT_DIR"
 
 DUMPS_DIR="${1:-dumps}"
+# Parallel workers for per-frame precompute (defaults to the allocated cores).
+NJOBS="${SLURM_CPUS_PER_TASK:-1}"
 
-# Activate the project virtual environment (created at .venv)
+# Activate the project virtual environment (created at .venv) FIRST, so the
+# ffmpeg PATH set up below is not clobbered by the activate script.
 if [[ -f ".venv/bin/activate" ]]; then
     # shellcheck disable=SC1091
     source .venv/bin/activate
 else
     echo "WARNING: .venv not found; falling back to system python3" >&2
+fi
+
+# ffmpeg is needed to write the .mp4 animations. Load the module, then make sure
+# it is actually on PATH (the module function does not always update PATH in a
+# batch shell). Fall back to the known module install location if needed.
+module load ffmpeg/4.3.2 2>/dev/null || true
+if ! command -v ffmpeg >/dev/null 2>&1; then
+    ff_bin="$(ls -d /swst/apps/ffmpeg/*/bin 2>/dev/null | head -1)"
+    [[ -n "$ff_bin" ]] && export PATH="$ff_bin:$PATH"
+fi
+if command -v ffmpeg >/dev/null 2>&1; then
+    echo "Using ffmpeg: $(command -v ffmpeg)"
+else
+    echo "WARNING: ffmpeg not found; mp4 saving will fail" >&2
 fi
 
 # Matplotlib must not try to open a display on a compute node
@@ -42,15 +60,15 @@ echo "=== Generating plots and animations ==="
 # Lightweight stats plots
 python3 scripts/plot_drag.py || echo "plot_drag.py failed (non-fatal)"
 
-# Grid heatmaps (read Parquet one frame at a time)
-python3 scripts/grid_density_heatmap.py  "$DUMPS_DIR" || echo "grid_density_heatmap.py failed (non-fatal)"
-#python3 scripts/grid_pressure_heatmap.py "$DUMPS_DIR" || echo "grid_pressure_heatmap.py failed (non-fatal)"
-#python3 scripts/grid_temp_heatmap.py     "$DUMPS_DIR" || echo "grid_temp_heatmap.py failed (non-fatal)"
-#python3 scripts/velocity_heatmap.py      "$DUMPS_DIR" || echo "velocity_heatmap.py failed (non-fatal)"
+# Grid heatmaps (precompute frames in parallel across $NJOBS workers)
+python3 scripts/grid_density_heatmap.py  "$DUMPS_DIR" -j "$NJOBS" || echo "grid_density_heatmap.py failed (non-fatal)"
+#python3 scripts/grid_pressure_heatmap.py "$DUMPS_DIR" -j "$NJOBS" || echo "grid_pressure_heatmap.py failed (non-fatal)"
+#python3 scripts/grid_temp_heatmap.py     "$DUMPS_DIR" -j "$NJOBS" || echo "grid_temp_heatmap.py failed (non-fatal)"
+#python3 scripts/velocity_heatmap.py      "$DUMPS_DIR" -j "$NJOBS" || echo "velocity_heatmap.py failed (non-fatal)"
 #python3 scripts/streamlines.py --anim                 || echo "streamlines.py failed (non-fatal)"
 
 # Surface / particle animations
-#python3 scripts/surface_temp_heatmap.py  "$DUMPS_DIR" || echo "surface_temp_heatmap.py failed (non-fatal)"
-#python3 scripts/animate_particles.py     "$DUMPS_DIR" || echo "animate_particles.py failed (non-fatal)"
+#python3 scripts/surface_temp_heatmap.py  "$DUMPS_DIR" -j "$NJOBS" || echo "surface_temp_heatmap.py failed (non-fatal)"
+#python3 scripts/animate_particles.py     "$DUMPS_DIR" -j "$NJOBS" || echo "animate_particles.py failed (non-fatal)"
 
 echo "=== Plotting complete. Outputs written to outputs/ ==="
