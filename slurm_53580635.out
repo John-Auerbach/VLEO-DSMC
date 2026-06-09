@@ -1,0 +1,46 @@
+SPARTA (24 Sep 2025)
+Running on 48 MPI task(s)
+Created orthogonal box = (-2 -2 -2) to (2 2 2)
+Loaded NRLMSIS data: rho=1.365743695652e-10 nrho=2.83951e+15 T=1321.475 vx=7754.9
+MEAN FREE PATH = 579.012858323006 m
+MEAN MOLEC VEL = 982.829703019978 m/s
+CELL SIZE MUST BE LESS THAN 193.004286107669 m
+MEAN COLL TIME = 0.589128367349757 s
+MEAN TRANSIT TIME = 0.196376122449919 s
+TIMESTEP MUST BE < 0.0654587074833063 s
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
+Created 12000000 child grid cells
+  CPU time = 10.3434 secs
+  create/ghost percent = 0.31132 99.6887
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
+Balance grid migrated 11739500 cells
+  CPU time = 8.39953 secs
+  reassign/sort/migrate/ghost percent = 2.42812 0.0760585 2.94758 94.5482
+Reading surface file ...
+  12 triangles
+  -0.25 0.25 xlo xhi
+  -0.25 0.25 ylo yhi
+  -0.25 0.25 zlo zhi
+  0.5 min triangle edge length
+  0.125 min triangle area
+  4952 = cells with surfs
+  5760 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  25 = min surf-size/cell-size ratio
+  4952 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
+  11974312 20736 4952 = cells outside/inside/overlapping surfs
+  4952 = surf cells with 1,2,etc splits
+  63.8750000001414 63.875 = cell-wise and global flow volume
+  CPU time = 10.9155 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.0490701 0.00776193 0.362254 0.192464 99.3884 1.19401 0.000134249
+  surf2grid time = 0.0210085 secs
+  map/comm1/comm2/comm3/comm4/split percent = 24.14 0 0 0 0 53.1758
+0 = initial surface count in group ampt_xnorm
+4 = final surface count in group ampt_xnorm
+0 = initial surface count in group ampt_yznorm
+8 = final surface count in group ampt_yznorm
+particles per particle = 2839510
+Creating particles ...
+Created 998046875 particles
+  CPU time = 4.44437 secs

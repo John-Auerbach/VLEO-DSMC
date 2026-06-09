@@ -273,6 +273,11 @@ python3 tools/load_dumps.py
 
 # Convert dumps from specific directory
 python3 tools/load_dumps.py dumps/alt_XXkm/
+
+# Convert in parallel across N cores (one file per worker).
+# Leave this off (default -j 1 = serial) on a laptop; use the node core
+# count on a cluster, e.g. -j 48 on a Roar himem node.
+python3 tools/load_dumps.py dumps/ -j 48
 ```
 
 This will:
@@ -888,6 +893,30 @@ cat slurm_<jobid>.err
 
 # View past job details
 sacct -j <jobid> --format=JobID,JobName,Elapsed,State,MaxRSS
+```
+
+### Post-Processing Jobs (Convert + Analyze)
+
+Post-processing is split into two Slurm scripts so each stage gets the resources it actually needs. Run them **after** the simulation job has finished writing dumps, submitting from the repo root:
+
+```bash
+# Stage 1: convert raw .dat dumps -> Parquet (CPU- and memory-heavy)
+sbatch tools/load_job_dumps.sh [dumps_dir]
+
+# Stage 2: generate plots and animations from the Parquet files
+sbatch scripts/analyze_job.sh [dumps_dir]
+```
+
+`dumps_dir` is optional and defaults to `dumps/` (pass `dumps/alt_300km` for a specific run). 
+
+- **`tools/load_job_dumps.sh`** runs on `himem` with `--cpus-per-task=48` and parallelizes the conversion across those cores (it passes `-j $SLURM_CPUS_PER_TASK` to `load_dumps.py`). This usually takes an amount of time comparble to the simulation itself, so it gets a lot of cores.
+- **`scripts/analyze_job.sh`** runs the plotting/animation scripts, which read Parquet one frame at a time and are mostly serial, so it requests few cores but keeps the himem node for the heatmap color-scale passes. Comment/uncomment individual scripts inside it to control which figures are produced.
+
+Wait for stage 1 to finish before submitting stage 2 (stage 2 reads the Parquet files stage 1 writes). You can chain them automatically with a dependency:
+
+```bash
+cid=$(sbatch --parsable tools/load_job_dumps.sh)
+sbatch --dependency=afterok:$cid scripts/analyze_job.sh
 ```
 
 ### Scratch Storage for Dump Files

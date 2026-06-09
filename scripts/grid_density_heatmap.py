@@ -72,18 +72,19 @@ def density_hist(df):
     result = mean_n.T  # shape (ny, nx) for imshow
     return result
 
-# precompute vmin/vmax
+# precompute vmin/vmax (running min/max; avoids accumulating every cell value)
 print("Computing min/max for color scale...")
-all_vals = []
+vmin = np.inf
+vmax = -np.inf
 for step in timesteps:
     _, df, _ = load_parquet_single("grid", step, folder_path)
     img = density_hist(df)
-    if np.isfinite(img).any():
-        all_vals.extend(img[np.isfinite(img)])
-#vmin = np.percentile(all_vals, 5)
-#vmax = np.percentile(all_vals, 95)
-vmin = np.min(all_vals)
-vmax = np.max(all_vals)
+    finite = img[np.isfinite(img)]
+    if finite.size:
+        vmin = min(vmin, float(finite.min()))
+        vmax = max(vmax, float(finite.max()))
+if not np.isfinite(vmin):
+    vmin, vmax = 0.0, 1.0
 print(f"vmin={vmin:.2e} #/m^3, vmax={vmax:.2e} #/m^3")
 
 fig, ax = plt.subplots(figsize=(6, 3))

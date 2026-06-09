@@ -69,21 +69,22 @@ def temp_hist(df):
     
     return result
 
-# precompute vmin/vmax
+# precompute vmin/vmax (running min/max; avoids accumulating every cell value)
 print("Computing min/max for color scale...")
-all_vals = []
+vmin = np.inf
+vmax = -np.inf
 # suppress runtime warnings during histogram division (empty bins)
 with warnings.catch_warnings():
     warnings.simplefilter("ignore", RuntimeWarning)
     for step in timesteps:
         _, df, _ = load_parquet_single("grid", step, folder_path)
         img = temp_hist(df)
-        if np.isfinite(img).any():
-            all_vals.extend(img[np.isfinite(img)])
-#vmin = 0 #np.percentile(all_vals, 5)
-#vmax = np.percentile(all_vals, 95)
-vmin = np.min(all_vals)
-vmax = np.max(all_vals)
+        finite = img[np.isfinite(img)]
+        if finite.size:
+            vmin = min(vmin, float(finite.min()))
+            vmax = max(vmax, float(finite.max()))
+if not np.isfinite(vmin):
+    vmin, vmax = 0.0, 1.0
 print(f"vmin={vmin:.2f}, vmax={vmax:.2f}")
 
 fig, ax = plt.subplots(figsize=(6, 3))
