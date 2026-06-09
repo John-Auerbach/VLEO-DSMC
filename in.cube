@@ -95,12 +95,12 @@ compute         compute_qwall surf ampt atm ke # ke = kinetic + internal energy.
 fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
 fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 1 Tsurf  # Stefan-Boltzmann
 
-# Define collision models
-surf_collide 	wall_diffuse diffuse s_Tsurf 1   # diffuse model for front/back, random dir, use local facet temp, acc
-surf_collide    wall_specular diffuse s_Tsurf 1      # specular model for walls
-# Apply to respective surface groups
-surf_modify 	ampt_xnorm collide wall_diffuse    # attach model to facets
-surf_modify 	ampt_yznorm collide wall_specular
+# define collision models (both diffuse, using local facet temp + full accommodation)
+surf_collide 	diffuse_xnorm  diffuse s_Tsurf 1   # diffuse model for front/back faces
+surf_collide    diffuse_yznorm diffuse s_Tsurf 1   # diffuse model for side walls
+# apply to respective surface groups
+surf_modify 	ampt_xnorm  collide diffuse_xnorm    # attach model to front/back facets
+surf_modify 	ampt_yznorm collide diffuse_yznorm   # attach model to side-wall facets
 
 # DIAGNOSTICS ---------------------------------------------------------------------------------
 
