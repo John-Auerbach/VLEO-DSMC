@@ -1,5 +1,7 @@
 .venv/
 #outputs/
+dumps/*
+!dumps/.gitkeep
 data/T.dat
 data/nrho.dat
 data/rho.dat
