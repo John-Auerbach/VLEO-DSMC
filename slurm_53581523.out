@@ -1,0 +1,7 @@
+=== Generating plots and animations ===
+Saved plot to /storage/home/jxa5508/VLEO-DSMC/outputs/drag.png
+Found 87 grid timesteps in dumps
+Computing min/max for color scale...
+vmin=0.00e+00 #/m^3, vmax=1.20e+17 #/m^3
+grid_density_heatmap.py failed (non-fatal)
+=== Plotting complete. Outputs written to outputs/ ===

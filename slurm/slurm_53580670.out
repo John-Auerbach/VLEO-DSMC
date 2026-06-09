@@ -142,3 +142,65 @@ Step CPU Np Natt Ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls
     8900    4277.7468 102176705        6        2     45025.86 0.0016008434 0.0013942455 0.00020659791 
     9000    4329.5781 102216573        5        2    45010.385 0.0016008622  0.001394264 0.00020659826 
     9100    4381.9641 102251317        9        4    44994.651 0.0016010211 0.0013943469 0.00020667417 
+    9200    4433.9686 102287778        8        2     44979.48 0.0016010582 0.0013943455 0.00020671272 
+    9300    4485.6786 102321179       10        0    44963.365 0.0016010854 0.0013943565 0.00020672894 
+    9400    4537.7321 102359443        5        1    44948.576 0.0016010516 0.0013942919 0.0002067598 
+    9500    4589.5958 102396100       11        2    44932.844 0.0016011817 0.0013943853 0.00020679641 
+    9600    4642.3103 102433133        8        1    44917.761 0.0016012166 0.0013943608 0.00020685576 
+    9700    4695.7601 102471535        9        0    44902.225 0.0016013467 0.0013945146 0.00020683206 
+    9800    4748.9705 102505690        8        2    44886.822  0.001601365 0.0013945549 0.0002068101 
+    9900    4801.6873 102539761       11        0    44871.257 0.0016012398   0.00139442 0.00020681981 
+   10000    4855.9138 102572454        8        4    44855.876  0.001601176   0.00139436 0.00020681606 
+Loop time of 4855.91 on 48 procs for 10000 steps with 102572454 particles
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Move    | 1437.5     | 1507.2     | 1650.8     | 130.7 | 31.04
+Coll    | 533.29     | 574.44     | 801.67     | 247.0 | 11.83
+Sort    | 682.17     | 704        | 758.14     |  70.9 | 14.50
+Comm    | 32.586     | 175.02     | 241.08     | 374.6 |  3.60
+Modify  | 43.33      | 324.63     | 385.26     | 419.7 |  6.69
+Output  | 1569.2     | 1569.2     | 1569.2     |   0.0 | 32.31
+Other   |            | 1.431      |            |       |  0.03
+
+Particle moves    = 1009163268175 (1.01T)
+Cells touched     = 1072916990369 (1.07T)
+Particle comms    = 1068463606 (1.07B)
+Boundary collides = 0 (0K)
+Boundary exits    = 191241774 (191M)
+SurfColl checks   = 1108714293 (1.11B)
+SurfColl occurs   = 3522262 (3.52M)
+Surf reactions    = 0 (0K)
+Collide attempts  = 47122 (47.1K)
+Collide occurs    = 8335 (8.34K)
+Gas reactions     = 0 (0K)
+Particles stuck   = 0
+Axisymm bad moves = 0
+
+Particle-moves/CPUsec/proc: 4.32961e+06
+Particle-moves/step: 1.00916e+08
+Cell-touches/particle/step: 1.06317
+Particle comm iterations/step: 1
+Particle fraction communicated: 0.00105876
+Particle fraction colliding with boundary: 0
+Particle fraction exiting boundary: 0.000189505
+Surface-checks/particle/step: 0.00109865
+Surface-collisions/particle/step: 3.49028e-06
+Surface-reactions/particle/step: 0
+Collision-attempts/particle/step: 4.66941e-08
+Collisions/particle/step: 8.25932e-09
+Gas-reactions/particle/step: 0
+
+Particles: 2.13693e+06 ave 2.87729e+06 max 1.96955e+06 min
+Histogram: 8 36 0 0 0 0 0 0 0 4
+Cells:     250000 ave 250000 max 250000 min
+Histogram: 48 0 0 0 0 0 0 0 0 0
+GhostCell: 1.175e+07 ave 1.175e+07 max 1.175e+07 min
+Histogram: 48 0 0 0 0 0 0 0 0 0
+EmptyCell: 0 ave 0 max 0 min
+Histogram: 48 0 0 0 0 0 0 0 0 0
+Surfs:     12 ave 12 max 12 min
+Histogram: 48 0 0 0 0 0 0 0 0 0
+GhostSurf: 0 ave 0 max 0 min
+Histogram: 48 0 0 0 0 0 0 0 0 0

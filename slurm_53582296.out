@@ -1,0 +1,95 @@
+Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
+=== Generating plots and animations ===
+Saved plot to /storage/home/jxa5508/VLEO-DSMC/outputs/drag.png
+Found 87 grid timesteps in dumps
+Precomputing 87 frames with 8 worker(s)...
+  grid frame 1/87 (step 0) done
+  grid frame 2/87 (step 100) done
+  grid frame 3/87 (step 300) done
+  grid frame 4/87 (step 700) done
+  grid frame 5/87 (step 500) done
+  grid frame 6/87 (step 600) done
+  grid frame 7/87 (step 400) done
+  grid frame 8/87 (step 200) done
+  grid frame 9/87 (step 1000) done
+  grid frame 10/87 (step 1200) done
+  grid frame 11/87 (step 1400) done
+  grid frame 12/87 (step 1100) done
+  grid frame 13/87 (step 900) done
+  grid frame 14/87 (step 800) done
+  grid frame 15/87 (step 1500) done
+  grid frame 16/87 (step 1300) done
+  grid frame 17/87 (step 1700) done
+  grid frame 18/87 (step 1800) done
+  grid frame 19/87 (step 1600) done
+  grid frame 20/87 (step 2000) done
+  grid frame 21/87 (step 2100) done
+  grid frame 22/87 (step 1900) done
+  grid frame 23/87 (step 2300) done
+  grid frame 24/87 (step 2200) done
+  grid frame 25/87 (step 2600) done
+  grid frame 26/87 (step 2500) done
+  grid frame 27/87 (step 2700) done
+  grid frame 28/87 (step 3100) done
+  grid frame 29/87 (step 2400) done
+  grid frame 30/87 (step 2800) done
+  grid frame 31/87 (step 2900) done
+  grid frame 32/87 (step 3000) done
+  grid frame 33/87 (step 3300) done
+  grid frame 34/87 (step 3200) done
+  grid frame 35/87 (step 3600) done
+  grid frame 36/87 (step 3700) done
+  grid frame 37/87 (step 3400) done
+  grid frame 38/87 (step 3500) done
+  grid frame 39/87 (step 3900) done
+  grid frame 40/87 (step 3800) done
+  grid frame 41/87 (step 4100) done
+  grid frame 42/87 (step 4200) done
+  grid frame 43/87 (step 4300) done
+  grid frame 44/87 (step 4700) done
+  grid frame 45/87 (step 4000) done
+  grid frame 46/87 (step 4500) done
+  grid frame 47/87 (step 4400) done
+  grid frame 48/87 (step 4600) done
+  grid frame 49/87 (step 4800) done
+  grid frame 50/87 (step 4900) done
+  grid frame 51/87 (step 5000) done
+  grid frame 52/87 (step 5400) done
+  grid frame 53/87 (step 5300) done
+  grid frame 54/87 (step 5100) done
+  grid frame 55/87 (step 5200) done
+  grid frame 56/87 (step 5500) done
+  grid frame 57/87 (step 5600) done
+  grid frame 58/87 (step 5900) done
+  grid frame 59/87 (step 5800) done
+  grid frame 60/87 (step 6000) done
+  grid frame 61/87 (step 6100) done
+  grid frame 62/87 (step 5700) done
+  grid frame 63/87 (step 6200) done
+  grid frame 64/87 (step 6300) done
+  grid frame 65/87 (step 6400) done
+  grid frame 66/87 (step 6600) done
+  grid frame 67/87 (step 6500) done
+  grid frame 68/87 (step 6700) done
+  grid frame 69/87 (step 7000) done
+  grid frame 70/87 (step 7200) done
+  grid frame 71/87 (step 6900) done
+  grid frame 72/87 (step 7100) done
+  grid frame 73/87 (step 6800) done
+  grid frame 74/87 (step 7400) done
+  grid frame 75/87 (step 7300) done
+  grid frame 76/87 (step 7600) done
+  grid frame 77/87 (step 7500) done
+  grid frame 78/87 (step 7800) done
+  grid frame 79/87 (step 8000) done
+  grid frame 80/87 (step 7700) done
+  grid frame 81/87 (step 7900) done
+  grid frame 82/87 (step 8100) done
+  grid frame 83/87 (step 8200) done
+  grid frame 84/87 (step 8600) done
+  grid frame 85/87 (step 8400) done
+  grid frame 86/87 (step 8500) done
+  grid frame 87/87 (step 8300) done
+vmin=0.00e+00 #/m^3, vmax=1.20e+17 #/m^3
+Saved outputs/grid_density_heatmap.mp4 (codec=mpeg4)
+=== Plotting complete. Outputs written to outputs/ ===

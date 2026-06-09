@@ -1,0 +1,25 @@
+/storage/home/jxa5508/VLEO-DSMC/scripts/grid_density_heatmap.py:108: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = plt.cm.get_cmap("viridis").copy()
+MovieWriter ffmpeg unavailable; using Pillow instead.
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/PIL/Image.py", line 2543, in save
+    format = EXTENSION[ext]
+             ~~~~~~~~~^^^^^
+KeyError: '.mp4'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/scripts/grid_density_heatmap.py", line 147, in <module>
+    ani.save("outputs/grid_density_heatmap.mp4", fps=30, dpi=300)
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 1098, in save
+    with (writer.saving(self._fig, filename, dpi),
+  File "/storage/icds/RISE/sw8/python/3.11.2/lib/python3.11/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 226, in saving
+    self.finish()
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/matplotlib/animation.py", line 506, in finish
+    self._frames[0].save(
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/PIL/Image.py", line 2546, in save
+    raise ValueError(msg) from e
+ValueError: unknown file extension: .mp4
