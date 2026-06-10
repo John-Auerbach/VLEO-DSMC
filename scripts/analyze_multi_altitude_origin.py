@@ -15,6 +15,9 @@ from matplotlib.animation import FuncAnimation
 import argparse
 
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+import sys
+sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
+from anim_utils import save_animation
 
 
 def load_grid_origin_data(grid_files):
@@ -222,10 +225,10 @@ def main():
                             interval=200, blit=False)
 
     # save both animations
-    ani_nrho.save(os.path.join(_REPO_ROOT, 'outputs/density_at_origin_vs_altitude.mp4'), fps=10, dpi=150)
+    save_animation(ani_nrho, os.path.join(_REPO_ROOT, 'outputs/density_at_origin_vs_altitude.mp4'), fps=10, dpi=150)
     print('Saved outputs/density_at_origin_vs_altitude.mp4')
     
-    ani_press.save(os.path.join(_REPO_ROOT, 'outputs/pressure_at_origin_vs_altitude.mp4'), fps=10, dpi=150)
+    save_animation(ani_press, os.path.join(_REPO_ROOT, 'outputs/pressure_at_origin_vs_altitude.mp4'), fps=10, dpi=150)
     print('Saved outputs/pressure_at_origin_vs_altitude.mp4')
 
 

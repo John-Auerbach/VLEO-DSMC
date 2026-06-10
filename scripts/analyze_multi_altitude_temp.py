@@ -13,6 +13,9 @@ from matplotlib.animation import FuncAnimation
 # import pandas as pd  # Uncomment for CSV export
 
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+import sys
+sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
+from anim_utils import save_animation
 
 def extract_tstep_from_input(path):
     """Extract timestep from SPARTA input file"""
@@ -219,7 +222,7 @@ def main():
                           blit=False, interval=200, repeat=True)
         
         # save animation at 30fps
-        ani.save(os.path.join(_REPO_ROOT, "outputs/multi_altitude_temp_evolution.mp4"), fps=30, dpi=150)
+        save_animation(ani, os.path.join(_REPO_ROOT, "outputs/multi_altitude_temp_evolution.mp4"), fps=30, dpi=150)
         print("Animation saved as outputs/multi_altitude_temp_evolution.mp4")
         
     else:

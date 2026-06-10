@@ -1,0 +1,76 @@
+Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
+=== Generating plots and animations ===
+plot_drag.py failed (non-fatal)
+Found 68 grid timesteps in dumps/esasat
+Precomputing 68 frames with 8 worker(s)...
+  grid frame 1/68 (step 0) done
+  grid frame 2/68 (step 200) done
+  grid frame 3/68 (step 300) done
+  grid frame 4/68 (step 100) done
+  grid frame 5/68 (step 700) done
+  grid frame 6/68 (step 500) done
+  grid frame 7/68 (step 400) done
+  grid frame 8/68 (step 600) done
+  grid frame 9/68 (step 800) done
+  grid frame 10/68 (step 900) done
+  grid frame 11/68 (step 1500) done
+  grid frame 12/68 (step 1400) done
+  grid frame 13/68 (step 1100) done
+  grid frame 14/68 (step 1300) done
+  grid frame 15/68 (step 1200) done
+  grid frame 16/68 (step 1000) done
+  grid frame 17/68 (step 1600) done
+  grid frame 18/68 (step 1900) done
+  grid frame 19/68 (step 2300) done
+  grid frame 20/68 (step 1800) done
+  grid frame 21/68 (step 1700) done
+  grid frame 22/68 (step 2100) done
+  grid frame 23/68 (step 2000) done
+  grid frame 24/68 (step 2200) done
+  grid frame 25/68 (step 2400) done
+  grid frame 26/68 (step 2500) done
+  grid frame 27/68 (step 2600) done
+  grid frame 28/68 (step 2800) done
+  grid frame 29/68 (step 3000) done
+  grid frame 30/68 (step 2700) done
+  grid frame 31/68 (step 2900) done
+  grid frame 32/68 (step 3100) done
+  grid frame 33/68 (step 3200) done
+  grid frame 34/68 (step 3300) done
+  grid frame 35/68 (step 3500) done
+  grid frame 36/68 (step 3400) done
+  grid frame 37/68 (step 3600) done
+  grid frame 38/68 (step 3700) done
+  grid frame 39/68 (step 3900) done
+  grid frame 40/68 (step 3800) done
+  grid frame 41/68 (step 4000) done
+  grid frame 42/68 (step 4200) done
+  grid frame 43/68 (step 4100) done
+  grid frame 44/68 (step 4300) done
+  grid frame 45/68 (step 4400) done
+  grid frame 46/68 (step 4700) done
+  grid frame 47/68 (step 4600) done
+  grid frame 48/68 (step 4500) done
+  grid frame 49/68 (step 4800) done
+  grid frame 50/68 (step 4900) done
+  grid frame 51/68 (step 5000) done
+  grid frame 52/68 (step 5300) done
+  grid frame 53/68 (step 5400) done
+  grid frame 54/68 (step 5600) done
+  grid frame 55/68 (step 5500) done
+  grid frame 56/68 (step 5100) done
+  grid frame 57/68 (step 5200) done
+  grid frame 58/68 (step 5700) done
+  grid frame 59/68 (step 6200) done
+  grid frame 60/68 (step 6000) done
+  grid frame 61/68 (step 5800) done
+  grid frame 62/68 (step 6100) done
+  grid frame 63/68 (step 6500) done
+  grid frame 64/68 (step 5900) done
+  grid frame 65/68 (step 6400) done
+  grid frame 66/68 (step 6300) done
+  grid frame 67/68 (step 6600) done
+  grid frame 68/68 (step 6700) done
+vmin=0.00e+00 #/m^3, vmax=1.20e+17 #/m^3
+Saved outputs/grid_density_heatmap.mp4 (codec=mpeg4)
+=== Plotting complete. Outputs written to outputs/ ===
