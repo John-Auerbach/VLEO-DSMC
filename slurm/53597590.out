@@ -39,3 +39,9 @@ Precomputing 150 frames with 4 worker(s)...
   particle frame 35/150 (step 3300) done
   particle frame 36/150 (step 3600) done
   particle frame 37/150 (step 3500) done
+  particle frame 38/150 (step 3700) done
+  particle frame 39/150 (step 3900) done
+  particle frame 40/150 (step 4000) done
+  particle frame 41/150 (step 3800) done
+velocity_heatmap.py failed (non-fatal)
+=== Plotting complete. Outputs written to outputs/ ===

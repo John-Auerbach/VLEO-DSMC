@@ -265,15 +265,21 @@ def load_parquet_timesteps(prefix, dumps_dir=None):
         timesteps.append(step)
     return sorted(timesteps)
 
-def load_parquet_single(prefix, timestep, dumps_dir=None):
-    """Load a single timestep from parquet"""
+def load_parquet_single(prefix, timestep, dumps_dir=None, columns=None):
+    """Load a single timestep from parquet.
+
+    columns : list[str] or None
+        If given, only those columns are read from the data Parquet. Projecting
+        to just the needed columns substantially lowers peak memory for the
+        large particle frames (e.g. read only x,y,z,vx,vy,vz instead of all 8).
+    """
     if dumps_dir is None:
         dumps_dir = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')), 'dumps')
     dumps_dir = os.path.expanduser(dumps_dir)
     
     # Load dataframe
     df_path = os.path.join(dumps_dir, f"{prefix}_{timestep:08d}.parquet")
-    df = pd.read_parquet(df_path)
+    df = pd.read_parquet(df_path, columns=columns)
     
     # Load box info
     box_path = os.path.join(dumps_dir, f"{prefix}_box_{timestep:08d}.parquet")
