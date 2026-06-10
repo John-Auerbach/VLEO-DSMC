@@ -29,9 +29,10 @@ cd "$SLURM_SUBMIT_DIR"
 DUMPS_DIR="${1:-dumps}"
 # Parallel workers for per-frame precompute (defaults to the allocated cores).
 NJOBS="${SLURM_CPUS_PER_TASK:-1}"
-# Particle dumps are ~6 GB each; loading many at once OOMs. Use far fewer workers
-# for particle-based scripts (velocity_heatmap, animate_particles).
-PART_NJOBS=2
+# Particle dumps are ~6 GB each (~22 GB/frame in memory); loading many at once
+# OOMs. Use far fewer workers for particle-based scripts (velocity_heatmap,
+# animate_particles). 4 frames need ~90 GB, so request a full/large-mem node.
+PART_NJOBS=4
 if (( NJOBS < PART_NJOBS )); then PART_NJOBS=$NJOBS; fi
 
 # Activate the project virtual environment (created at .venv) FIRST, so the
@@ -62,14 +63,14 @@ export MPLBACKEND=Agg
 
 echo "=== Generating plots and animations ==="
 # Lightweight stats plots
-python3 scripts/plot_drag.py "$DUMPS_DIR" || echo "plot_drag.py failed (non-fatal)"
+#python3 scripts/plot_drag.py "$DUMPS_DIR" || echo "plot_drag.py failed (non-fatal)"
 
 # Grid heatmaps (precompute frames in parallel across $NJOBS workers)
 #python3 scripts/grid_density_heatmap.py  "$DUMPS_DIR" -j "$NJOBS" || echo "grid_density_heatmap.py failed (non-fatal)"
 #python3 scripts/grid_pressure_heatmap.py "$DUMPS_DIR" -j "$NJOBS" || echo "grid_pressure_heatmap.py failed (non-fatal)"
 #python3 scripts/grid_temp_heatmap.py     "$DUMPS_DIR" -j "$NJOBS" || echo "grid_temp_heatmap.py failed (non-fatal)"
 python3 scripts/velocity_heatmap.py      "$DUMPS_DIR" -j "$PART_NJOBS" || echo "velocity_heatmap.py failed (non-fatal)"
-python3 scripts/streamlines.py --anim    "$DUMPS_DIR"                 || echo "streamlines.py failed (non-fatal)"
+#python3 scripts/streamlines.py --anim    "$DUMPS_DIR"                 || echo "streamlines.py failed (non-fatal)"
 
 # Surface / particle animations
 #python3 scripts/surface_temp_heatmap.py  "$DUMPS_DIR" -j "$NJOBS" || echo "surface_temp_heatmap.py failed (non-fatal)"

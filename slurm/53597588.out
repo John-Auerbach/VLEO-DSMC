@@ -1,0 +1,6 @@
+=== Converting dumps in 'dumps/esasat' to Parquet ===
+Processing dumps from: dumps/esasat
+Using 8 parallel workers
+Incremental mode: skipping frames already converted (use --force to redo all)
+Processing particle dumps (1/3)...
+  skipping 150 already-converted particle frame(s); 51 to do

@@ -1,0 +1,47 @@
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/storage/icds/RISE/sw8/python/3.11.2/lib/python3.11/concurrent/futures/process.py", line 256, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/scripts/velocity_heatmap.py", line 71, in compute_frame
+    _, df, _ = load_parquet_single("particle", step, folder_path)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/tools/load_dumps.py", line 219, in load_parquet_single
+    df = pd.read_parquet(df_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/pandas/io/parquet.py", line 669, in read_parquet
+    return impl.read(
+           ^^^^^^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/pandas/io/parquet.py", line 265, in read
+    pa_table = self.api.parquet.read_table(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/pyarrow/parquet/core.py", line 1825, in read_table
+    return dataset.read(columns=columns, use_threads=use_threads,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/.venv/lib/python3.11/site-packages/pyarrow/parquet/core.py", line 1468, in read
+    table = self._dataset.to_table(
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "pyarrow/_dataset.pyx", line 562, in pyarrow._dataset.Dataset.to_table
+  File "pyarrow/_dataset.pyx", line 3722, in pyarrow._dataset.Scanner.to_table
+  File "pyarrow/error.pxi", line 154, in pyarrow.lib.pyarrow_internal_check_status
+  File "pyarrow/error.pxi", line 91, in pyarrow.lib.check_status
+OSError: Corrupt snappy compressed data.
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/scripts/velocity_heatmap.py", line 80, in <module>
+    frame_imgs = compute_payloads_parallel(range(len(timesteps)), compute_frame,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/storage/home/jxa5508/VLEO-DSMC/tools/anim_utils.py", line 166, in compute_payloads_parallel
+    step, payload = fut.result()
+                    ^^^^^^^^^^^^
+  File "/storage/icds/RISE/sw8/python/3.11.2/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/storage/icds/RISE/sw8/python/3.11.2/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+OSError: Corrupt snappy compressed data.
+[2026-06-10T16:31:13.388] error: *** JOB 53597486 ON p-bc-5464 CANCELLED AT 2026-06-10T16:31:13 DUE to SIGNAL Terminated ***
