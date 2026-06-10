@@ -1,0 +1,15 @@
+SPARTA (24 Sep 2025)
+Running on 48 MPI task(s)
+Created orthogonal box = (-2 -2 -2) to (2 2 2)
+Loaded NRLMSIS data: rho=1.365743695652e-10 nrho=2.83951e+15 T=1321.475 vx=7754.9
+MEAN FREE PATH = 579.012858323006 m
+MEAN MOLEC VEL = 982.829703019978 m/s
+CELL SIZE MUST BE LESS THAN 193.004286107669 m
+MEAN COLL TIME = 0.589128367349757 s
+MEAN TRANSIT TIME = 0.196376122449919 s
+TIMESTEP MUST BE < 0.0654587074833063 s
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)
+Created 12000000 child grid cells
+  CPU time = 19.4936 secs
+  create/ghost percent = 0.191465 99.8085
+WARNING: Per-processor grid cell memory will be large because global gridcut < 0.0 (../grid.cpp:502)

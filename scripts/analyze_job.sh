@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --time=04:00:00
 #SBATCH --mem=950G
-#SBATCH --output=slurm_%j.out
-#SBATCH --error=slurm_%j.err
+#SBATCH --output=slurm/%j.out
+#SBATCH --error=slurm/%j.err
 
 # Stage 2 of post-processing: generate plots and animations from Parquet.
 # Run AFTER tools/load_job_dumps.sh has produced the Parquet files.

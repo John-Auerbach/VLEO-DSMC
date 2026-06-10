@@ -26,7 +26,7 @@ variable        Lz equal ${zmax}-${zmin}
 create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
 
 # Load atmospheric data from NRLMSIS (run: python3 tools/load_atm_data.py <altitude_km>)
-include         data/atm.sparta
+include         data/atm2.sparta
 
 print "Loaded NRLMSIS data: rho=${rho} nrho=${nrho} T=${T} vx=${vx}"
 
@@ -51,7 +51,9 @@ print "MEAN COLL TIME = ${mct} s"
 print "MEAN TRANSIT TIME = ${mtt} s"
 print "TIMESTEP MUST BE < ${dt} s" # timestep set at end of script
 
-create_grid	    300 200 200 
+global          gridcut 0.01              # ghost layer ~6 cells deep (above particle travel per dt)
+global          mem/limit 1024             # cap MPI send buffers at 1 GB to avoid >2 GB overflow
+create_grid	    300 200 200 block * * *
 balance_grid    rcb part
 
 variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps

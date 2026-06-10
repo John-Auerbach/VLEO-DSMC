@@ -743,8 +743,8 @@ A ready-to-use Slurm script is provided in `job_sparta.sh`:
 #SBATCH --ntasks=8
 #SBATCH --time=04:00:00
 #SBATCH --mem=16G
-#SBATCH --output=slurm_%j.out
-#SBATCH --error=slurm_%j.err
+#SBATCH --output=slurm/%j.out
+#SBATCH --error=slurm/%j.err
 
 module load gcc/14.2.0
 module load openmpi/4.1.1-pmi2
@@ -879,10 +879,10 @@ sbatch job_sparta.sh
 squeue -u $USER
 
 # View full output
-less slurm_<jobid>.out
+less slurm/<jobid>.out
 
 # Watch output in real time (while job is running)
-tail -f slurm_<jobid>.out
+tail -f slurm/<jobid>.out
 watch -n 1 squeue -u $USER # updates every 1 second
 
 # Cancel a job
