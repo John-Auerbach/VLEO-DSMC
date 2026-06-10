@@ -959,6 +959,9 @@ python tools/log_run.py
 <!-- AMPT_BOX_LOG_END -->
 
 <div align="center">
-  <img src="outputs/Ethan_drag_theory_drag.png" width="500"><br>
+  <img src="outputs/Ethan_drag_theory_drag_log.png" width="500"><br>
   <sub>DSMC results overlaid on FMF and continuum theoretical drag predictions (from <code>scripts/Ethan_drag_theory.py</code>).</sub>
 </div>
+
+
+Clift sphere correlation - Stokes $24/Re$ term; incompressible, low-speed drag law? Not sure if applies to hypersonic, generally Cd ~ 2? Maybe sim is correct mirroring FMF for 0.2 characteristic length, should try lower alt or bigger box to see drag dip? Thankfully only need << 1000 timestep for drag converg.. can se collision num in sparta output Ncoll.

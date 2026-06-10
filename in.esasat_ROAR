@@ -1,8 +1,8 @@
 # SETUP --------------------------------------------------------------------------------------
 
-shell "bash -c 'rm -f dumps/*.dat'"
+shell "bash -c 'rm -f dumps/esasat/*.dat'"
 
-shell "mkdir -p dumps"
+shell "mkdir -p dumps/esasat"
 
 units           si
 seed            11111
@@ -113,14 +113,14 @@ compute         prop_grid_press thermal/grid all atm press
                 # per-grid velocity components (for streamlines)
 compute         prop_grid_flow grid all atm u v w
                 # single grid dump with all properties
-dump            dump_grid grid all ${diag_freq} dumps/grid.*.dat id xlo ylo zlo xc yc zc &
+dump            dump_grid grid all ${diag_freq} dumps/esasat/grid.*.dat id xlo ylo zlo xc yc zc &
                     c_prop_grid[*] c_prop_grid_temp[*] c_prop_grid_press[*] c_prop_grid_flow[*]
 
                 # ID, data type, mixture, every _ steps, filename, columns (particle data)
-dump            dump_part particle atm ${diag_freq} dumps/part.*.dat id type x y z vx vy vz
+dump            dump_part particle atm ${diag_freq} dumps/esasat/part.*.dat id type x y z vx vy vz
 
 		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
-dump    	    dump_surf surf ampt ${diag_freq} dumps/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
+dump    	    dump_surf surf ampt ${diag_freq} dumps/esasat/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # Measure simulated flow properties for domain ---------------------
 
@@ -140,7 +140,7 @@ variable        nrho_avg equal c_sum_nrho_vol/c_sum_vol
 variable        rho_avg  equal c_sum_rho_vol/c_sum_vol
 variable        ux_avg   equal c_sum_px_vol/c_sum_rho_vol
 
-fix             boxprops ave/time 1 1 100 v_ux_avg v_rho_avg v_nrho_avg ave running file dumps/box_props.dat
+fix             boxprops ave/time 1 1 100 v_ux_avg v_rho_avg v_nrho_avg ave running file dumps/esasat/box_props.dat
 
 # DRAG CALC (short for caclulator) ------------------------
 # sum of surface forces (direct):
@@ -162,7 +162,7 @@ fix             surfavg_walls ave/surf ampt_yznorm 1 1 1 c_surfF_walls[*] ave ru
 compute         drag_walls reduce sum f_surfavg_walls[1]
 
 # write drag components (timestep, total_drag, ram_drag, skin_friction) to file
-fix             dragout ave/time 1 1 100 c_drag c_drag_xnorm c_drag_walls file dumps/direct_drag.dat mode scalar
+fix             dragout ave/time 1 1 100 c_drag c_drag_xnorm c_drag_walls file dumps/esasat/direct_drag.dat mode scalar
 
 # ----------------------------------------------------------
 
@@ -173,6 +173,6 @@ stats_style     step cpu np nattempt ncoll c_Tbox c_drag c_drag_xnorm c_drag_wal
 
 timestep        ${tstep}
 collide		    vss atm vss/air.vss # variable soft sphere model
-run             10000
+run             20000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
