@@ -124,7 +124,7 @@ def extract_tstep_from_input(path):
                 return float(m.group(1))
     raise ValueError("tstep not found in input")
 
-tstep = extract_tstep_from_input(os.path.join(_REPO_ROOT, 'in.ampt'))
+tstep = extract_tstep_from_input(os.path.join(_REPO_ROOT, 'in.runfile'))
 
 
 def init():

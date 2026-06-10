@@ -201,7 +201,7 @@ To auto-activate in **VS Code** (not necessary):
 
 ## 3. Running Simulations
 
-**!! NOTE:** `run_sparta.sh` and all analysis scripts expect the input file to be named `in.ampt`. To run a simulation, copy your chosen configuration to `in.ampt` first. Example: `cp in.general_surface in.ampt`
+**!! NOTE:** `run_sparta.sh` and all analysis scripts expect the input file to be named `in.runfile`. To run a simulation, copy your chosen configuration to `in.runfile` first. Example: `cp in.general_surface in.runfile`
 
 ### Single Altitude Simulation
 
@@ -210,7 +210,7 @@ To auto-activate in **VS Code** (not necessary):
 python3 tools/load_atm_data.py 150 # km
 
 # Run SPARTA simulation (single core)
-sparta < in.ampt
+sparta < in.runfile
 
 # OR run with multiple cores for faster execution
 ./run_sparta.sh    # Uses 8 cores by default. Modify this to work with your setup.
@@ -232,13 +232,13 @@ python3 multi_altitude.py -c 4
 ```
 
 This will:
-- Automatically run SPARTA simulations at multiple altitudes using `in.ampt`
+- Automatically run SPARTA simulations at multiple altitudes using `in.runfile`
 - Save results to `dumps/alt_XXkm/` directories  
 - **Automatically convert dumps to Parquet format** for memory-efficient analysis  
 
 **Performance:** Using `--cores 8` is typically 4-6x faster than single core for DSMC simulations.
 
-**Important:** `multi_altitude.py` expects the input file to be named `in.ampt`. To run the script, copy your chosen configuration to `in.ampt` first. Example: `cp in.general_surface in.ampt`
+**Important:** `multi_altitude.py` expects the input file to be named `in.runfile`. To run the script, copy your chosen configuration to `in.runfile` first. Example: `cp in.general_surface in.runfile`
 
 ### Analyze Multi-Altitude Results
 
@@ -325,7 +325,7 @@ python3 scripts/surface_temp_heatmap.py [folder]
 - Animated 3D visualization of surface temperatures with energy flux annotations
 - Rotating view with colorbar
 - **Output:** `outputs/surface_temp_heatmap.mp4`
-- **Note:** Uses `in.ampt` to extract timestep size
+- **Note:** Uses `in.runfile` to extract timestep size
 
 <div align="center">
   <img src="examples/surface_temp_heatmap.gif" width="500">
@@ -338,7 +338,7 @@ python3 scripts/grid_temp_heatmap.py [folder]
 - 2D heatmap animation of gas temperature in a horizontal slice (|z| ≤ 5% of domain height)
 - Uses native grid resolution from SPARTA
 - **Output:** `outputs/grid_temp_heatmap.mp4`
-- **Note:** Uses `in.ampt` to extract timestep size
+- **Note:** Uses `in.runfile` to extract timestep size
 
 <div align="center">
   <img src="examples/grid_temp_heatmap.gif" width="500">
@@ -351,7 +351,7 @@ python3 scripts/velocity_heatmap.py [folder]
 - 2D heatmap animation of particle speed in a horizontal slice
 - Uses 500×300 binning resolution
 - **Output:** `outputs/velocity_heatmap.mp4`
-- **Note:** Uses `in.ampt` to extract timestep size
+- **Note:** Uses `in.runfile` to extract timestep size
 
 <div align="center">
   <img src="examples/velocity_heatmap.gif" width="500">
@@ -538,12 +538,12 @@ The repository provides several input file templates for different simulation sc
 | `in.auto_surf_decomp` | Automatic surface decomposition by orientation | Complex geometries requiring drag decomposition |
 | `in.ampt_box` | Original slender box configuration | Testing |
 
-**To run any of them, copy/rename to `in.ampt`** since all run / analysis scripts expect this filename:
+**To run any of them, copy/rename to `in.runfile`** since all run / analysis scripts expect this filename:
 
 ```bash
-cp in.cube in.ampt              # Use cube configuration
-cp in.general_surface in.ampt   # Use general surface configuration  
-cp in.auto_surf_decomp in.ampt  # Use automatic decomposition
+cp in.cube in.runfile              # Use cube configuration
+cp in.general_surface in.runfile   # Use general surface configuration  
+cp in.auto_surf_decomp in.runfile  # Use automatic decomposition
 ```
 
 ---
@@ -617,19 +617,19 @@ The tool analyzes triangle normals and classifies surfaces by orientation, enabl
 
 ### Scripts That Depend on Input Files
 
-The following scripts explicitly use `in.ampt` as the input file:
+The following scripts explicitly use `in.runfile` as the input file:
 
-- **`run_sparta.sh`** - Runs `sparta -in in.ampt`
-- **`multi_altitude.py`** - Runs simulations using `in.ampt`
-- **`scripts/surface_temp_heatmap.py`** - Reads timestep from `in.ampt`
-- **`scripts/grid_temp_heatmap.py`** - Reads timestep from `in.ampt`
-- **`scripts/velocity_heatmap.py`** - Reads timestep from `in.ampt`
-- **`scripts/streamlines.py`** - Reads timestep from `in.ampt`
-- **`scripts/plot_drag.py`** - Reads domain size from `in.ampt`
+- **`run_sparta.sh`** - Runs `sparta -in in.runfile`
+- **`multi_altitude.py`** - Runs simulations using `in.runfile`
+- **`scripts/surface_temp_heatmap.py`** - Reads timestep from `in.runfile`
+- **`scripts/grid_temp_heatmap.py`** - Reads timestep from `in.runfile`
+- **`scripts/velocity_heatmap.py`** - Reads timestep from `in.runfile`
+- **`scripts/streamlines.py`** - Reads timestep from `in.runfile`
+- **`scripts/plot_drag.py`** - Reads domain size from `in.runfile`
 
-**To use these scripts:** Copy your desired input template to `in.ampt`:
+**To use these scripts:** Copy your desired input template to `in.runfile`:
 ```bash
-cp in.general_surface in.ampt  # Example
+cp in.general_surface in.runfile  # Example
 ```
 
 ## 9. Drag Calculation Methods
@@ -672,7 +672,7 @@ Drag data is written to:
 rm -f dumps/*.dat
 ```
 
-The `in.ampt` files automatically do this at the start of each run (make sure you don't leave any important .dat files in there!):
+The `in.runfile` files automatically do this at the start of each run (make sure you don't leave any important .dat files in there!):
 ```
 shell "bash -c 'rm -f dumps/*.dat'"
 ```

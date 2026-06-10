@@ -52,9 +52,9 @@ def main():
     
     # get timestep from input file
     try:
-        tstep = extract_tstep_from_input(os.path.join(_REPO_ROOT, "in.ampt"))
+        tstep = extract_tstep_from_input(os.path.join(_REPO_ROOT, "in.runfile"))
     except:
-        print("Warning: Could not extract timestep from in.ampt, using default")
+        print("Warning: Could not extract timestep from in.runfile, using default")
         tstep = 1e-6
     
     # Find all altitude directories

@@ -36,9 +36,9 @@ for alt in altitudes:
     
     # Run SPARTA (single core or parallel)
     if args.cores == 1:
-        os.system('/home/scien/sparta/src/sparta < in.ampt')
+        os.system('/home/scien/sparta/src/sparta < in.runfile')
     else:
-        os.system(f'mpirun -np {args.cores} /home/scien/sparta/src/sparta -in in.ampt')
+        os.system(f'mpirun -np {args.cores} /home/scien/sparta/src/sparta -in in.runfile')
     
     # Move dumps to altitude folder
     os.makedirs(f'dumps/alt_{alt}km', exist_ok=True)
