@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=48
 #SBATCH --time=04:00:00
 #SBATCH --mem=950G
-#SBATCH --output=slurm_%j.out
-#SBATCH --error=slurm_%j.err
+#SBATCH --output=slurm/%j.out
+#SBATCH --error=slurm/%j.err
 
 # Stage 1 of post-processing: convert SPARTA .dat dumps -> Parquet.
 # Run AFTER the simulation job has finished writing dumps.
