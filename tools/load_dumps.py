@@ -69,19 +69,55 @@ def _convert_one_file(fname, reader, prefix, dumps_dir):
 
     Module-level (picklable) so it can be dispatched to worker processes.
     Returns the basename processed for progress reporting.
+
+    Writes each Parquet to a temporary file in the same directory and then
+    atomically renames it into place. This guarantees a reader never sees a
+    half-written (and thus corrupt) Parquet, e.g. when an analysis job runs
+    concurrently with conversion.
     """
     step, df, box = reader(fname)
 
     df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
-    df.to_parquet(df_path, index=False)
+    _atomic_to_parquet(df, df_path)
 
     box_df = pd.DataFrame([box])
     box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
-    box_df.to_parquet(box_path, index=False)
+    _atomic_to_parquet(box_df, box_path)
 
     return os.path.basename(fname)
 
-def process_and_save_dumps(pattern, reader, prefix, output_dir=None, jobs=1):
+def _atomic_to_parquet(df, path):
+    """Write a DataFrame to Parquet atomically (temp file + os.replace)."""
+    tmp = f"{path}.tmp.{os.getpid()}"
+    df.to_parquet(tmp, index=False)
+    os.replace(tmp, path)
+
+
+def _step_from_dump_name(fname):
+    """Extract the integer timestep from a SPARTA dump filename.
+
+    e.g. 'part.1800.dat' -> 1800, 'grid.0.dat' -> 0. Returns None if no numeric
+    step component is present.
+    """
+    parts = os.path.basename(fname).split('.')
+    for token in reversed(parts):
+        if token.isdigit():
+            return int(token)
+    return None
+
+
+def _outputs_exist(prefix, step, dumps_dir):
+    """True if both the data and box Parquet for this step already exist and are
+    non-empty (a 0-byte file is treated as missing so it gets rewritten)."""
+    if step is None:
+        return False
+    df_path = os.path.join(dumps_dir, f"{prefix}_{step:08d}.parquet")
+    box_path = os.path.join(dumps_dir, f"{prefix}_box_{step:08d}.parquet")
+    return (os.path.exists(df_path) and os.path.getsize(df_path) > 0 and
+            os.path.exists(box_path) and os.path.getsize(box_path) > 0)
+
+
+def process_and_save_dumps(pattern, reader, prefix, output_dir=None, jobs=1, overwrite=False):
     """Process dump files one by one and save as Parquet to avoid memory overload.
 
     jobs=1 (default) processes files serially, identical to the original
@@ -89,22 +125,36 @@ def process_and_save_dumps(pattern, reader, prefix, output_dir=None, jobs=1):
     processes (one file per worker). Files are independent, so this scales
     nearly linearly with cores; peak memory is roughly jobs x one-frame size,
     so only raise jobs on a high-memory node.
+
+    By default (``overwrite=False``) any dump whose Parquet outputs already
+    exist is skipped, so conversion is incremental and resumable: you can run it
+    while a simulation is still producing dumps to get preliminary results, then
+    re-run later to convert only the new frames. Pass ``overwrite=True`` to
+    force re-conversion of every file.
     """
     files = sorted(glob.glob(os.path.expanduser(pattern)))
     if output_dir is None:
         dumps_dir = os.path.dirname(os.path.expanduser(pattern))
     else:
         dumps_dir = os.path.expanduser(output_dir)
+
+    found = len(files)
+    if not overwrite:
+        kept = [f for f in files if not _outputs_exist(prefix, _step_from_dump_name(f), dumps_dir)]
+        skipped = found - len(kept)
+        if skipped:
+            print(f"  skipping {skipped} already-converted {prefix} frame(s); {len(kept)} to do")
+        files = kept
     total = len(files)
 
     if total == 0:
-        return 0
+        return found
 
     if jobs <= 1:
         for i, f in enumerate(files, 1):
             print(f"{i:02d}/{total:02d}: {os.path.basename(f)}")
             _convert_one_file(f, reader, prefix, dumps_dir)
-        return total
+        return found
 
     worker = partial(_convert_one_file, reader=reader, prefix=prefix, dumps_dir=dumps_dir)
     done = 0
@@ -114,7 +164,7 @@ def process_and_save_dumps(pattern, reader, prefix, output_dir=None, jobs=1):
             name = fut.result()
             done += 1
             print(f"{done:02d}/{total:02d}: {name}")
-    return total
+    return found
 
 def save_to_parquet(data, prefix):
     """Save trajectory data as individual parquet files per timestep"""
@@ -140,22 +190,29 @@ if __name__ == "__main__":
     parser.add_argument('-j', '--jobs', type=int, default=1,
                        help='Number of parallel worker processes (default: 1 = serial). '
                             'Use the node core count on ROAR, e.g. -j 48.')
+    parser.add_argument('--force', action='store_true',
+                       help='Re-convert every dump, overwriting existing Parquet. '
+                            'By default frames whose Parquet already exists are skipped '
+                            '(incremental/resumable conversion).')
     args = parser.parse_args()
     
     dumps_path = os.path.expanduser(args.dumps_dir)
     jobs = max(1, args.jobs)
+    overwrite = args.force
     
     print(f"Processing dumps from: {dumps_path}")
     if jobs > 1:
         print(f"Using {jobs} parallel workers")
+    if not overwrite:
+        print("Incremental mode: skipping frames already converted (use --force to redo all)")
     print("Processing particle dumps (1/3)...")
-    particle_count = process_and_save_dumps(f"{dumps_path}/part.*.dat", read_sparta_particle_dump, "particle", dumps_path, jobs=jobs)
+    particle_count = process_and_save_dumps(f"{dumps_path}/part.*.dat", read_sparta_particle_dump, "particle", dumps_path, jobs=jobs, overwrite=overwrite)
 
     print("\nProcessing grid dumps (2/3)...")
-    grid_count = process_and_save_dumps(f"{dumps_path}/grid.*.dat", read_sparta_grid_dump, "grid", dumps_path, jobs=jobs)
+    grid_count = process_and_save_dumps(f"{dumps_path}/grid.*.dat", read_sparta_grid_dump, "grid", dumps_path, jobs=jobs, overwrite=overwrite)
 
     print("\nProcessing surface dumps (3/3)...")
-    surf_count = process_and_save_dumps(f"{dumps_path}/surf.*.dat", read_sparta_surface_dump, "surf", dumps_path, jobs=jobs)
+    surf_count = process_and_save_dumps(f"{dumps_path}/surf.*.dat", read_sparta_surface_dump, "surf", dumps_path, jobs=jobs, overwrite=overwrite)
 
     print(f"\nCompleted:")
     print(f"particle frames: {particle_count}")

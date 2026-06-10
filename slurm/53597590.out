@@ -1,0 +1,41 @@
+Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
+=== Generating plots and animations ===
+Found 150 particle timesteps in dumps/esasat
+Precomputing 150 frames with 4 worker(s)...
+  particle frame 1/150 (step 0) done
+  particle frame 2/150 (step 200) done
+  particle frame 3/150 (step 100) done
+  particle frame 4/150 (step 300) done
+  particle frame 5/150 (step 400) done
+  particle frame 6/150 (step 600) done
+  particle frame 7/150 (step 700) done
+  particle frame 8/150 (step 500) done
+  particle frame 9/150 (step 800) done
+  particle frame 10/150 (step 1100) done
+  particle frame 11/150 (step 900) done
+  particle frame 12/150 (step 1000) done
+  particle frame 13/150 (step 1200) done
+  particle frame 14/150 (step 1300) done
+  particle frame 15/150 (step 1600) done
+  particle frame 16/150 (step 1500) done
+  particle frame 17/150 (step 1400) done
+  particle frame 18/150 (step 2000) done
+  particle frame 19/150 (step 1700) done
+  particle frame 20/150 (step 1800) done
+  particle frame 21/150 (step 1900) done
+  particle frame 22/150 (step 2300) done
+  particle frame 23/150 (step 2200) done
+  particle frame 24/150 (step 2100) done
+  particle frame 25/150 (step 2400) done
+  particle frame 26/150 (step 2600) done
+  particle frame 27/150 (step 2500) done
+  particle frame 28/150 (step 2700) done
+  particle frame 29/150 (step 2800) done
+  particle frame 30/150 (step 3000) done
+  particle frame 31/150 (step 2900) done
+  particle frame 32/150 (step 3100) done
+  particle frame 33/150 (step 3200) done
+  particle frame 34/150 (step 3400) done
+  particle frame 35/150 (step 3300) done
+  particle frame 36/150 (step 3600) done
+  particle frame 37/150 (step 3500) done

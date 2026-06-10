@@ -3,3 +3,18 @@ Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
 Saved plot to /storage/home/jxa5508/VLEO-DSMC/outputs/drag.png
 Found 77 particle timesteps in dumps/esasat
 Precomputing 77 frames with 2 worker(s)...
+  particle frame 1/77 (step 0) done
+  particle frame 2/77 (step 100) done
+  particle frame 3/77 (step 200) done
+  particle frame 4/77 (step 300) done
+  particle frame 5/77 (step 400) done
+  particle frame 6/77 (step 500) done
+  particle frame 7/77 (step 600) done
+  particle frame 8/77 (step 700) done
+  particle frame 9/77 (step 800) done
+  particle frame 10/77 (step 900) done
+  particle frame 11/77 (step 1000) done
+  particle frame 12/77 (step 1100) done
+  particle frame 13/77 (step 1200) done
+  particle frame 14/77 (step 1300) done
+velocity_heatmap.py failed (non-fatal)
