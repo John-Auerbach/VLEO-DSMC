@@ -29,10 +29,13 @@ cd "$SLURM_SUBMIT_DIR"
 DUMPS_DIR="${1:-dumps}"
 # Parallel workers for per-frame precompute (defaults to the allocated cores).
 NJOBS="${SLURM_CPUS_PER_TASK:-1}"
-# Particle dumps are ~6 GB each (~22 GB/frame in memory); loading many at once
-# OOMs. Use far fewer workers for particle-based scripts (velocity_heatmap,
-# animate_particles). 4 frames need ~90 GB, so request a full/large-mem node.
-PART_NJOBS=4
+# Particle dumps are ~4-4.4 GB each (parquet); loaded as a DataFrame one frame
+# is ~8-10 GB, and pyarrow briefly holds both the Arrow table and the pandas
+# copy during the read, so peak is ~2x that per worker. Loading many at once
+# OOMs. velocity_heatmap now projects to only x,y,z,vx,vy,vz and downcasts to
+# float32 (~halves per-frame RAM), but keep the worker count modest so a few
+# concurrent frames stay well within node memory.
+PART_NJOBS=2
 if (( NJOBS < PART_NJOBS )); then PART_NJOBS=$NJOBS; fi
 
 # Activate the project virtual environment (created at .venv) FIRST, so the

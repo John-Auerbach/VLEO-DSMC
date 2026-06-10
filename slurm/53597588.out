@@ -4,3 +4,57 @@ Using 8 parallel workers
 Incremental mode: skipping frames already converted (use --force to redo all)
 Processing particle dumps (1/3)...
   skipping 150 already-converted particle frame(s); 51 to do
+01/51: part.5500.dat
+02/51: part.5200.dat
+03/51: part.4900.dat
+04/51: part.5400.dat
+05/51: part.5000.dat
+06/51: part.5600.dat
+07/51: part.5100.dat
+08/51: part.5300.dat
+09/51: part.6200.dat
+10/51: part.6100.dat
+11/51: part.5700.dat
+12/51: part.5900.dat
+13/51: part.6400.dat
+14/51: part.5800.dat
+15/51: part.6000.dat
+16/51: part.6300.dat
+17/51: part.7100.dat
+18/51: part.6700.dat
+19/51: part.6600.dat
+20/51: part.6800.dat
+21/51: part.6900.dat
+22/51: part.7200.dat
+23/51: part.7000.dat
+24/51: part.6500.dat
+25/51: part.7300.dat
+26/51: part.7900.dat
+27/51: part.8000.dat
+28/51: part.7800.dat
+29/51: part.7700.dat
+30/51: part.7400.dat
+31/51: part.7500.dat
+32/51: part.7600.dat
+33/51: part.8800.dat
+34/51: part.8400.dat
+35/51: part.8100.dat
+36/51: part.8600.dat
+37/51: part.8500.dat
+38/51: part.8300.dat
+39/51: part.8200.dat
+40/51: part.8700.dat
+41/51: part.8900.dat
+42/51: part.9600.dat
+43/51: part.9000.dat
+44/51: part.9500.dat
+45/51: part.9200.dat
+46/51: part.9100.dat
+47/51: part.9300.dat
+48/51: part.9400.dat
+49/51: part.9800.dat
+50/51: part.9700.dat
+51/51: part.9900.dat
+
+Processing grid dumps (2/3)...
+  skipping 68 already-converted grid frame(s); 133 to do

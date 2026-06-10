@@ -68,7 +68,12 @@ def compute_frame(i):
     step = timesteps[i]
     with _w.catch_warnings():
         _w.simplefilter("ignore", RuntimeWarning)
-        _, df, _ = load_parquet_single("particle", step, folder_path)
+        # Read only the columns we need and downcast to float32 to roughly
+        # halve per-frame memory (particle frames are multi-GB; the old all-
+        # column float64 load OOM'd with several workers).
+        _, df, _ = load_parquet_single("particle", step, folder_path,
+                                       columns=["x", "y", "z", "vx", "vy", "vz"])
+        df = df.astype("float32", copy=False)
         img = speed_hist(df)
     return step, img
 
