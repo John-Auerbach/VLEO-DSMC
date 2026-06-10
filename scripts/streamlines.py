@@ -18,8 +18,8 @@ EMPTY_SPEED_EPS = 1e-3 # speed below which a cell is considered empty
 
 
 def read_timestep_size():
-    """look up the timestep in in.ampt to label the figure with physical time"""
-    input_path = os.path.join(_REPO_ROOT, 'in.ampt')
+    """look up the timestep in in.runfile to label the figure with physical time"""
+    input_path = os.path.join(_REPO_ROOT, 'in.runfile')
     try:
         with open(input_path, 'r', encoding='utf-8') as fh:
             for line in fh:

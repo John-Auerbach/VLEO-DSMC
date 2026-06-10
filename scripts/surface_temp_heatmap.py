@@ -26,7 +26,7 @@ _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from anim_utils import compute_payloads_parallel, save_animation
 dump_glob = os.path.join(_REPO_ROOT, args.folder, 'surf.*.dat')
-input_sparta = os.path.join(_REPO_ROOT, 'in.ampt')
+input_sparta = os.path.join(_REPO_ROOT, 'in.runfile')
 outfile = "outputs/surface_temp_heatmap.mp4"
 fps = 25
 
