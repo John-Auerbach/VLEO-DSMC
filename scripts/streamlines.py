@@ -9,6 +9,7 @@ import sys
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from load_dumps import load_parquet_timesteps, load_parquet_single, read_sparta_grid_dump
+from anim_utils import save_animation
 
 DUMPS_DIR = os.path.join(_REPO_ROOT, 'dumps')
 OUTPUT_PATH = 'outputs/streamlines_2d.png'
@@ -290,7 +291,7 @@ def animate_streamlines(dump_prefix='grid', dumps_dir=DUMPS_DIR, out_path=ANIM_O
     from matplotlib.animation import FuncAnimation
     ani = FuncAnimation(fig, update, frames=len(timesteps), interval=200, blit=False)
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
-    ani.save(out_path, fps=fps, dpi=dpi)
+    save_animation(ani, out_path, fps=fps, dpi=dpi)
     plt.close(fig)
     print(f'saved {out_path}')
 
@@ -313,13 +314,16 @@ def create_snapshot(dump_prefix='grid', dumps_dir=DUMPS_DIR, out_path=OUTPUT_PAT
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Generate streamline visuals from SPARTA flow dumps.')
+    parser.add_argument('dumps_dir', nargs='?', default=DUMPS_DIR,
+                        help='Directory containing flow (grid) dumps (default: dumps/).')
     parser.add_argument('--anim', action='store_true', help='Generate an animated MP4 instead of a single PNG snapshot.')
     args = parser.parse_args(argv)
 
+    dumps_dir = os.path.expanduser(args.dumps_dir)
     if args.anim:
-        animate_streamlines()
+        animate_streamlines(dumps_dir=dumps_dir)
     else:
-        create_snapshot()
+        create_snapshot(dumps_dir=dumps_dir)
 
 
 if __name__ == '__main__':

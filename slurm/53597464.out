@@ -1,0 +1,4 @@
+=== Converting dumps in 'dumps/esasat' to Parquet ===
+Processing dumps from: dumps/esasat
+Using 8 parallel workers
+Processing particle dumps (1/3)...

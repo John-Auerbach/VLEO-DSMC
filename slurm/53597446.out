@@ -1,0 +1,9 @@
+Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
+=== Generating plots and animations ===
+Saved plot to /storage/home/jxa5508/VLEO-DSMC/outputs/drag.png
+Found 49 particle timesteps in dumps/esasat
+Precomputing 49 frames with 8 worker(s)...
+  particle frame 1/49 (step 0) done
+velocity_heatmap.py failed (non-fatal)
+streamlines.py failed (non-fatal)
+=== Plotting complete. Outputs written to outputs/ ===

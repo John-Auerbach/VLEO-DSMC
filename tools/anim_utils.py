@@ -17,6 +17,34 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 _CODEC_CACHE = None
+_FFMPEG_CACHE = None
+
+
+def find_ffmpeg():
+    """Return the best available ffmpeg binary, preferring one with libx264.
+
+    Roar's ffmpeg module has no software H.264 encoder, so it can only produce
+    ``mpeg4`` (mp4v) video, which browser-based players (including VS Code's
+    preview) cannot decode. The ``imageio-ffmpeg`` Python package ships a static
+    ffmpeg build that includes ``libx264``; if it is installed we prefer it so
+    every render is H.264 (avc1) and plays everywhere. Falls back to the PATH
+    ffmpeg otherwise. Result is cached for the process.
+    """
+    global _FFMPEG_CACHE
+    if _FFMPEG_CACHE is not None:
+        return _FFMPEG_CACHE
+
+    try:
+        import imageio_ffmpeg
+        exe = imageio_ffmpeg.get_ffmpeg_exe()
+        if exe and os.path.exists(exe):
+            _FFMPEG_CACHE = exe
+            return exe
+    except Exception:
+        pass
+
+    _FFMPEG_CACHE = shutil.which("ffmpeg")
+    return _FFMPEG_CACHE
 
 
 def pick_video_codec(candidates=("libx264", "h264", "mpeg4")):
@@ -33,7 +61,7 @@ def pick_video_codec(candidates=("libx264", "h264", "mpeg4")):
     if _CODEC_CACHE is not None:
         return _CODEC_CACHE
 
-    ffmpeg = shutil.which("ffmpeg")
+    ffmpeg = find_ffmpeg()
     if ffmpeg is None:
         # Let matplotlib fall back to its own writer discovery.
         _CODEC_CACHE = candidates[-1]
@@ -73,12 +101,14 @@ def save_animation(ani, outpath, fps, dpi, bitrate=None):
     import matplotlib
     from matplotlib.animation import FFMpegWriter
 
-    ffmpeg = shutil.which("ffmpeg")
+    ffmpeg = find_ffmpeg()
     if ffmpeg:
         matplotlib.rcParams["animation.ffmpeg_path"] = ffmpeg
 
     codec = pick_video_codec()
-    writer = FFMpegWriter(fps=fps, codec=codec, bitrate=bitrate)
+    # yuv420p keeps H.264 output compatible with browser/VS Code players.
+    extra_args = ["-pix_fmt", "yuv420p", "-movflags", "+faststart"] if codec in ("libx264", "h264") else None
+    writer = FFMpegWriter(fps=fps, codec=codec, bitrate=bitrate, extra_args=extra_args)
     ani.save(outpath, writer=writer, dpi=dpi)
     print(f"Saved {outpath} (codec={codec})")
 

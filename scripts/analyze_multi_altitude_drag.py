@@ -13,6 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import argparse
+import sys
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tools'))
+from anim_utils import save_animation
 
 
 def load_direct_drag(drag_file):
@@ -203,10 +206,10 @@ def main():
                             interval=200, blit=False)
 
     # save both animations
-    ani_lin.save('outputs/multi_altitude_drag_evolution.mp4', fps=10, dpi=150)
+    save_animation(ani_lin, 'outputs/multi_altitude_drag_evolution.mp4', fps=10, dpi=150)
     print('Saved outputs/multi_altitude_drag_evolution.mp4')
     
-    ani_log.save('outputs/multi_altitude_drag_evolution_log.mp4', fps=10, dpi=150)
+    save_animation(ani_log, 'outputs/multi_altitude_drag_evolution_log.mp4', fps=10, dpi=150)
     print('Saved outputs/multi_altitude_drag_evolution_log.mp4')
 
 
