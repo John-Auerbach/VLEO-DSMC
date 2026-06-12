@@ -69,11 +69,11 @@ echo "=== Generating plots and animations ==="
 #python3 scripts/plot_drag.py "$DUMPS_DIR" || echo "plot_drag.py failed (non-fatal)"
 
 # Grid heatmaps (precompute frames in parallel across $NJOBS workers)
-#python3 scripts/grid_density_heatmap.py  "$DUMPS_DIR" -j "$NJOBS" || echo "grid_density_heatmap.py failed (non-fatal)"
+python3 scripts/grid_density_heatmap.py  "$DUMPS_DIR" -j "$NJOBS" || echo "grid_density_heatmap.py failed (non-fatal)"
 #python3 scripts/grid_pressure_heatmap.py "$DUMPS_DIR" -j "$NJOBS" || echo "grid_pressure_heatmap.py failed (non-fatal)"
-#python3 scripts/grid_temp_heatmap.py     "$DUMPS_DIR" -j "$NJOBS" || echo "grid_temp_heatmap.py failed (non-fatal)"
-python3 scripts/velocity_heatmap.py      "$DUMPS_DIR" -j "$PART_NJOBS" || echo "velocity_heatmap.py failed (non-fatal)"
-#python3 scripts/streamlines.py --anim    "$DUMPS_DIR"                 || echo "streamlines.py failed (non-fatal)"
+python3 scripts/grid_temp_heatmap.py     "$DUMPS_DIR" -j "$NJOBS" || echo "grid_temp_heatmap.py failed (non-fatal)"
+#python3 scripts/velocity_heatmap.py      "$DUMPS_DIR" -j "$PART_NJOBS" || echo "velocity_heatmap.py failed (non-fatal)"
+python3 scripts/streamlines.py --anim    "$DUMPS_DIR"                 || echo "streamlines.py failed (non-fatal)"
 
 # Surface / particle animations
 #python3 scripts/surface_temp_heatmap.py  "$DUMPS_DIR" -j "$NJOBS" || echo "surface_temp_heatmap.py failed (non-fatal)"
