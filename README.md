@@ -965,4 +965,4 @@ python tools/log_run.py
 </div>
 
 
-Clift sphere correlation - Stokes $24/Re$ term; incompressible, low-speed drag law? Not sure if applies to hypersonic, generally Cd ~ 2? Maybe sim is correct mirroring FMF for 0.2 characteristic length, should try lower alt or bigger box to see drag dip? Thankfully only need << 1000 timestep for drag converg.. can se collision num in sparta output Ncoll.
+We used Clift sphere correlation here for continuum flow line, but that represents incompressible, low-speed drag law. Does not apply to hypersonic mach 5+. This is mach ~26, so we have to use hypersonics. See Hypersonic and High Temperature Gas Dynamics by John D Anderson, eq 3.19. This predicts C_D ~2 as mach -> infinity, specifically C_p ~ 1.85 for front surface, so total prbably ~2, which matches FMF MUCH better than continuum in these ranges. SPARTA has likely been accurate in predictions that align with FMF even into Knudsen numbers that typically define continuum flow at lower mach numbers. Looking into this more.
