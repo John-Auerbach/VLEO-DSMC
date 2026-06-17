@@ -966,3 +966,8 @@ python tools/log_run.py
 
 
 We used Clift sphere correlation here for continuum flow line, but that represents incompressible, low-speed drag law. Does not apply to hypersonic mach 5+. This is mach ~26, so we have to use hypersonics. See Hypersonic and High Temperature Gas Dynamics by John D Anderson, eq 3.19. This predicts C_D ~2 as mach -> infinity, specifically C_p ~ 1.85 for front surface, so total prbably ~2, which matches FMF MUCH better than continuum in these ranges. SPARTA has likely been accurate in predictions that align with FMF even into Knudsen numbers that typically define continuum flow at lower mach numbers. Looking into this more.
+
+Check my work:
+
+![alt text](image.png)
+![alt text](image-1.png)
