@@ -14,7 +14,7 @@ import argparse
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(_REPO_ROOT, 'tools'))
 from load_dumps import load_parquet_timesteps, load_parquet_single
-from anim_utils import compute_payloads_parallel, save_animation
+from anim_utils import compute_payloads_parallel, save_animation, render_heatmap_animation
 
 # create outputs directory
 os.makedirs('outputs', exist_ok=True)
@@ -27,6 +27,10 @@ parser.add_argument('-j', '--jobs', type=int, default=1,
                    help='Parallel worker processes for frame precompute '
                         '(default: 1 = serial). Use the node core count on a '
                         'cluster, e.g. -j 8 (memory scales with jobs).')
+parser.add_argument('--log', action='store_true',
+                   help='Also write a log-colour-scale version alongside the '
+                        'linear one (suffix _log). Frames are computed once and '
+                        'reused, so this only adds a second encode pass.')
 args = parser.parse_args()
 
 # get timesteps
@@ -104,24 +108,6 @@ if not np.isfinite(vmin):
     vmin, vmax = 0.0, 1.0
 print(f"vmin={vmin:.2e} Pa, vmax={vmax:.2e} Pa")
 
-fig, ax = plt.subplots(figsize=(6, 3))
-cmap = plt.cm.get_cmap("viridis").copy()
-cmap.set_bad('black')
-
-im = ax.imshow(
-    np.ma.masked_all((ny, nx)),
-    extent=(x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]),
-    origin="lower",
-    aspect="auto",
-    vmin=vmin, vmax=vmax,
-    cmap=cmap,
-    interpolation="none"
-)
-cbar = fig.colorbar(im, ax=ax, label="Pressure (Pa)")
-title = ax.set_title("")
-ax.set_xlabel("x (m)")
-ax.set_ylabel("y (m)")
-
 def extract_tstep_from_input(path):
     with open(path, "r") as f:
         for line in f:
@@ -132,17 +118,25 @@ def extract_tstep_from_input(path):
 
 tstep = extract_tstep_from_input(os.path.join(_REPO_ROOT, "in.runfile"))
 
-def init():
-    im.set_data(np.ma.masked_all((ny, nx)))
-    return im,
+def _title(step):
+    return f"pressure heatmap |z| ≤ {slice_frac:.2f}H  |  time = {step * tstep:.2e} s"
 
-def update(i):
-    step, img = frame_imgs[i]
-    img_masked = np.ma.masked_invalid(img)
-    im.set_data(img_masked)
-    title.set_text(f"pressure heatmap |z| ≤ {slice_frac:.2f}H  |  time = {step * tstep:.2e} s")
-    return im, title
+_render_kwargs = dict(
+    shape=(ny, nx),
+    extent=(x_edges[0], x_edges[-1], y_edges[0], y_edges[-1]),
+    fps=30, dpi=300,
+    cmap_name="viridis",
+    cbar_label="Pressure (Pa)",
+    title_fn=_title,
+)
 
-ani = FuncAnimation(fig, update, frames=len(timesteps), init_func=init, blit=False, interval=200)
-save_animation(ani, "outputs/grid_pressure_heatmap.mp4", fps=30, dpi=300)
+# linear scale (default, unchanged output path)
+render_heatmap_animation(frame_imgs, outpath="outputs/grid_pressure_heatmap.mp4",
+                         vmin=vmin, vmax=vmax, log=False, **_render_kwargs)
 print("Saved outputs/grid_pressure_heatmap.mp4")
+
+# optional log scale: reuses the cached frame_imgs, only re-renders/encodes
+if args.log:
+    render_heatmap_animation(frame_imgs, outpath="outputs/grid_pressure_heatmap_log.mp4",
+                             log=True, **_render_kwargs)
+    print("Saved outputs/grid_pressure_heatmap_log.mp4")

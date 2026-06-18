@@ -113,6 +113,99 @@ def save_animation(ani, outpath, fps, dpi, bitrate=None):
     print(f"Saved {outpath} (codec={codec})")
 
 
+def render_heatmap_animation(frame_imgs, *, shape, extent, outpath, fps, dpi,
+                             cmap_name="viridis", cbar_label="", title_fn=None,
+                             xlabel="x (m)", ylabel="y (m)", bad_color="black",
+                             interpolation="none", log=False,
+                             vmin=None, vmax=None, figsize=(6, 3)):
+    """Render a per-frame 2D image animation from a precomputed image cache.
+
+    The expensive work (loading each frame and building its 2D image) is assumed
+    to have already happened: ``frame_imgs`` is the ``{i: (step, image)}`` dict
+    returned by :func:`compute_payloads_parallel`. This function only renders and
+    encodes, so calling it twice (e.g. once linear, once ``log=True``) reuses the
+    same cached images and adds no extra data I/O -- just a second encode pass.
+
+    Parameters
+    ----------
+    frame_imgs : dict
+        ``{i: (step, image_2d)}``; rendered in ascending key order.
+    shape : (ny, nx)
+        Image shape, used for the masked init frame.
+    extent : (xmin, xmax, ymin, ymax)
+        Passed to ``imshow``.
+    log : bool
+        If True, use a logarithmic colour normalisation (``LogNorm``).
+        Non-positive values are masked, since log cannot display ``<= 0``.
+    vmin, vmax : float, optional
+        Colour limits. If omitted they are derived from the cached images (for
+        ``log`` only positive values are considered).
+    title_fn : callable, optional
+        ``title_fn(step) -> str`` for the per-frame title.
+    """
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from matplotlib.animation import FuncAnimation
+    from matplotlib.colors import LogNorm, Normalize
+
+    ny, nx = shape
+    ordered = [frame_imgs[i] for i in sorted(frame_imgs)]
+
+    if vmin is None or vmax is None:
+        lo, hi = np.inf, -np.inf
+        for _step, img in ordered:
+            finite = img[np.isfinite(img)]
+            if log:
+                finite = finite[finite > 0]
+            if finite.size:
+                lo = min(lo, float(finite.min()))
+                hi = max(hi, float(finite.max()))
+        if not np.isfinite(lo):
+            lo, hi = (1e-30, 1.0) if log else (0.0, 1.0)
+        if vmin is None:
+            vmin = lo
+        if vmax is None:
+            vmax = hi
+
+    if log:
+        import numpy as _np
+        norm = LogNorm(vmin=max(vmin, _np.finfo(float).tiny), vmax=vmax)
+    else:
+        norm = Normalize(vmin=vmin, vmax=vmax)
+
+    fig, ax = plt.subplots(figsize=figsize)
+    cmap = plt.cm.get_cmap(cmap_name).copy()
+    cmap.set_bad(bad_color)
+    im = ax.imshow(
+        np.ma.masked_all((ny, nx)),
+        extent=extent, origin="lower", aspect="auto",
+        norm=norm, cmap=cmap, interpolation=interpolation,
+    )
+    fig.colorbar(im, ax=ax, label=cbar_label)
+    title = ax.set_title("")
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+    def init():
+        im.set_data(np.ma.masked_all((ny, nx)))
+        return im,
+
+    def update(k):
+        step, img = ordered[k]
+        masked = np.ma.masked_invalid(img)
+        if log:
+            masked = np.ma.masked_less_equal(masked, 0.0)
+        im.set_data(masked)
+        if title_fn is not None:
+            title.set_text(title_fn(step))
+        return im, title
+
+    ani = FuncAnimation(fig, update, frames=len(ordered), init_func=init,
+                        blit=False, interval=200)
+    save_animation(ani, outpath, fps=fps, dpi=dpi)
+    plt.close(fig)
+
+
 def compute_payloads_parallel(indices, fn, jobs=1, label="frame"):
     """Compute per-frame payloads, optionally across worker processes.
 

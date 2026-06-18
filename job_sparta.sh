@@ -1,11 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=sparta_ampt_himem
-#SBATCH --account=open
+#SBATCH --account=read_crch_l1sgb100
 #SBATCH --partition=himem
-#SBATCH --nodes=1
-#SBATCH --ntasks=48
-#SBATCH --time=10:00:00
-#SBATCH --mem=950G
+#SBATCH --nodes=2
+#SBATCH --ntasks=96
+#SBATCH --ntasks-per-node=48
+#SBATCH --time=15:00:00
+#SBATCH --mem=0 # Use all memory on the node
 #SBATCH --output=slurm/%j.out
 #SBATCH --error=slurm/%j.err
 

@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=sparta_convert
-#SBATCH --account=open
+#SBATCH --account=read_crch_l1sgb100
 #SBATCH --partition=himem
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=48
-#SBATCH --time=04:00:00
-#SBATCH --mem=950G
+#SBATCH --time=15:00:00
+#SBATCH --mem=0 # Use all memory on the node
 #SBATCH --output=slurm/%j.out
 #SBATCH --error=slurm/%j.err
 
@@ -49,6 +49,16 @@ echo "=== Converting dumps in '$DUMPS_DIR' to Parquet ==="
 # Streams each .dat file (memory-safe) and writes one Parquet per timestep.
 # Parallelise across the cores SLURM gave us (falls back to 1 if unset).
 NJOBS="${SLURM_CPUS_PER_TASK:-1}"
-python3 tools/load_dumps.py "$DUMPS_DIR" -j "$NJOBS" "${EXTRA_ARGS[@]}"
+# Particle frames are huge (~25-30 GB each in memory for a ~487M-particle dump),
+# so converting many at once OOMs even the himem node. himem has ~1 TB, so ~20
+# concurrent particle frames (~600 GB peak) is fast and stays well under memory;
+# grid/surf frames are small and use the full NJOBS.
+# Override via env: PARTICLE_NJOBS=8 sbatch tools/load_job_dumps.sh
+# Particle frames are ~33 GB each and np.loadtxt peaks at ~2-3x that while
+# parsing, so each worker needs ~80-100 GB. On a ~1 TB himem node, keep this
+# at ~8 to stay well clear of OOM (20 caused OUT_OF_MEMORY / exit 0:125).
+PARTICLE_NJOBS="${PARTICLE_NJOBS:-8}"
+if (( PARTICLE_NJOBS > NJOBS )); then PARTICLE_NJOBS=$NJOBS; fi
+python3 tools/load_dumps.py "$DUMPS_DIR" -j "$NJOBS" --particle-jobs "$PARTICLE_NJOBS" "${EXTRA_ARGS[@]}"
 
 echo "=== Conversion complete. Now run: sbatch scripts/analyze_job.sh $DUMPS_DIR ==="

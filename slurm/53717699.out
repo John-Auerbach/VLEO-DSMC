@@ -1,0 +1,8 @@
+Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
+=== Generating plots and animations ===
+Found 0 grid timesteps in dumps
+grid_density_heatmap.py failed (non-fatal)
+Found 0 grid timesteps in dumps
+grid_temp_heatmap.py failed (non-fatal)
+Found 0 particle timesteps in dumps
+velocity_heatmap.py failed (non-fatal)

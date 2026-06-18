@@ -161,6 +161,17 @@ def parse_log(log_path: Path) -> dict:
         # ms per step
         out["speed_per_step"] = f"{(loop_s / steps) * 1000:.2f} ms"
 
+    # SPARTA-reported memory: "total (ave,min,max) = <ave> <min> <max>" in MB
+    mem = re.search(
+        r"Memory usage per proc.*?total\s*\(ave,min,max\)\s*="
+        r"\s*([\d.eE+-]+)\s+([\d.eE+-]+)\s+([\d.eE+-]+)",
+        text,
+        flags=re.DOTALL,
+    )
+    if mem:
+        out["mem_ave_mb"] = float(mem.group(1))
+        out["mem_max_mb"] = float(mem.group(3))
+
     # final drag value: last column-c_drag from the last Step line
     # stats line: "Step CPU Np Natt Ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls"
     header_m = re.search(r"^Step\s+CPU\s+Np\s+Natt.*$", text, flags=re.MULTILINE)
@@ -335,6 +346,16 @@ def main() -> None:
     credits = parse_credits(jobid) if jobid else ""
     runtime = parse_elapsed(jobid) if jobid else ""
     memory = parse_memory(jobid) if jobid else ""
+    # sacct MaxRSS is empty for mpirun-launched jobs (no tracked srun step), so
+    # fall back to SPARTA's own per-proc memory report from log.sparta. Report
+    # the aggregate across all ranks (ave per-proc x cores) to match the
+    # benchmark figures in the README.
+    if not memory and log_d.get("mem_ave_mb"):
+        ncores = job_d.get("cores") or log_d.get("cores")
+        if ncores:
+            total_mb = log_d["mem_ave_mb"] * ncores
+            gb = total_mb / 1024
+            memory = f"{gb:.1f} GB" if gb >= 1.0 else f"{total_mb:.1f} MB"
     if jobid:
         print(f"Using SLURM job id {jobid} for runtime/credits")
 
