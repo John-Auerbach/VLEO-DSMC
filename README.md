@@ -40,7 +40,7 @@ Import your satellite geometry as an STL file and compute aerodynamic drag, surf
 
 ### What is DSMC?
 
-**Direct Simulation Monte Carlo (DSMC)** is a computational method for simulating rarefied gas flows where the continuum assumption breaks down. Instead of solving fluid equations, DSMC tracks individual representative particles (each particle is really a cluster of many, many actual particles) and models molecular collisions probabilistically. This simulation toolkit uses SPARTA DSMC to render continuum, transition, and free molecular atmospheric flows around an orbiting spacecraft in VLEO using real NRLMSIS atmospheric data.
+**Direct Simulation Monte Carlo (DSMC)** is a computational method for simulating rarefied gas flows where the continuum assumption breaks down. Instead of solving fluid equations, DSMC tracks individual representative particles (each particle is really a cluster of many, many actual particles) and models molecular collisions probabilistically. This simulation toolkit uses SPARTA DSMC to render continuum, transition, and free molecular atmospheric flows around a hypersonic orbiting spacecraft in VLEO using real NRLMSIS atmospheric data.
 
 ### How It Works
 
@@ -69,7 +69,7 @@ The simulation integrates real atmospheric data using the **NRLMSIS-2.1 empirica
 - **Temperature (T):** Atmospheric temperature
 - **Bulk velocity (vx):** Free-stream velocity (orbital speed at given altitude)
 
-**Supported altitude range:** 70-500 km (thermosphere/mesopause region)
+**Supported altitude range:** 70-1000 km (thermosphere/mesopause region)
 - NRLMSIS data extends to 1000 km, but current species data is most accurate for lower thermosphere
 - Full atmospheric composition is now supported: N₂, O₂, O, He, Ar, N (see [Atmospheric Data](#4-atmospheric-data-and-species-composition))
 
@@ -349,7 +349,6 @@ python3 scripts/grid_temp_heatmap.py [folder]
 python3 scripts/velocity_heatmap.py [folder]
 ```
 - 2D heatmap animation of particle speed in a horizontal slice
-- Uses 500×300 binning resolution
 - **Output:** `outputs/velocity_heatmap.mp4`
 - **Note:** Uses `in.runfile` to extract timestep size
 
@@ -820,6 +819,8 @@ A single credit costs **$2.96**. GPU allocation prices include the bundled Stand
 
 **Free credits through the READ program:** Every Roar account holder gets a baseline of **3 READ Credits per month** (use-or-lose, deposited in your personal `open` account; submit jobs with `--account=open` to spend them). That's enough for incidental testing but will not cover a production VLEO-DSMC run. For unfunded or under-funded research, Penn State faculty (PIs) can [**apply for additional subsidized READ "discovery" Credits**](https://icds.psu.edu/services/roar/read-credits/); these are sharable across a group and valid for up to a year. If you need more than that, or aren't eligible for READ, you can [**purchase Credits or an Allocation via iLab**](https://icds.psu.edu/services/roar/details-rates/).
 
+**Using another account's credits:** If you have access to a shared or group allocation with more credits than your personal `open` account, point the job at it by setting `#SBATCH --account=<account_name>` in `job_sparta.sh` (run `get_balance` to list the accounts available to you). Note that if you are listed as a coordinator (`coord only`) on an account, you may need to be added as a submitting member before jobs will run; if submission fails with an invalid-account error, ask the allocation owner to add you (or run `sacctmgr add user $USER account=<account_name>` if you have permission). Also confirm the account is allowed on your chosen partition.
+
 ### Benchmark (70 km altitude, basic partition)
 
 Tested on Roar `basic` partition (64 cores, 240 GB RAM requested):
@@ -957,6 +958,7 @@ python tools/log_run.py
 | 100 | 1.81 | 2.54 | 0.0455/0.001667 | 4.15e-05/1e-07 | 900x600x600 | 2000M | 6.17 | himem | 48 | 8163.79 ms | 1000 | 02:16:57 |   | 0.419591 |
 | 90 | 11.3 | 2.58 | 0.00741/0.0015 | 6.71e-06/1e-07 | 1000x667x667 | 2000M | 4.50 | himem | 48 | 9814 ms | 3600/10000 | 10:00:25 | 451 GB | 1.851138 |
 | 70 | 222 | 2.25 | 0.00033/0.0015 | 2.73e-07/1e-07 | 1000x667x667 | 2000M | 4.50 | himem | 48 | 11029.90 ms | 1000 | 03:05:10 |   | 0.570768 |
+| 100 | 1.98 | 2.78 | 0.0455/0.012 | 4.15e-05/1e-07 | 500x333x333 | 500M | 9.02 | himem | 96 | 1437.92 ms | 30000 | 12:00:05 | 105.84 GB | 4.581567 |
 <!-- AMPT_BOX_LOG_END -->
 
 <div align="center">

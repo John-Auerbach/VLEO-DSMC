@@ -1,0 +1,5 @@
+/storage/home/jxa5508/VLEO-DSMC/scripts/grid_density_heatmap.py:108: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  cmap = plt.cm.get_cmap("viridis").copy()
+/storage/home/jxa5508/VLEO-DSMC/scripts/grid_temp_heatmap.py:110: MatplotlibDeprecationWarning: The get_cmap function was deprecated in Matplotlib 3.7 and will be removed in 3.11. Use ``matplotlib.colormaps[name]`` or ``matplotlib.colormaps.get_cmap()`` or ``pyplot.get_cmap()`` instead.
+  _cmap = plt.cm.get_cmap("inferno")
+[2026-06-18T14:22:24.781] error: *** JOB 53729473 ON p-sc-2331 CANCELLED AT 2026-06-18T14:22:24 DUE to SIGNAL Terminated ***

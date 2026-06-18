@@ -1,0 +1,47 @@
+Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
+=== Generating plots and animations ===
+Found 16 grid timesteps in dumps
+Precomputing 16 frames with 8 worker(s)...
+  grid frame 1/16 (step 0) done
+  grid frame 2/16 (step 500) done
+  grid frame 3/16 (step 200) done
+  grid frame 4/16 (step 600) done
+  grid frame 5/16 (step 300) done
+  grid frame 6/16 (step 400) done
+  grid frame 7/16 (step 700) done
+  grid frame 8/16 (step 100) done
+  grid frame 9/16 (step 800) done
+  grid frame 10/16 (step 900) done
+  grid frame 11/16 (step 1100) done
+  grid frame 12/16 (step 1400) done
+  grid frame 13/16 (step 1500) done
+  grid frame 14/16 (step 1300) done
+  grid frame 15/16 (step 1200) done
+  grid frame 16/16 (step 1000) done
+vmin=0.00e+00 #/m^3, vmax=5.13e+20 #/m^3
+Saved outputs/grid_density_heatmap.mp4 (codec=libx264)
+Found 16 grid timesteps in dumps
+Precomputing 16 frames with 8 worker(s)...
+  grid frame 1/16 (step 200) done
+  grid frame 2/16 (step 400) done
+  grid frame 3/16 (step 600) done
+  grid frame 4/16 (step 300) done
+  grid frame 5/16 (step 0) done
+  grid frame 6/16 (step 700) done
+  grid frame 7/16 (step 100) done
+  grid frame 8/16 (step 500) done
+  grid frame 9/16 (step 800) done
+  grid frame 10/16 (step 1000) done
+  grid frame 11/16 (step 900) done
+  grid frame 12/16 (step 1300) done
+  grid frame 13/16 (step 1400) done
+  grid frame 14/16 (step 1100) done
+  grid frame 15/16 (step 1500) done
+  grid frame 16/16 (step 1200) done
+vmin=0.00, vmax=72997.74
+Saved outputs/grid_temp_heatmap.mp4 (codec=libx264)
+Found 13 particle timesteps in dumps
+Precomputing 13 frames with 2 worker(s)...
+  particle frame 1/13 (step 0) done
+  particle frame 2/13 (step 100) done
+  particle frame 3/13 (step 200) done

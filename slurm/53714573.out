@@ -1,0 +1,60 @@
+=== Converting dumps in 'dumps' to Parquet ===
+Processing dumps from: dumps
+Using 48 parallel workers
+Incremental mode: skipping frames already converted (use --force to redo all)
+Processing particle dumps (1/3)...
+01/13: part.700.dat
+02/13: part.300.dat
+03/13: part.600.dat
+04/13: part.500.dat
+05/13: part.200.dat
+06/13: part.100.dat
+07/13: part.800.dat
+08/13: part.1100.dat
+09/13: part.400.dat
+10/13: part.0.dat
+11/13: part.1000.dat
+12/13: part.1200.dat
+13/13: part.900.dat
+
+Processing grid dumps (2/3)...
+01/16: grid.700.dat
+02/16: grid.200.dat
+03/16: grid.600.dat
+04/16: grid.1200.dat
+05/16: grid.500.dat
+06/16: grid.1300.dat
+07/16: grid.400.dat
+08/16: grid.800.dat
+09/16: grid.1000.dat
+10/16: grid.1400.dat
+11/16: grid.0.dat
+12/16: grid.1100.dat
+13/16: grid.100.dat
+14/16: grid.900.dat
+15/16: grid.1500.dat
+16/16: grid.300.dat
+
+Processing surface dumps (3/3)...
+01/16: surf.1400.dat
+02/16: surf.400.dat
+03/16: surf.0.dat
+04/16: surf.1200.dat
+05/16: surf.800.dat
+06/16: surf.500.dat
+07/16: surf.1300.dat
+08/16: surf.1100.dat
+09/16: surf.100.dat
+10/16: surf.900.dat
+11/16: surf.1500.dat
+12/16: surf.200.dat
+13/16: surf.700.dat
+14/16: surf.1000.dat
+15/16: surf.600.dat
+16/16: surf.300.dat
+
+Completed:
+particle frames: 13
+grid frames: 16
+surface frames: 16
+=== Conversion complete. Now run: sbatch scripts/analyze_job.sh dumps ===

@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/scripts/grid_density_heatmap.py", line 38, in <module>
+    first_step, first_df, box0 = load_parquet_single("grid", timesteps[0], folder_path)
+                                                             ~~~~~~~~~^^^
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/scripts/grid_temp_heatmap.py", line 34, in <module>
+    first_step, first_df, box0 = load_parquet_single("grid", timesteps[0], folder_path)
+                                                             ~~~~~~~~~^^^
+IndexError: list index out of range
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/scripts/velocity_heatmap.py", line 34, in <module>
+    first_step, first_df, box0 = load_parquet_single("particle", timesteps[0], folder_path)
+                                                                 ~~~~~~~~~^^^
+IndexError: list index out of range
+[2026-06-17T15:42:09.053] error: *** JOB 53717699 ON p-sc-2312 CANCELLED AT 2026-06-17T15:42:09 DUE to SIGNAL Terminated ***

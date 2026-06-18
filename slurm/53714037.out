@@ -1,0 +1,69 @@
+SPARTA (24 Sep 2025)
+Running on 96 MPI task(s)
+Created orthogonal box = (-0.75 -0.5 -0.5) to (0.75 0.5 0.5)
+Loaded NRLMSIS data: rho=5.795833478261e-07 nrho=1.205008e+19 T=182.236065 vx=7844.2
+MEAN FREE PATH = 0.136439938090381 m
+MEAN MOLEC VEL = 364.977320611674 m/s
+CELL SIZE MUST BE LESS THAN 0.0454799793634603 m
+MEAN COLL TIME = 0.000373831277685195 s
+MEAN TRANSIT TIME = 0.000124610425895065 s
+TIMESTEP MUST BE < 4.15368086316883e-05 s
+Created 55444500 child grid cells
+  CPU time = 0.748713 secs
+  create/ghost percent = 11.6836 88.3164
+Balance grid migrated 54327743 cells
+  CPU time = 1.75509 secs
+  reassign/sort/migrate/ghost percent = 43.4151 0.693524 31.3337 24.5577
+Reading surface file ...
+  12 triangles
+  -0.5 0.5 xlo xhi
+  -0.1 0.1 ylo yhi
+  -0.1 0.1 zlo zhi
+  0.2 min triangle edge length
+  0.02 min triangle area
+  96626 = cells with surfs
+  100488 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  66.6 = min surf-size/cell-size ratio
+  96626 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  15 tiny edges removed
+  53945174 1402700 96626 = cells outside/inside/overlapping surfs
+  96626 = surf cells with 1,2,etc splits
+  1.45999999997965 1.46 = cell-wise and global flow volume
+  CPU time = 1.15853 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.142035 50.8912 5.74696 8.68218 34.5376 23.9457 0.00237637
+  surf2grid time = 0.100586 secs
+  map/comm1/comm2/comm3/comm4/split percent = 26.0375 0 0 0 0 47.561
+0 = initial surface count in group ampt_xnorm
+4 = final surface count in group ampt_xnorm
+0 = initial surface count in group ampt_yznorm
+8 = final surface count in group ampt_yznorm
+particles per particle = 24100160000
+Creating particles ...
+Created 486666666 particles
+  CPU time = 1.12567 secs
+Memory usage per proc in Mbytes:
+  particles (ave,min,max) = 483.757 375 496.875
+  grid      (ave,min,max) = 201.652 127.514 205.639
+  surf      (ave,min,max) = 0.00151062 0.00151062 0.00151062
+  total     (ave,min,max) = 782.202 676.367 799.829
+Step CPU Np Natt Ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls 
+       0            0 486666666        0        0    69563.392            0            0            0 
+     100    102.74658 486670216     8950     4173    69382.718    1.8224265    1.4998249   0.32260163 
+     200     215.7561 486678192    19635     8755    69203.728    1.8266621    1.5025521   0.32410991 
+     300    340.84446 486678236   181567    96078    69026.385    1.8240733    1.4984739   0.32559933 
+     400    473.69129 487536294    87799    43978    68847.776    1.8278747    1.4929298    0.3349449 
+     500    611.60935 488611278    53189    24639     68674.68     1.826072    1.4890556   0.33701641 
+     600    753.78495 489704776    93429    46036    68504.804    1.8210816    1.4848871   0.33619447 
+     700    903.63464 490817192   614055   327444    68333.997    1.8178929    1.4803212   0.33757176 
+     800    1059.6472 491961435    87121    41265     68165.13    1.8170338    1.4750878   0.34194601 
+     900    1215.2675 493120573   103356    50054    67999.573     1.814763    1.4706588   0.34410416 
+    1000    1372.7402 494300826   544572   290061    67834.241    1.8117251    1.4665287   0.34519639 
+    1100    1533.9945 495509740   197085    99341    67669.714    1.8096915    1.4622193   0.34747226 
+    1200    1697.2285 496720689   124967    60154    67508.345     1.808327     1.457951   0.35037599 
+    1300     1864.036 497965914   337990   177546    67348.343     1.806409     1.453933   0.35247599 
+    1400    2037.8078 499214850   408861   214791    67188.282    1.8047956    1.4503566   0.35443902 
+    1500     2213.478 500480307   154629    74388    67032.897    1.8036771    1.4468116   0.35686547 
+    1600    2388.4228 501749471   243409   124798    66879.726    1.8026229    1.4433677   0.35925515 
+    1700    2565.9586 503011450   497402   264097    66726.647    1.8015401    1.4401686   0.36137147 
+    1800     2746.265 504276096   218171   107625     66577.03    1.8008105    1.4372223   0.36358814 

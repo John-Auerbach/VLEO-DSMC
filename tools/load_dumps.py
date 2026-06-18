@@ -152,18 +152,20 @@ def process_and_save_dumps(pattern, reader, prefix, output_dir=None, jobs=1, ove
 
     if jobs <= 1:
         for i, f in enumerate(files, 1):
-            print(f"{i:02d}/{total:02d}: {os.path.basename(f)}")
+            print(f"  [{prefix}] start {i}/{total}: {os.path.basename(f)}", flush=True)
             _convert_one_file(f, reader, prefix, dumps_dir)
+            print(f"  [{prefix}] done  {i}/{total} ({100*i//total}%)", flush=True)
         return found
 
     worker = partial(_convert_one_file, reader=reader, prefix=prefix, dumps_dir=dumps_dir)
     done = 0
+    print(f"  [{prefix}] dispatching {total} frame(s) across {jobs} worker(s)...", flush=True)
     with ProcessPoolExecutor(max_workers=jobs) as ex:
         futures = {ex.submit(worker, f): f for f in files}
         for fut in as_completed(futures):
             name = fut.result()
             done += 1
-            print(f"{done:02d}/{total:02d}: {name}")
+            print(f"  [{prefix}] done {done}/{total} ({100*done//total}%): {name}", flush=True)
     return found
 
 def save_to_parquet(data, prefix):
@@ -190,6 +192,12 @@ if __name__ == "__main__":
     parser.add_argument('-j', '--jobs', type=int, default=1,
                        help='Number of parallel worker processes (default: 1 = serial). '
                             'Use the node core count on ROAR, e.g. -j 48.')
+    parser.add_argument('--particle-jobs', type=int, default=None,
+                       help='Worker count for the particle stage only (defaults to -j). '
+                            'Particle frames are far larger than grid/surf frames '
+                            '(~25-30 GB each in memory), so converting too many at once '
+                            'OOMs the node. Keep this low (e.g. 6) while grid/surf use the '
+                            'full -j count.')
     parser.add_argument('--force', action='store_true',
                        help='Re-convert every dump, overwriting existing Parquet. '
                             'By default frames whose Parquet already exists are skipped '
@@ -198,6 +206,7 @@ if __name__ == "__main__":
     
     dumps_path = os.path.expanduser(args.dumps_dir)
     jobs = max(1, args.jobs)
+    particle_jobs = max(1, args.particle_jobs) if args.particle_jobs else jobs
     overwrite = args.force
     
     print(f"Processing dumps from: {dumps_path}")
@@ -205,14 +214,18 @@ if __name__ == "__main__":
         print(f"Using {jobs} parallel workers")
     if not overwrite:
         print("Incremental mode: skipping frames already converted (use --force to redo all)")
-    print("Processing particle dumps (1/3)...")
-    particle_count = process_and_save_dumps(f"{dumps_path}/part.*.dat", read_sparta_particle_dump, "particle", dumps_path, jobs=jobs, overwrite=overwrite)
 
-    print("\nProcessing grid dumps (2/3)...")
+    # Convert the cheap stages first (grid + surf frames are ~7.6 GB vs ~32 GB
+    # for particle frames) so analysis of density/pressure/temp/streamlines can
+    # start while the slow particle stage is still running.
+    print("\nProcessing grid dumps (1/3)...", flush=True)
     grid_count = process_and_save_dumps(f"{dumps_path}/grid.*.dat", read_sparta_grid_dump, "grid", dumps_path, jobs=jobs, overwrite=overwrite)
 
-    print("\nProcessing surface dumps (3/3)...")
+    print("\nProcessing surface dumps (2/3)...", flush=True)
     surf_count = process_and_save_dumps(f"{dumps_path}/surf.*.dat", read_sparta_surface_dump, "surf", dumps_path, jobs=jobs, overwrite=overwrite)
+
+    print(f"\nProcessing particle dumps (3/3)... ({particle_jobs} worker(s))", flush=True)
+    particle_count = process_and_save_dumps(f"{dumps_path}/part.*.dat", read_sparta_particle_dump, "particle", dumps_path, jobs=particle_jobs, overwrite=overwrite)
 
     print(f"\nCompleted:")
     print(f"particle frames: {particle_count}")
