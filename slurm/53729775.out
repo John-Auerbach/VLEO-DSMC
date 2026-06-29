@@ -79,3 +79,93 @@ Processing particle dumps (3/3)... (8 worker(s))
   [particle] done 65/151 (43%): part.29100.dat
   [particle] done 66/151 (43%): part.29200.dat
   [particle] done 67/151 (44%): part.29300.dat
+  [particle] done 68/151 (45%): part.29400.dat
+  [particle] done 69/151 (45%): part.29500.dat
+  [particle] done 70/151 (46%): part.29600.dat
+  [particle] done 71/151 (47%): part.29700.dat
+  [particle] done 72/151 (47%): part.29800.dat
+  [particle] done 73/151 (48%): part.29900.dat
+  [particle] done 74/151 (49%): part.300.dat
+  [particle] done 75/151 (49%): part.3000.dat
+  [particle] done 76/151 (50%): part.30000.dat
+  [particle] done 77/151 (50%): part.3100.dat
+  [particle] done 78/151 (51%): part.3200.dat
+  [particle] done 79/151 (52%): part.3300.dat
+  [particle] done 80/151 (52%): part.3400.dat
+  [particle] done 81/151 (53%): part.3600.dat
+  [particle] done 82/151 (54%): part.3500.dat
+  [particle] done 83/151 (54%): part.3700.dat
+  [particle] done 84/151 (55%): part.3800.dat
+  [particle] done 85/151 (56%): part.3900.dat
+  [particle] done 86/151 (56%): part.400.dat
+  [particle] done 87/151 (57%): part.4000.dat
+  [particle] done 88/151 (58%): part.4100.dat
+  [particle] done 89/151 (58%): part.4200.dat
+  [particle] done 90/151 (59%): part.4300.dat
+  [particle] done 91/151 (60%): part.4400.dat
+  [particle] done 92/151 (60%): part.4500.dat
+  [particle] done 93/151 (61%): part.4600.dat
+  [particle] done 94/151 (62%): part.4700.dat
+  [particle] done 95/151 (62%): part.4800.dat
+  [particle] done 96/151 (63%): part.4900.dat
+  [particle] done 97/151 (64%): part.5000.dat
+  [particle] done 98/151 (64%): part.500.dat
+  [particle] done 99/151 (65%): part.5100.dat
+  [particle] done 100/151 (66%): part.5200.dat
+  [particle] done 101/151 (66%): part.5300.dat
+  [particle] done 102/151 (67%): part.5400.dat
+  [particle] done 103/151 (68%): part.5500.dat
+  [particle] done 104/151 (68%): part.5600.dat
+  [particle] done 105/151 (69%): part.5800.dat
+  [particle] done 106/151 (70%): part.5700.dat
+  [particle] done 107/151 (70%): part.5900.dat
+  [particle] done 108/151 (71%): part.600.dat
+  [particle] done 109/151 (72%): part.6100.dat
+  [particle] done 110/151 (72%): part.6000.dat
+  [particle] done 111/151 (73%): part.6200.dat
+  [particle] done 112/151 (74%): part.6500.dat
+  [particle] done 113/151 (74%): part.6300.dat
+  [particle] done 114/151 (75%): part.6600.dat
+  [particle] done 115/151 (76%): part.6400.dat
+  [particle] done 116/151 (76%): part.6700.dat
+  [particle] done 117/151 (77%): part.6800.dat
+  [particle] done 118/151 (78%): part.6900.dat
+  [particle] done 119/151 (78%): part.700.dat
+  [particle] done 120/151 (79%): part.7000.dat
+  [particle] done 121/151 (80%): part.7100.dat
+  [particle] done 122/151 (80%): part.7300.dat
+  [particle] done 123/151 (81%): part.7200.dat
+  [particle] done 124/151 (82%): part.7400.dat
+  [particle] done 125/151 (82%): part.7500.dat
+  [particle] done 126/151 (83%): part.7600.dat
+  [particle] done 127/151 (84%): part.7700.dat
+  [particle] done 128/151 (84%): part.800.dat
+  [particle] done 129/151 (85%): part.7900.dat
+  [particle] done 130/151 (86%): part.8000.dat
+  [particle] done 131/151 (86%): part.7800.dat
+  [particle] done 132/151 (87%): part.8100.dat
+  [particle] done 133/151 (88%): part.8200.dat
+  [particle] done 134/151 (88%): part.8300.dat
+  [particle] done 135/151 (89%): part.8400.dat
+  [particle] done 136/151 (90%): part.8500.dat
+  [particle] done 137/151 (90%): part.8700.dat
+  [particle] done 138/151 (91%): part.8600.dat
+  [particle] done 139/151 (92%): part.8800.dat
+  [particle] done 140/151 (92%): part.8900.dat
+  [particle] done 141/151 (93%): part.900.dat
+  [particle] done 142/151 (94%): part.9000.dat
+  [particle] done 143/151 (94%): part.9300.dat
+  [particle] done 144/151 (95%): part.9100.dat
+  [particle] done 145/151 (96%): part.9200.dat
+  [particle] done 146/151 (96%): part.9400.dat
+  [particle] done 147/151 (97%): part.9500.dat
+  [particle] done 148/151 (98%): part.9600.dat
+  [particle] done 149/151 (98%): part.9700.dat
+  [particle] done 150/151 (99%): part.9800.dat
+  [particle] done 151/151 (100%): part.9900.dat
+
+Completed:
+particle frames: 301
+grid frames: 301
+surface frames: 301
+=== Conversion complete. Now run: sbatch scripts/analyze_job.sh dumps ===
