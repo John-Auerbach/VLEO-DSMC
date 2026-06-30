@@ -49,10 +49,13 @@ if not os.path.exists(data_file):
         f107 = 250   # daily F10.7 flux for previous day
         aps = [[4, 4, 4, 4, 4, 4, 4]]  # Ap indices: [daily, 0h, 3h, 6h, 9h, 12-33h avg, 36-57h avg] (quiet)
         
-        atmosphere = pymsis.calculate(times, [lon], [lat], alt_km,
-                                      f107, f107a, aps,
-                                      version=msis_version)
-        
+        #atmosphere = pymsis.calculate(times, [lon], [lat], alt_km,
+        #                              f107, f107a, aps,
+        #                              version=msis_version)
+
+        # For real historical conditions, drop f107/f107a/aps (auto-fetched for utc). Comment out above, use this instead:
+        atmosphere = pymsis.calculate(times, [lon], [lat], alt_km, version=msis_version)
+
         T = np.squeeze(atmosphere[..., pymsis.Variable.TEMPERATURE])
         rho = np.squeeze(atmosphere[..., pymsis.Variable.MASS_DENSITY])
         P = rho * R * T

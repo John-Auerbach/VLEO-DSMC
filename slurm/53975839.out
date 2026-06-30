@@ -1,0 +1,54 @@
+SPARTA (24 Sep 2025)
+Running on 96 MPI task(s)
+Created orthogonal box = (-3 -1 -1) to (3 1 1)
+Loaded NRLMSIS data: rho=1.48771273913e-06 nrho=3.093095e+19 T=177.748857 vx=7847.2
+MEAN FREE PATH = 0.0531542911582872 m
+MEAN MOLEC VEL = 360.455947204927 m/s
+CELL SIZE MUST BE LESS THAN 0.0177180970527624 m
+MEAN COLL TIME = 0.000147464042611753 s
+MEAN TRANSIT TIME = 4.91546808705844e-05 s
+TIMESTEP MUST BE < 1.63848936235281e-05 s
+Created 55444500 child grid cells
+  CPU time = 0.696675 secs
+  create/ghost percent = 12.4565 87.5435
+Balance grid migrated 53343434 cells
+  CPU time = 1.61606 secs
+  reassign/sort/migrate/ghost percent = 43.7215 0.976253 34.1716 21.1307
+Reading surface file ...
+  12 triangles
+  -0.5 0.5 xlo xhi
+  -0.1 0.1 ylo yhi
+  -0.1 0.1 zlo zhi
+  0.2 min triangle edge length
+  0.02 min triangle area
+  13602 = cells with surfs
+  14888 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  16.6667 = min surf-size/cell-size ratio
+  13602 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  55341600 89298 13602 = cells outside/inside/overlapping surfs
+  13602 = surf cells with 1,2,etc splits
+  23.9599999996559 23.96 = cell-wise and global flow volume
+  CPU time = 1.26086 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.181969 66.6181 4.55189 3.97178 24.6763 29.0162 0.00201869
+  surf2grid time = 0.0500787 secs
+  map/comm1/comm2/comm3/comm4/split percent = 23.9597 0 0 0 0 54.3269
+0 = initial surface count in group ampt_xnorm
+4 = final surface count in group ampt_xnorm
+0 = initial surface count in group ampt_yznorm
+8 = final surface count in group ampt_yznorm
+particles per particle = 61861900000
+Creating particles ...
+Created 499166666 particles
+  CPU time = 1.17903 secs
+Memory usage per proc in Mbytes:
+  particles (ave,min,max) = 496.094 487.5 496.875
+  grid      (ave,min,max) = 199.844 128.014 205.639
+  surf      (ave,min,max) = 0.00151062 0.00151062 0.00151062
+  total     (ave,min,max) = 792.497 712.079 799.829
+Step CPU Np Natt Ncoll c_Tbox c_drag c_drag_xnorm c_drag_walls 
+       0            0 499166666        0        0    70620.418            0            0            0 
+     100    101.21443 499166685   146571    80304    70609.426     4.750669     3.919652   0.83101704 
+     200    201.69139 499166720   100823    54871    70596.866    4.7660358    3.9033658   0.86266996 
+     300    307.33086 499169507   492018   267810     70585.05    4.7541267    3.8819626   0.87216416 
+     400     418.3398 499171489   491870   266844    70573.681    4.7455532    3.8596972   0.88585593 

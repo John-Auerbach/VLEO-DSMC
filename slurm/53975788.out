@@ -1,0 +1,43 @@
+SPARTA (24 Sep 2025)
+Running on 96 MPI task(s)
+Created orthogonal box = (-3 -1 -1) to (3 1 1)
+Loaded NRLMSIS data: rho=1.48771273913e-06 nrho=3.093095e+19 T=177.748857 vx=7847.2
+MEAN FREE PATH = 0.0531542911582872 m
+MEAN MOLEC VEL = 360.455947204927 m/s
+CELL SIZE MUST BE LESS THAN 0.0177180970527624 m
+MEAN COLL TIME = 0.000147464042611753 s
+MEAN TRANSIT TIME = 4.91546808705844e-05 s
+TIMESTEP MUST BE < 1.63848936235281e-05 s
+Created 55444500 child grid cells
+  CPU time = 0.678676 secs
+  create/ghost percent = 13.528 86.472
+Balance grid migrated 53343434 cells
+  CPU time = 1.62307 secs
+  reassign/sort/migrate/ghost percent = 44.1318 0.753951 34.81 20.3042
+Reading surface file ...
+  12 triangles
+  -0.5 0.5 xlo xhi
+  -0.1 0.1 ylo yhi
+  -0.1 0.1 zlo zhi
+  0.2 min triangle edge length
+  0.02 min triangle area
+  13602 = cells with surfs
+  14888 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  16.6667 = min surf-size/cell-size ratio
+  13602 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  55341600 89298 13602 = cells outside/inside/overlapping surfs
+  13602 = surf cells with 1,2,etc splits
+  23.9599999996559 23.96 = cell-wise and global flow volume
+  CPU time = 1.01305 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.344357 62.1546 5.48464 4.89057 27.1258 33.9596 0.0020925
+  surf2grid time = 0.0495438 secs
+  map/comm1/comm2/comm3/comm4/split percent = 24.0526 0 0 0 0 53.8524
+0 = initial surface count in group ampt_xnorm
+4 = final surface count in group ampt_xnorm
+0 = initial surface count in group ampt_yznorm
+8 = final surface count in group ampt_yznorm
+particles per particle = 61861900000
+Creating particles ...
+Created 499166666 particles
+  CPU time = 1.1265 secs
