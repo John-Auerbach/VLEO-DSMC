@@ -1,0 +1,19 @@
+# Surface reactions for ambipolar ions striking the satellite.
+# Each ambipolar ion recombines with its electron to form the parent neutral
+# (ion + e -> neutral). Format matches SPARTA "surf_react prob" style; see
+# sparta/examples/ambi/air.surf and the surf_react doc page.
+
+O+ --> O
+E S 1.0
+
+O2+ --> O2
+E S 1.0
+
+NO+ --> NO
+E S 1.0
+
+N+ --> N
+E S 1.0
+
+N2+ --> N2
+E S 1.0

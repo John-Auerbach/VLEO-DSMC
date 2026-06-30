@@ -1,0 +1,16 @@
+# freestream flux-check square at x=-1.5, 0.2m x 0.2m, normal -x
+
+4 points
+2 triangles
+
+Points
+
+1 -1.5 -0.1 -0.1
+2 -1.5  0.1 -0.1
+3 -1.5  0.1  0.1
+4 -1.5 -0.1  0.1
+
+Triangles
+
+1 1 3 2
+2 1 4 3
