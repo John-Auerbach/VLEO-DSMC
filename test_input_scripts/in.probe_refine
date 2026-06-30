@@ -1,0 +1,36 @@
+seed            11111
+dimension       3
+units           si
+boundary        o p p
+
+create_box      -0.6 -0.3 -0.05 0.05 -0.05 0.05
+create_grid     20 10 10 block * * *
+balance_grid    rcb part
+
+species         species/air.species N2 O2 O He Ar N O+ O2+ NO+ N+ N2+ e
+mixture         flow N2 nrho 1.0e18 vstream 7000.0 0 0 temp 1000.0
+
+read_surf       surf/3mm2_esasat_flux_probe.surf group probe transparent
+surf_collide    probe_t transparent
+surf_modify     probe collide probe_t
+
+adapt_grid      all refine surf probe 5.0e-4 iterate 3 maxlevel 3
+balance_grid    rcb part
+global          weight cell volume
+
+variable        Ns equal 2000000.0
+variable        vol equal 0.3*0.1*0.1
+global          fnum 1.0e18*${vol}/${Ns}
+create_particles flow n 0
+fix             in emit/face flow xlo
+
+compute         probe_flux surf probe flow nflux_incident
+fix             probe_avg ave/surf probe 1 1 1 c_probe_flux[1] ave running
+compute         probe_mean reduce ave f_probe_avg subset probe
+variable        expect equal 1.0e18*7000.0
+print           "expected = ${expect}"
+
+timestep        2.0e-8
+stats           200
+stats_style     step np c_probe_mean
+run             1000

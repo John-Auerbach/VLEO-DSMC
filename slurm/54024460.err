@@ -15,9 +15,6 @@ Primary job  terminated normally, but 1 process returned
 a non-zero exit code. Per user-direction, the job has been aborted.
 --------------------------------------------------------------------------
 --------------------------------------------------------------------------
-mpirun detected that one or more processes exited with non-zero status, thus causing
-the job to be terminated. The first process to do so was:
-
-  Process name: [[33547,1],6]
-  Exit code:    1
+mpirun noticed that process rank 6 with PID 2345231 on node p-bc-5424 exited on signal 9 (Killed).
 --------------------------------------------------------------------------
+[2026-06-30T15:55:31.816] error: Detected 1 oom_kill event in StepId=54024460.batch. Some of the step tasks have been OOM Killed.

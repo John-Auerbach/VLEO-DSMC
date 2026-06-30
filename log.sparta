@@ -1,5 +1,5 @@
 SPARTA (24 Sep 2025)
-Running on 48 MPI task(s)
+Running on 96 MPI task(s)
 # SETUP --------------------------------------------------------------------------------------
 
 shell "bash -c 'rm -f dumps/esasat/*.dat'"
@@ -14,31 +14,31 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        xmin equal -2
-variable        xmax equal 2
-variable        ymin equal -2
-variable 	    ymax equal 2
-variable	    zmin equal -2
-variable	    zmax equal 2
+variable        xmin equal -1.5
+variable        xmax equal 1.5
+variable        ymin equal -1
+variable 	    ymax equal 1
+variable	    zmin equal -1
+variable	    zmax equal 1
 
 variable	    Lx equal ${xmax}-${xmin}
-variable	    Lx equal 2-${xmin}
-variable	    Lx equal 2--2
+variable	    Lx equal 1.5-${xmin}
+variable	    Lx equal 1.5--1.5
 variable        Ly equal ${ymax}-${ymin}
-variable        Ly equal 2-${ymin}
-variable        Ly equal 2--2
+variable        Ly equal 1-${ymin}
+variable        Ly equal 1--1
 variable        Lz equal ${zmax}-${zmin}
-variable        Lz equal 2-${zmin}
-variable        Lz equal 2--2
+variable        Lz equal 1-${zmin}
+variable        Lz equal 1--1
 
 create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -2 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -2 2 ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -2 2 -2 ${ymax} ${zmin} ${zmax}
-create_box      -2 2 -2 2 ${zmin} ${zmax}
-create_box      -2 2 -2 2 -2 ${zmax}
-create_box      -2 2 -2 2 -2 2
-Created orthogonal box = (-2 -2 -2) to (2 2 2)
+create_box      -1.5 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
+create_box      -1.5 1.5 ${ymin} ${ymax} ${zmin} ${zmax}
+create_box      -1.5 1.5 -1 ${ymax} ${zmin} ${zmax}
+create_box      -1.5 1.5 -1 1 ${zmin} ${zmax}
+create_box      -1.5 1.5 -1 1 -1 ${zmax}
+create_box      -1.5 1.5 -1 1 -1 1
+Created orthogonal box = (-1.5 -1 -1) to (1.5 1 1)
 
 # Load atmospheric data (run: python3 tools/load_atm_data.py <altitude_km> --ions)
 # NOTE: this script models ions via the ambipolar approximation, so atm.sparta
@@ -130,14 +130,14 @@ global          gridcut 0.01              # ghost layer ~6 cells deep (above par
 global          mem/limit 1024             # cap MPI send buffers at 1 GB to avoid >2 GB overflow
 create_grid	    200 150 150 block * * *
 Created 4500000 child grid cells
-  CPU time = 0.0990159 secs
-  create/ghost percent = 20.2615 79.7385
+  CPU time = 0.321171 secs
+  create/ghost percent = 2.69727 97.3027
 balance_grid    rcb part
-Balance grid migrated 4350950 cells
-  CPU time = 0.240019 secs
-  reassign/sort/migrate/ghost percent = 38.2559 0.875685 45.4775 15.3909
+Balance grid migrated 4410114 cells
+  CPU time = 0.372445 secs
+  reassign/sort/migrate/ghost percent = 51.0423 0.471814 14.2158 34.2701
 
-variable	    diag_freq   equal 100 # dump diagnostics every _ timesteps
+variable	    diag_freq   equal 10 # dump diagnostics every _ timesteps
 variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
 
 # SURFACE GEOMETRY ----------------------------------------------------------------------------
@@ -149,19 +149,19 @@ read_surf	    surf/esasat.surf  group ampt        # create surface group "ampt"
   -0.3395 0.3395 zlo zhi
   0.5725 min triangle edge length
   0.194364 min triangle area
-  5192 = cells with surfs
-  5936 = total surfs in all grid cells
+  15480 = cells with surfs
+  16718 = total surfs in all grid cells
   6 = max surfs in one grid cell
-  21.4687 = min surf-size/cell-size ratio
-  5192 0 = cells overlapping surfs, overlap cells with unmarked corner pts
-  15 tiny edges removed
-  4473688 21120 5192 = cells outside/inside/overlapping surfs
-  5192 = surf cells with 1,2,etc splits
-  63.6521 63.6521 = cell-wise and global flow volume
-  CPU time = 0.0750946 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 5.16438 4.21811 12.1555 13.4108 65.0512 60.2594 0.019032
-  surf2grid time = 0.0100708 secs
-  map/comm1/comm2/comm3/comm4/split percent = 21.7223 0 0 0 0 53.6302
+  38.1667 = min surf-size/cell-size ratio
+  15480 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  12 tiny edges removed
+  4362720 121800 15480 = cells outside/inside/overlapping surfs
+  15480 = surf cells with 1,2,etc splits
+  11.6521 11.6521 = cell-wise and global flow volume
+  CPU time = 0.746036 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.857531 94.3899 0.590736 0.958167 3.2037 3.1845 0.00176707
+  surf2grid time = 0.00714827 secs
+  map/comm1/comm2/comm3/comm4/split percent = 22.9717 0 0 0 0 59.5038
 group           ampt_xnorm surf id 1:4              # front/back faces (ram direction)
 0 = initial surface count in group ampt_xnorm
 4 = final surface count in group ampt_xnorm
@@ -169,29 +169,29 @@ group           ampt_yznorm surf id 5:12            # side walls
 0 = initial surface count in group ampt_yznorm
 8 = final surface count in group ampt_yznorm
 
-# freestream flux check: transparent square upstream of the spacecraft
-read_surf       surf/freestream.surf group fs transparent
-  2 triangles
-  -1.5 -1.5 xlo xhi
-  -0.1 0.1 ylo yhi
-  -0.1 0.1 zlo zhi
-  0.2 min triangle edge length
-  0.02 min triangle area
-  5320 = cells with surfs
-  6108 = total surfs in all grid cells
-  6 = max surfs in one grid cell
-  7.5 = min surf-size/cell-size ratio
-  5192 0 = cells overlapping surfs, overlap cells with unmarked corner pts
-  30 tiny edges removed
-  4473688 21120 5192 = cells outside/inside/overlapping surfs
-  5192 = surf cells with 1,2,etc splits
-  63.6521 63.6521 = cell-wise and global flow volume
-  CPU time = 0.0641993 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 3.28519 3.24947 13.4932 15.2059 64.7662 71.4145 0.0503557
-  surf2grid time = 0.00976211 secs
-  map/comm1/comm2/comm3/comm4/split percent = 23.4924 0 0 0 0 55.1556
-surf_collide    fs_t transparent
-surf_modify     fs collide fs_t
+# flux probe: transparent disk at center of -x RAM face
+read_surf       surf/3mm2_esasat_flux_probe.surf group probe transparent
+  64 triangles
+  -0.4485 -0.4485 xlo xhi
+  -0.000977 0.000977 ylo yhi
+  -0.000977 0.000977 zlo zhi
+  9.58782e-05 min triangle edge length
+  4.67801e-08 min triangle area
+  15480 = cells with surfs
+  16974 = total surfs in all grid cells
+  66 = max surfs in one grid cell
+  0.00639188 = min surf-size/cell-size ratio
+  15480 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  24 tiny edges removed
+  4362720 121800 15480 = cells outside/inside/overlapping surfs
+  15480 = surf cells with 1,2,etc splits
+  11.6521 11.6521 = cell-wise and global flow volume
+  CPU time = 0.0400551 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 5.49855 4.99718 9.83183 20.8865 58.786 60.0225 0.0373785
+  surf2grid time = 0.00836609 secs
+  map/comm1/comm2/comm3/comm4/split percent = 34.7477 0 0 0 0 51.3669
+surf_collide    probe_t transparent
+surf_modify     probe collide probe_t
 
 # SPECIES AND MIXTURE -------------------------------------------------------------------------
 
@@ -208,23 +208,23 @@ mixture     	atm nrho 574610200000000 vstream 7725.8 0.0 0.0 temp 978.3039
 fix             ambi ambipolar e O+ N+ O2+ N2+ NO+
 
 # particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 10000000.0
+variable        Ns_target equal 1000000000.0
 variable        Vol       equal ${Lx}*${Ly}*${Lz}
-variable        Vol       equal 4*${Ly}*${Lz}
-variable        Vol       equal 4*4*${Lz}
-variable        Vol       equal 4*4*4
+variable        Vol       equal 3*${Ly}*${Lz}
+variable        Vol       equal 3*2*${Lz}
+variable        Vol       equal 3*2*2
 variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
 variable        fnum      equal 574610200000000*${Vol}/${Ns_target}
-variable        fnum      equal 574610200000000*64/${Ns_target}
-variable        fnum      equal 574610200000000*64/10000000
+variable        fnum      equal 574610200000000*12/${Ns_target}
+variable        fnum      equal 574610200000000*12/1000000000
 global          fnum ${fnum} # global bc will be queried by each new particle
-global          fnum 3677505280 
+global          fnum 6895322.4 
 
 variable	    parts_per equal ${nrho}/${Ns_target}
 variable	    parts_per equal 574610200000000/${Ns_target}
-variable	    parts_per equal 574610200000000/10000000
+variable	    parts_per equal 574610200000000/1000000000
 print "particles per particle = ${parts_per}"
-particles per particle = 57461020
+particles per particle = 574610.2
 
 # global useful for stat query later
 global          nrho ${nrho}
@@ -232,8 +232,8 @@ global          nrho 574610200000000
 
 # create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
 create_particles	atm n 0
-Created 9945638 particles
-  CPU time = 0.0882238 secs
+Created 971007407 particles
+  CPU time = 9.16678 secs
 
 # continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
 fix		        in emit/face atm xlo
@@ -267,17 +267,14 @@ compute         prop_grid_press thermal/grid all atm press
                 # per-grid velocity components (for streamlines)
 compute         prop_grid_flow grid all atm u v w
                 # single grid dump with all properties
-dump            dump_grid grid all ${diag_freq} dumps/esasat/grid.*.dat id xlo ylo zlo xc yc zc                     c_prop_grid[*] c_prop_grid_temp[*] c_prop_grid_press[*] c_prop_grid_flow[*]
-dump            dump_grid grid all 100 dumps/esasat/grid.*.dat id xlo ylo zlo xc yc zc                     c_prop_grid[*] c_prop_grid_temp[*] c_prop_grid_press[*] c_prop_grid_flow[*]
+#dump            dump_grid grid all ${diag_freq} dumps/esasat/grid.*.dat id xlo ylo zlo xc yc zc                     c_prop_grid[*] c_prop_grid_temp[*] c_prop_grid_press[*] c_prop_grid_flow[*]
 
                 # ID, data type, mixture, every _ steps, filename, columns (particle data)
                 # p_ionambi = ambipolar flag (1 = ion carrying a bound electron)
-dump            dump_part particle atm ${diag_freq} dumps/esasat/part.*.dat id type x y z vx vy vz p_ionambi
-dump            dump_part particle atm 100 dumps/esasat/part.*.dat id type x y z vx vy vz p_ionambi
+#dump            dump_part particle atm ${diag_freq} dumps/esasat/part.*.dat id type x y z vx vy vz p_ionambi
 
 		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
-dump    	    dump_surf surf ampt ${diag_freq} dumps/esasat/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
-dump    	    dump_surf surf ampt 100 dumps/esasat/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
+#dump    	    dump_surf surf ampt ${diag_freq} dumps/esasat/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
 
 # Measure simulated flow properties for domain ---------------------
 
@@ -328,8 +325,77 @@ compute         Tbox temp # define a compute Tbox that calculates domain everage
 # count ambipolar ions (and electrons, which should stay ~0 since e is always bound)
 compute         ions count O+ N+ O2+ N2+ NO+ e
 
-# freestream flux check: measured incident flux should match nrho*vstream
-compute         fs_flux surf fs atm nflux_incident
-fix             fs_avg ave/surf fs 1 1 1 c_fs_flux[1] ave running
-compute         fs_mean reduce ave f_fs_avg subset fs
-variable        fs_expect equal ${nrho}
+# flux check: measured incident flux should be similar to nrho*vstream
+compute         probe_flux surf probe atm nflux_incident
+fix             probe_avg ave/surf probe 1 1 1 c_probe_flux[1] ave running
+compute         probe_mean reduce ave f_probe_avg subset probe
+variable        probe_expect equal ${nrho}*${vx}
+variable        probe_expect equal 574610200000000*${vx}
+variable        probe_expect equal 574610200000000*7725.8
+print           "flux check: expected nrho*vstream = ${probe_expect} #/m^2/s"
+flux check: expected nrho*vstream = 4.43932348316e+18 #/m^2/s
+stats           ${diag_freq} # print diagnostics every _ timesteps
+stats           10 
+                # ... nsreact = surface reactions/step; c_ions[1]=O+, c_ions[6]=e counts
+stats_style     step cpu np nattempt ncoll nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_mean
+
+timestep        ${tstep}
+timestep        1e-07
+                # collide must use a mixture containing ALL species (incl. e, N2+);
+                # "all" is the built-in mixture of every species. The flow mixture
+                # "atm" (no e) is still what drives create_particles/emit.
+collide		    vss all vss/air.vss # variable soft sphere model
+collide_modify  ambipolar yes # enable ambipolar ionization/recombination during collisions
+run             10000
+Memory usage per proc in Mbytes:
+  particles (ave,min,max) = 1235.21 838 1272
+  grid      (ave,min,max) = 17.1616 11.5763 17.3263
+  surf      (ave,min,max) = 0.00956726 0.00956726 0.00956726
+  total     (ave,min,max) = 1260.33 863.308 1297.31
+Step CPU Np Natt Ncoll Nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_mean 
+       0            0 971007407        0        0        0    42625.185            0            0            0       731960            0            0 
+      10    8.3650176 971008561        0        0       18    42611.826 0.00043733664 0.00036629258 7.1044053e-05       731693            0 2.0937304e+18 
+      20    16.790996 971006754        0        0       23    42598.463 0.00045723168 0.00038294469 7.4286993e-05       731435            0 3.2901478e+18 
+      30    24.116855 971007757        0        0       25    42585.101 0.00046421771 0.00038898015 7.5237566e-05       731152            0 5.2005561e+18 
+      40    30.951273 971007551        0        0       22    42571.753 0.00046784124 0.00039199034 7.5850899e-05       731009            0 6.7407905e+18 
+      50    38.004928 971007630        0        0       31    42558.382 0.00047015827 0.00039386415 7.6294119e-05       730745            0 6.7738336e+18 
+      60    44.992955 971007801        0        0       28    42545.047 0.00047152754 0.0003950183 7.6509238e-05       730464            0 6.040927e+18 
+      70    52.032129 971006103        0        0       21    42531.669 0.00047251945 0.00039587676 7.6642696e-05       730167            0 6.1632346e+18 
+      80     59.19289 971006507        0        0       22    42518.307 0.00047328232 0.00039651321 7.6769115e-05       729924            0 5.6866752e+18 
+      90    66.545976 971007180        0        0       22    42504.933 0.00047383506 0.00039704563 7.6789424e-05       729705            0 5.8210307e+18 
+     100    74.245831 971007929        0        0       24    42491.573 0.00047431941 0.00039738518 7.6934235e-05       729619            0 5.9287811e+18 
+     110    81.874327 971007947      378        3       28    42478.125 0.00047490047 0.00039787158 7.7028885e-05       729515            0 5.3946567e+18 
+     120     89.76207 971008057        0        0       24    42464.762 0.0004752273 0.00039807015 7.7157144e-05       729404            0 5.1391564e+18 
+     130    97.844546 971009689        0        0       25     42451.34  0.000475622 0.00039841908 7.7202911e-05       729202            0 5.4500921e+18 
+     140    106.22424 971007913        0        0       31    42437.974 0.00047581338 0.00039853715 7.7276221e-05       729014            0 5.3902421e+18 
+     150    114.80952 971007521      285        1       24    42424.548 0.00047615266 0.00039876396 7.7388703e-05       728778            0 5.0332724e+18 
+     160    123.68883 971006946        2        0       25    42411.196 0.00047630419 0.00039889503 7.7409155e-05       728570            0 4.8636967e+18 
+     170    132.96676 971008609        0        0       35    42397.876 0.00047642119 0.00039899721 7.7423975e-05       728323            0 5.1180076e+18 
+     180    142.67282 971008458      145        1       15    42384.541 0.00047656925 0.00039910274 7.7466501e-05       728201            0 5.3442179e+18 
+     190    152.83714 971008542       51        0       25    42371.145 0.00047673535 0.00039921974 7.7515609e-05       728006            0 5.3055786e+18 
+     200    163.57207 971009788        2        0       19    42357.689 0.00047697475 0.00039944031 7.7534433e-05       727834            0 5.4999485e+18 
+     210    174.56938 971007257      151        0       26    42344.258 0.00047711117 0.00039955485 7.7556321e-05       727538            0 5.3484393e+18 
+     220    185.85697 971008629       52        0       32    42330.897 0.00047724359 0.00039964692 7.7596678e-05       727318            0 5.2106413e+18 
+     230    197.30536 971007236       19        0       16    42317.535 0.00047730717 0.00039969739 7.7609786e-05       727211            0 4.9850724e+18 
+     240    209.03941 971007875      180        4       27    42304.175 0.0004773606 0.00039974735 7.7613253e-05       727056            0 4.8737874e+18 
+     250    221.11289 971008217       34        0       20      42290.8 0.00047740278 0.00039977541 7.7627372e-05       726929            0 4.8631268e+18 
+     260    233.44066 971008107       61        1       16    42277.397 0.00047749831 0.00039985911 7.7639202e-05       726632            0 4.7650416e+18 
+     270    246.05818 971009505      114        1       17     42264.02 0.00047753971 0.00039988957 7.7650137e-05       726525            0 4.6741952e+18 
+     280    258.83077 971010724       37        0       26    42250.657 0.00047761749 0.00039997002 7.7647465e-05       726202            0 4.6717757e+18 
+     290    271.78029 971011134      421        3       20    42237.271 0.00047767725 0.00040003431 7.7642935e-05       725944            0 4.5112335e+18 
+     300    285.46392 971010699       53        0       20    42223.887 0.00047774881 0.00040009863 7.7650179e-05       725752            0 4.5143888e+18 
+     310    298.86734 971009220       88        0       25    42210.505 0.00047780369 0.00040015285 7.7650849e-05       725556            0 4.3692316e+18 
+     320    312.49602 971008766      104        0       24    42197.122 0.00047785669 0.00040019242 7.7664268e-05       725311            0 4.5201096e+18 
+     330    326.32954 971008778       57        1       27    42183.779 0.00047790271 0.00040023335 7.7669353e-05       725051            0 4.4531305e+18 
+     340    340.33437 971009659      169        2       26    42170.409 0.00047797482 0.0004002588 7.7716024e-05       724708            0 4.5251592e+18 
+     350    354.51479 971010180      209        4       21    42157.029 0.00047799538 0.00040026181 7.773357e-05       724619            0 4.4618528e+18 
+     360    368.86402 971008470      126        1       17    42143.653 0.0004780169 0.00040029261 7.7724287e-05       724400            0 4.5296494e+18 
+     370    383.40701 971005996       98        0       26     42130.31 0.00047803225 0.00040030656 7.7725692e-05       724137            0 4.4696347e+18 
+     380    398.13093 971008658      156        0       28    42116.893 0.00047809848 0.00040036715 7.7731323e-05       723909            0 4.4732193e+18 
+     390    412.95804 971011652      198        2       23    42103.508 0.00047812694  0.000400393 7.7733943e-05       723625            0 4.5355234e+18 
+     400    428.24736 971011745       80        1       22    42090.116 0.00047813886 0.00040040846 7.7730401e-05       723363            0 4.6521541e+18 
+     410    443.40169 971010460      169        3       27     42076.74 0.00047815603 0.00040041322 7.7742805e-05       723107            0 4.5949996e+18 
+     420      458.728 971011445      223        3       31    42063.341 0.00047818763 0.00040045003 7.7737603e-05       722859            0 4.5405602e+18 
+     430    474.16828 971011209      110        2       21    42049.975 0.00047820476 0.00040045804 7.7746715e-05       722554            0 4.5955196e+18 
+     440    489.65234 971011434      281        5       24    42036.603 0.00047822726 0.00040047666 7.7750601e-05       722395            0 4.595762e+18 
+     450    505.33676 971011398      120        3       20     42023.26 0.0004782411 0.0004004899 7.7751201e-05      

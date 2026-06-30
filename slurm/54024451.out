@@ -1,0 +1,58 @@
+SPARTA (24 Sep 2025)
+Running on 48 MPI task(s)
+Created orthogonal box = (-1.5 -1 -1) to (1.5 1 1)
+Loaded NRLMSIS data: rho=1.662932e-11 nrho=574610200000000 T=978.3039 vx=7725.8
+MEAN FREE PATH = 4755.35476469327 m
+MEAN MOLEC VEL = 1090.17949977506 m/s
+CELL SIZE MUST BE LESS THAN 1585.11825489776 m
+MEAN COLL TIME = 4.36199246607963 s
+MEAN TRANSIT TIME = 1.45399748869321 s
+TIMESTEP MUST BE < 0.484665829564403 s
+Created 4500000 child grid cells
+  CPU time = 0.0814674 secs
+  create/ghost percent = 20.0975 79.9025
+Balance grid migrated 4350950 cells
+  CPU time = 0.282158 secs
+  reassign/sort/migrate/ghost percent = 32.6938 1.22951 47.1112 18.9655
+Reading surface file ...
+  12 triangles
+  -0.4475 0.4475 xlo xhi
+  -0.28625 0.28625 ylo yhi
+  -0.3395 0.3395 zlo zhi
+  0.5725 min triangle edge length
+  0.194364 min triangle area
+  15480 = cells with surfs
+  16718 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  38.1667 = min surf-size/cell-size ratio
+  15480 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  12 tiny edges removed
+  4362720 121800 15480 = cells outside/inside/overlapping surfs
+  15480 = surf cells with 1,2,etc splits
+  11.6520888875223 11.6520888875 = cell-wise and global flow volume
+  CPU time = 0.103846 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 9.99724 2.91913 16.6802 18.3879 52.0155 60.1287 0.0172699
+  surf2grid time = 0.0190951 secs
+  map/comm1/comm2/comm3/comm4/split percent = 22.9087 0 0 0 0 58.377
+0 = initial surface count in group ampt_xnorm
+4 = final surface count in group ampt_xnorm
+0 = initial surface count in group ampt_yznorm
+8 = final surface count in group ampt_yznorm
+Reading surface file ...
+  64 triangles
+  -0.4485 -0.4485 xlo xhi
+  -0.000977 0.000977 ylo yhi
+  -0.000977 0.000977 zlo zhi
+  9.58782e-05 min triangle edge length
+  4.67801e-08 min triangle area
+  15480 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  24 tiny edges removed
+  4362720 121800 15480 = cells outside/inside/overlapping surfs
+  15480 = surf cells with 1,2,etc splits
+  11.6520888875223 11.6520888875 = cell-wise and global flow volume
+  CPU time = 0.167557 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 1.07225 1.08228 12.1883 52.2369 33.4203 36.5898 0.00782779
+  surf2grid time = 0.0875265 secs
+  map/comm1/comm2/comm3/comm4/split percent = 44.722 0.637815 13.8594 4.48524 6.56088 12.9564
+particles per particle = 574610.2
+Creating particles ...
