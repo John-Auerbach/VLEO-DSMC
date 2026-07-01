@@ -189,15 +189,36 @@ compute         Tbox temp # define a compute Tbox that calculates domain everage
 # count ambipolar ions (and electrons, which should stay ~0 since e is always bound)
 compute         ions count O+ N+ O2+ N2+ NO+ e
 
-# flux check: measured incident flux should be similar to nrho*vstream
-compute         probe_flux surf probe atm nflux_incident
-fix             probe_avg ave/surf probe 1 1 1 c_probe_flux[1] ave running
-compute         probe_mean reduce ave f_probe_avg subset probe
+# FLUX CHECK to ensure measured incident flux should be similar to nrho*vstream ------
+
+# split tally into neutral vs ion contributions using a dedicated mixture w/ 2 species groups
+# compute surf outputs one column per group, col[1]=neutrals, col[2]=ions
+# atm mixture left untouched so drag/grid computes keep single-column layout
+# probemix is copied from atm so it inherits nrho/vstream/temp
+
+mixture         atm copy probemix
+mixture         probemix N2 O2 O He Ar N group neutrals
+mixture         probemix O+ O2+ NO+ N+ N2+ group ions
+compute         probe_flux surf probe probemix nflux_incident
+
+
+fix             probe_avg ave/surf probe 1 1 1 c_probe_flux[*] ave running
+compute         probe_neut reduce ave f_probe_avg[1] subset probe   # neutral flux
+compute         probe_ion  reduce ave f_probe_avg[2] subset probe   # ion flux
 variable        probe_expect equal ${nrho}*${vx}
 print           "flux check: expected nrho*vstream = ${probe_expect} #/m^2/s"
+                # per-group expected flux: ion density = ne (quasineutrality),
+                # neutral density = nrho - ne. Both from data/atm.sparta.
+variable        probe_expect_ion  equal ${ne}*${vx}
+variable        probe_expect_neut equal (${nrho}-${ne})*${vx}
+print           "flux check (ion):     expected ne*vstream       = ${probe_expect_ion} #/m^2/s"
+print           "flux check (neutral): expected (nrho-ne)*vstream = ${probe_expect_neut} #/m^2/s"
+
+# ----------------------------------------------------------
+
 stats           ${diag_freq} # print diagnostics every _ timesteps
                 # ... nsreact = surface reactions/step; c_ions[1]=O+, c_ions[6]=e counts
-stats_style     step cpu np nattempt ncoll nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_mean
+stats_style     step cpu np nattempt ncoll nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_neut c_probe_ion
 
 timestep        ${tstep}
                 # collide must use a mixture containing ALL species (incl. e, N2+);
@@ -205,6 +226,6 @@ timestep        ${tstep}
                 # "atm" (no e) is still what drives create_particles/emit.
 collide		    vss all vss/air.vss # variable soft sphere model
 collide_modify  ambipolar yes # enable ambipolar ionization/recombination during collisions
-run             10000
+run             1000
 
 shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
