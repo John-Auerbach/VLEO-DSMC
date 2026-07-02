@@ -14,31 +14,31 @@ dimension       3
 boundary        o p p
 
 # domain size (m)
-variable        xmin equal -1.5
-variable        xmax equal 1.5
-variable        ymin equal -1
-variable 	    ymax equal 1
-variable	    zmin equal -1
-variable	    zmax equal 1
+variable        xmin equal -0.5
+variable        xmax equal 0.5
+variable        ymin equal -0.5
+variable 	    ymax equal 0.5
+variable	    zmin equal -0.5
+variable	    zmax equal 0.5
 
 variable	    Lx equal ${xmax}-${xmin}
-variable	    Lx equal 1.5-${xmin}
-variable	    Lx equal 1.5--1.5
+variable	    Lx equal 0.5-${xmin}
+variable	    Lx equal 0.5--0.5
 variable        Ly equal ${ymax}-${ymin}
-variable        Ly equal 1-${ymin}
-variable        Ly equal 1--1
+variable        Ly equal 0.5-${ymin}
+variable        Ly equal 0.5--0.5
 variable        Lz equal ${zmax}-${zmin}
-variable        Lz equal 1-${zmin}
-variable        Lz equal 1--1
+variable        Lz equal 0.5-${zmin}
+variable        Lz equal 0.5--0.5
 
 create_box      ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -1.5 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -1.5 1.5 ${ymin} ${ymax} ${zmin} ${zmax}
-create_box      -1.5 1.5 -1 ${ymax} ${zmin} ${zmax}
-create_box      -1.5 1.5 -1 1 ${zmin} ${zmax}
-create_box      -1.5 1.5 -1 1 -1 ${zmax}
-create_box      -1.5 1.5 -1 1 -1 1
-Created orthogonal box = (-1.5 -1 -1) to (1.5 1 1)
+create_box      -0.5 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax}
+create_box      -0.5 0.5 ${ymin} ${ymax} ${zmin} ${zmax}
+create_box      -0.5 0.5 -0.5 ${ymax} ${zmin} ${zmax}
+create_box      -0.5 0.5 -0.5 0.5 ${zmin} ${zmax}
+create_box      -0.5 0.5 -0.5 0.5 -0.5 ${zmax}
+create_box      -0.5 0.5 -0.5 0.5 -0.5 0.5
+Created orthogonal box = (-0.5 -0.5 -0.5) to (0.5 0.5 0.5)
 
 # Load atmospheric data (run: python3 tools/load_atm_data.py <altitude_km> --ions)
 # NOTE: this script models ions via the ambipolar approximation, so atm.sparta
@@ -130,12 +130,12 @@ global          gridcut 0.01              # ghost layer ~6 cells deep (above par
 global          mem/limit 1024             # cap MPI send buffers at 1 GB to avoid >2 GB overflow
 create_grid	    200 150 150 block * * *
 Created 4500000 child grid cells
-  CPU time = 0.317054 secs
-  create/ghost percent = 2.5151 97.4849
+  CPU time = 0.359407 secs
+  create/ghost percent = 2.20855 97.7914
 balance_grid    rcb part
-Balance grid migrated 4410114 cells
-  CPU time = 0.397091 secs
-  reassign/sort/migrate/ghost percent = 52.345 0.289034 13.2313 34.1348
+Balance grid migrated 4383670 cells
+  CPU time = 0.412628 secs
+  reassign/sort/migrate/ghost percent = 51.4017 0.289716 13.2162 35.0924
 
 variable	    diag_freq   equal 10 # dump diagnostics every _ timesteps
 variable 	    tstep       equal 1.0e-7 # choose small timestep << cell flight time; start 1e-7 s
@@ -149,19 +149,19 @@ read_surf	    surf/esasat.surf  group ampt        # create surface group "ampt"
   -0.3395 0.3395 zlo zhi
   0.5725 min triangle edge length
   0.194364 min triangle area
-  15480 = cells with surfs
-  16718 = total surfs in all grid cells
+  83760 = cells with surfs
+  86696 = total surfs in all grid cells
   6 = max surfs in one grid cell
-  38.1667 = min surf-size/cell-size ratio
-  15480 0 = cells overlapping surfs, overlap cells with unmarked corner pts
-  12 tiny edges removed
-  4362720 121800 15480 = cells outside/inside/overlapping surfs
-  15480 = surf cells with 1,2,etc splits
-  11.6521 11.6521 = cell-wise and global flow volume
-  CPU time = 0.778779 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 0.82169 94.5896 0.60434 0.928432 3.05599 3.03845 0.00329297
-  surf2grid time = 0.00723044 secs
-  map/comm1/comm2/comm3/comm4/split percent = 22.0073 0 0 0 0 60.5011
+  85.875 = min surf-size/cell-size ratio
+  83760 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  7 tiny edges removed
+  2921040 1495200 83760 = cells outside/inside/overlapping surfs
+  83760 = surf cells with 1,2,etc splits
+  0.652089 0.652089 = cell-wise and global flow volume
+  CPU time = 0.797796 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 1.01923 93.5593 0.553518 1.16512 3.70282 2.03453 0.00185549
+  surf2grid time = 0.00929524 secs
+  map/comm1/comm2/comm3/comm4/split percent = 24.3573 0 0 0 0 61.6434
 group           ampt_xnorm surf id 1:4              # front/back faces (ram direction)
 0 = initial surface count in group ampt_xnorm
 4 = final surface count in group ampt_xnorm
@@ -177,164 +177,14 @@ read_surf       surf/3mm2_esasat_flux_probe.surf group probe transparent
   -0.000977 0.000977 zlo zhi
   9.58782e-05 min triangle edge length
   4.67801e-08 min triangle area
-  15480 = cells with surfs
-  16974 = total surfs in all grid cells
+  83760 = cells with surfs
+  86952 = total surfs in all grid cells
   66 = max surfs in one grid cell
-  0.00639188 = min surf-size/cell-size ratio
-  15480 0 = cells overlapping surfs, overlap cells with unmarked corner pts
-  24 tiny edges removed
-  4362720 121800 15480 = cells outside/inside/overlapping surfs
-  15480 = surf cells with 1,2,etc splits
-  11.6521 11.6521 = cell-wise and global flow volume
-  CPU time = 0.0408635 secs
-  read/check/sort/surf2grid/ghost/inout/particle percent = 6.97677 5.32006 9.498 20.358 57.8472 58.5864 0.0324397
-  surf2grid time = 0.00831899 secs
-  map/comm1/comm2/comm3/comm4/split percent = 35.2679 0 0 0 0 51.3447
-surf_collide    probe_t transparent
-surf_modify     probe collide probe_t
-
-# SPECIES AND MIXTURE -------------------------------------------------------------------------
-
-# set mixture properties from NRLMSIS data
-mixture     	atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
-mixture     	atm nrho 574610200000000 vstream ${vx} 0.0 0.0 temp ${T}
-mixture     	atm nrho 574610200000000 vstream 7725.8 0.0 0.0 temp ${T}
-mixture     	atm nrho 574610200000000 vstream 7725.8 0.0 0.0 temp 978.3039
-
-# AMBIPOLAR IONS ------------------------------------------------------------------------------
-# Track ions with bound electrons as single ambipolar particles (e is the bound
-# electron of each ion). Must be defined before create_particles / emit so that
-# created/injected ions carry their electron. Species defined in data/atm.sparta.
-fix             ambi ambipolar e O+ N+ O2+ N2+ NO+
-
-# particle weighting: set target of 2e5 sim particles, calculate weighting factor
-variable        Ns_target equal 1000000000.0
-variable        Vol       equal ${Lx}*${Ly}*${Lz}
-variable        Vol       equal 3*${Ly}*${Lz}
-variable        Vol       equal 3*2*${Lz}
-variable        Vol       equal 3*2*2
-variable        fnum      equal ${nrho}*${Vol}/${Ns_target}
-variable        fnum      equal 574610200000000*${Vol}/${Ns_target}
-variable        fnum      equal 574610200000000*12/${Ns_target}
-variable        fnum      equal 574610200000000*12/1000000000
-global          fnum ${fnum} # global bc will be queried by each new particle
-global          fnum 6895322.4 
-
-variable	    parts_per equal ${nrho}/${Ns_target}
-variable	    parts_per equal 574610200000000/${Ns_target}
-variable	    parts_per equal 574610200000000/1000000000
-print "particles per particle = ${parts_per}"
-particles per particle = 574610.2
-
-# global useful for stat query later
-global          nrho ${nrho}
-global          nrho 574610200000000
-
-# create an initial fill (n 0 -> auto compute # of particles from fnum and nrho)
-create_particles	atm n 0
-Created 971007407 particles
-  CPU time = 8.98085 secs
-
-# continuous inflow; inject gas from xlo every step (fix -> run each time step, ID: "in")
-fix		        in emit/face atm xlo
-
-# SURFACE COLLISIONS --------------------------------------------------------------------------
-
-                # compute ID, type, surf group, mixture, property (energy flux on surface)
-compute         compute_qwall surf ampt atm ke # ke = kinetic + internal energy. W/m^2 *multi-column array for all surface groups
-
-                # running‑average every step so flux is never exactly zero (exponential decay)
-fix             flux ave/surf ampt 1 1 1 c_compute_qwall[1] ave running  # running mean, updates each step
-fix             fix_Tsurf surf/temp ampt 1 f_flux 300.0 1 Tsurf  # Stefan-Boltzmann
-
-# define collision models (both diffuse, using local facet temp + full accommodation)
-surf_collide 	diffuse_xnorm  diffuse s_Tsurf 1   # diffuse model for front/back faces
-surf_collide    diffuse_yznorm diffuse s_Tsurf 1   # diffuse model for side walls
-# ambipolar ions recombine to their parent neutral on contact with the surface
-surf_react      recomb prob surf/esasat.react
-# apply to respective surface groups (collide model + ion surface recombination)
-surf_modify 	ampt_xnorm  collide diffuse_xnorm  react recomb   # attach model to front/back facets
-surf_modify 	ampt_yznorm collide diffuse_yznorm react recomb   # attach model to side-wall facets
-
-# DIAGNOSTICS ---------------------------------------------------------------------------------
-
-                # per-grid properties: nrho, massrho, pxrho (for flow calcs)
-compute         prop_grid grid all atm nrho massrho pxrho
-                # per-grid temperature
-compute         prop_grid_temp grid all atm temp
-                # per-grid pressure (thermal/grid supports press property)
-compute         prop_grid_press thermal/grid all atm press
-                # per-grid velocity components (for streamlines)
-compute         prop_grid_flow grid all atm u v w
-                # single grid dump with all properties
-#dump            dump_grid grid all ${diag_freq} dumps/esasat/grid.*.dat id xlo ylo zlo xc yc zc                     c_prop_grid[*] c_prop_grid_temp[*] c_prop_grid_press[*] c_prop_grid_flow[*]
-
-                # ID, data type, mixture, every _ steps, filename, columns (particle data)
-                # p_ionambi = ambipolar flag (1 = ion carrying a bound electron)
-#dump            dump_part particle atm ${diag_freq} dumps/esasat/part.*.dat id type x y z vx vy vz p_ionambi
-
-		        # ID, data type, region, every _ steps, filename, columns (facet id, triangle vertices, surface temperature)
-#dump    	    dump_surf surf ampt ${diag_freq} dumps/esasat/surf.*.dat id v1x v1y v1z v2x v2y v2z v3x v3y v3z f_flux[*] s_Tsurf
-
-# Measure simulated flow properties for domain ---------------------
-
-compute         vol_grid  property/grid all vol
-
-# Use grid-style variables to multiply density by volume for each cell
-variable        nrho_vol grid c_prop_grid[1]*c_vol_grid
-variable        rho_vol  grid c_prop_grid[2]*c_vol_grid
-variable        px_vol   grid c_prop_grid[3]*c_vol_grid
-
-compute         sum_vol      reduce sum c_vol_grid
-compute         sum_nrho_vol reduce sum v_nrho_vol
-compute         sum_rho_vol  reduce sum v_rho_vol
-compute         sum_px_vol   reduce sum v_px_vol
-
-variable        nrho_avg equal c_sum_nrho_vol/c_sum_vol
-variable        rho_avg  equal c_sum_rho_vol/c_sum_vol
-variable        ux_avg   equal c_sum_px_vol/c_sum_rho_vol
-
-fix             boxprops ave/time 1 1 100 v_ux_avg v_rho_avg v_nrho_avg ave running file dumps/esasat/box_props.dat
-
-# DRAG CALC (short for caclulator) ------------------------
-# sum of surface forces (direct):
-                # compute per-surface-element force components (fx,fy,fz) for all ampt surfaces
-compute         surfF surf ampt atm fx fy fz
-                # time-average per-surf forces (running mean)
-fix             surfavg ave/surf ampt 1 1 1 c_surfF[*] ave running
-                # reduce (sum) per-surf averaged fx -> global total drag
-compute         drag reduce sum f_surfavg[1]
-
-# compute forces for x-normal surfaces (ram drag)
-compute         surfF_xnorm surf ampt_xnorm atm fx fy fz
-fix             surfavg_xnorm ave/surf ampt_xnorm 1 1 1 c_surfF_xnorm[*] ave running
-compute         drag_xnorm reduce sum f_surfavg_xnorm[1]
-
-# compute forces for y/z-normal surfaces (skin friction)
-compute         surfF_walls surf ampt_yznorm atm fx fy fz
-fix             surfavg_walls ave/surf ampt_yznorm 1 1 1 c_surfF_walls[*] ave running
-compute         drag_walls reduce sum f_surfavg_walls[1]
-
-# write drag components (timestep, total_drag, ram_drag, skin_friction) to file
-fix             dragout ave/time 1 1 100 c_drag c_drag_xnorm c_drag_walls file dumps/esasat/direct_drag.dat mode scalar
-
-# ----------------------------------------------------------
-
-# cell-averaged (streaming+thermal) temperature
-compute         Tbox temp # define a compute Tbox that calculates domain everaged temp
-# count ambipolar ions (and electrons, which should stay ~0 since e is always bound)
-compute         ions count O+ N+ O2+ N2+ NO+ e
-
-# flux check: measured incident flux should be similar to nrho*vstream.
-# Split the tally into neutral vs ion contributions using a dedicated mixture
-# with two species groups. compute surf outputs one column per group, ordered
-# by group-creation order -> col[1]=neutrals, col[2]=ions. The atm mixture is
-# left untouched (single "default" group) so drag/grid computes keep their
-# single-column layout. probemix is copied from atm so it inherits nrho/vstream/temp.
-mixture         atm copy probemix
-mixture         probemix N2 O2 O He Ar N group neutrals
-mixture         probemix O+ O2+ NO+ N+ N2+ group ions
+  0.0143817 = min surf-size/cell-size ratio
+  83760 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  N2+ group ions
 compute         probe_flux surf probe probemix nflux_incident
+
+
 fix             probe_avg ave/surf probe 1 1 1 c_probe_flux[*] ave running
 compute         probe_neut reduce ave f_probe_avg[1] subset probe   # neutral flux
 compute         probe_ion  reduce ave f_probe_avg[2] subset probe   # ion flux
@@ -356,10 +206,37 @@ print           "flux check (ion):     expected ne*vstream       = ${probe_expec
 flux check (ion):     expected ne*vstream       = 3.4178514281e+15 #/m^2/s
 print           "flux check (neutral): expected (nrho-ne)*vstream = ${probe_expect_neut} #/m^2/s"
 flux check (neutral): expected (nrho-ne)*vstream = 4.4359056317319e+18 #/m^2/s
+
+# CONE-ANGLE CHECK (fraction of incoming particles within +/-1 deg of +x) --------------------
+# `compute surf` can only split a tally by species, not by velocity direction. So instead we
+# flag particles in a thin slab spanning the whole RAM face and tally what fraction of the
+# forward-moving ones already point within +/-1 deg of the +x axis. If nearly all do, the
+# incoming beam is effectively collimated and no per-angle flux breakdown is needed.
+
+# per-particle off-axis angle (deg) of the velocity vector from the +x axis
+variable        offaxis particle atan2(sqrt(vy*vy+vz*vz),vx)*180.0/PI
+
+# thin slab (~1 x-cell thick) at the RAM face (x=-0.4485), spanning the full y,z frontal area.
+# fwd  = forward-moving (vx>0) particles in the slab (the incoming beam)
+# cone = subset of fwd within +/-1 deg of +x
+variable        fwd  particle (x>-0.4510)*(x<-0.4460)*(vx>0)
+variable        cone particle (x>-0.4510)*(x<-0.4460)*(vx>0)*(v_offaxis<=1.0)
+
+compute         n_fwd  reduce sum v_fwd
+compute         n_cone reduce sum v_cone
+variable        cone_frac equal c_n_cone/c_n_fwd
+
+# running average of the counts + fraction over the whole run
+fix             conef ave/time 1 1 ${diag_freq} c_n_cone c_n_fwd v_cone_frac ave running file dumps/esasat/cone_fraction.dat
+fix             conef ave/time 1 1 10 c_n_cone c_n_fwd v_cone_frac ave running file dumps/esasat/cone_fraction.dat
+
+# ----------------------------------------------------------
+
 stats           ${diag_freq} # print diagnostics every _ timesteps
 stats           10 
                 # ... nsreact = surface reactions/step; c_ions[1]=O+, c_ions[6]=e counts
-stats_style     step cpu np nattempt ncoll nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_neut c_probe_ion
+                # c_n_cone/c_n_fwd = live counts; v_cone_frac = fraction within +/-1 deg of +x
+stats_style     step cpu np nattempt ncoll nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_neut c_probe_ion c_n_cone c_n_fwd v_cone_frac
 
 timestep        ${tstep}
 timestep        1e-07
@@ -370,170 +247,27 @@ collide		    vss all vss/air.vss # variable soft sphere model
 collide_modify  ambipolar yes # enable ambipolar ionization/recombination during collisions
 run             1000
 Memory usage per proc in Mbytes:
-  particles (ave,min,max) = 1235.21 838 1272
-  grid      (ave,min,max) = 17.1616 11.5763 17.3263
+  particles (ave,min,max) = 830.042 0 1272
+  grid      (ave,min,max) = 17.1115 11.5763 17.3263
   surf      (ave,min,max) = 0.00956726 0.00956726 0.00956726
-  total     (ave,min,max) = 1260.33 863.308 1297.31
-Step CPU Np Natt Ncoll Nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_neut c_probe_ion 
-       0            0 971007407        0        0        0    42625.055            0            0            0       732170            0            0            0 
-      10    6.5400252 971009330        0        0       17    42611.685 0.00043677924 0.00036575652 7.1022724e-05       731910            0 2.0937304e+18            0 
-      20    13.148607 971006391        0        0       24    42598.311 0.00045699103 0.00038283222 7.4158803e-05       731597            0 2.1934318e+18            0 
-      30    19.802106 971006989        0        0       26    42584.926 0.0004641505 0.00038882488 7.5325625e-05       731310            0 2.9717464e+18            0 
-      40    26.718331 971007808        0        0       22    42571.592 0.00046769396 0.00039172181 7.5972147e-05       731172            0 4.4938604e+18            0 
-      50    33.584263 971008399        0        0       23    42558.197 0.00047012149 0.00039374874 7.6372756e-05       730925            0 5.8706558e+18            0 
-      60    40.607991 971007224        0        0       29    42544.835 0.00047155636 0.00039491545 7.6640917e-05       730615            0 5.6633691e+18            0 
-      70    47.716326 971007755        0        0       17    42531.486 0.00047246474 0.00039575026 7.6714485e-05       730340            0 5.8388538e+18            0 
-      80    54.924802 971006596        0        0       30    42518.105 0.0004733237 0.00039643242 7.6891279e-05       730048            0 5.6866752e+18            0 
-      90    62.193406 971006996        0        0       19    42504.732 0.00047386965 0.00039700238 7.6867273e-05       729853            0 5.8210307e+18            0 
-     100    69.872226 971007563        0        0       23    42491.418 0.0004743079 0.00039735164 7.6956258e-05       729754            0 5.9287811e+18            0 
-     110    77.345105 971006473      401        4       31    42477.998 0.00047482748  0.000397781 7.7046488e-05       729622            0 5.6021435e+18            0 
-     120    85.077418 971006542        0        0       26    42464.566 0.00047527111 0.0003980987 7.7172404e-05       729512            0 5.9005129e+18            0 
-     130    93.023492 971008641        0        0       22    42451.155 0.00047560653 0.00039839408 7.7212445e-05       729349            0 5.8017109e+18            0 
-     140    101.33447 971006461        0        0       24    42437.799 0.00047577669 0.00039852205 7.725464e-05       729176            0 5.7169234e+18            0 
-     150    109.86488 971006296      279        2       22    42424.367 0.00047612759 0.00039875531 7.7372279e-05       728980            0 5.3383192e+18            0 
-     160    118.74809 971006312        0        0       33    42411.035 0.00047627962 0.00039889508 7.7384541e-05       728750            0 5.1497965e+18            0 
-     170    127.97472 971008350        0        0       23    42397.703 0.00047638142 0.00039895804 7.7423379e-05       728456            0 5.1180076e+18            0 
-     180    137.68364 971009369      163        1       20    42384.345 0.00047657212 0.00039910281 7.7469313e-05       728347            0 5.3442179e+18            0 
-     190     147.7461 971010009       46        0       24    42370.955 0.00047671619 0.00039922708 7.748911e-05       728138            0 5.4261599e+18            0 
-     200    158.41177 971011079        3        0       18    42357.563 0.00047689536 0.00039938213 7.7513231e-05       728027            0 5.3853662e+18            0 
-     210    169.59328 971008681      150        0       28    42344.159 0.00047701019 0.00039946958 7.7540614e-05       727729            0 5.2392874e+18            0 
-     220    180.78493 971009171       53        0       29    42330.809 0.00047712096 0.00039955126 7.7569705e-05       727477            0 5.3148541e+18            0 
-     230     192.2691 971007075       17        1       20    42317.453 0.00047717924 0.00039960683 7.7572409e-05       727336            0 5.1844753e+18            0 
-     240    203.99255 971006609      166        2       31    42304.089 0.00047723889 0.00039966536 7.7573524e-05       727168            0 5.0649163e+18            0 
-     250    215.97105 971006586       30        0       24    42290.697 0.00047730181 0.00039971123 7.7590577e-05       726993            0 5.2301552e+18            0 
-     260    228.20248 971007604       74        1       14    42277.345 0.0004773487 0.00039973789 7.7610811e-05       726718            0 5.0297661e+18            0 
-     270    240.57579 971008452      113        1       17    42263.926 0.00047744758 0.00039982069 7.7626888e-05       726571            0 4.9291513e+18            0 
-     280    253.20451 971009342       30        0       25    42250.563 0.0004775153 0.00039989825 7.7617053e-05       726231            0 5.0815805e+18            0 
-     290    266.04544 971009915      472        2       17    42237.191 0.00047756897 0.00039994982 7.7619145e-05       725978            0 4.9069558e+18            0 
-     300    279.31814 971008204       69        0       21    42223.869 0.0004775918 0.00039996884 7.7622962e-05       725802            0 4.8969641e+18            0 
-     310    292.63506 971007545       82        1       25    42210.556 0.00047758952 0.00039996946 7.762006e-05       725672            0 4.887615e+18            0 
-     320    306.05943 971008715      115        0       34    42197.165 0.00047765135 0.00040001762 7.7633736e-05       725436            0 4.9505962e+18            0 
-     330    319.67592 971007391       61        0       35    42183.775 0.0004777202 0.0004000787 7.7641506e-05       725228            0 4.9401917e+18            0 
-     340    333.49683 971008171      181        2       17    42170.387 0.00047779556 0.00040011217 7.7683381e-05       724912            0 4.9303974e+18            0 
-     350    347.48844 971009492      150        0       19    42156.985 0.00047785336 0.00040015253 7.7700833e-05       724822            0 4.9867767e+18            0 
-     360    361.68911 971009553      109        0       21    42143.577 0.00047790707 0.00040019953 7.7707544e-05       724609            0 4.9124367e+18            0 
-     370    376.02262 971008756       88        1       31    42130.223 0.00047794467 0.00040023017 7.7714501e-05       724349            0 4.8421043e+18            0 
-     380    390.47807 971011793      203        0       29    42116.815 0.0004780192 0.0004002975 7.7721707e-05       724153            0 4.7754638e+18            0 
-     390    405.09411 971012698      179        3       32    42103.443 0.00047804096 0.00040032307 7.7717891e-05       723823            0 4.8889408e+18            0 
-     400    420.24709 971013968       73        0       25    42090.044 0.00047804904 0.00040033112 7.771792e-05       723550            0 4.8818901e+18            0 
-     410    435.24814 971013401      184        3       21    42076.666 0.00047807011 0.00040034621 7.7723902e-05       723262            0 4.8751825e+18            0 
-     420     450.3237 971013226      201        3       29    42063.272 0.00047811302 0.00040039168 7.7721341e-05       723101            0 4.8140879e+18            0 
-     430    465.57181 971013877      111        2       21    42049.929 0.0004781232 0.00040040287 7.7720327e-05       722757            0 4.8092647e+18            0 
-     440    480.99366 971012970      300        5       26    42036.595 0.00047813364 0.00040041726 7.7716378e-05       722649            0 4.8046602e+18            0 
-     450    496.45086 971013831      151        1       23    42023.253 0.00047816227 0.00040044644 7.7715831e-05       722378            0 4.6981267e+18            0 
-     460    512.00854 971013571      154        1       27    42009.919 0.00047817154 0.00040045255 7.7718983e-05       722192            0 4.5962151e+18            0 
-     470     527.7034 971013836      214        4       26    41996.597 0.00047816411 0.00040043998 7.7724135e-05       721892            0 4.6942236e+18            0 
-     480    543.48033 971012138      147        0       18     41983.25 0.00047815927 0.00040042952 7.7729746e-05       721765            0 4.7881568e+18            0 
-     490    559.44873 971012503      254        4       23    41969.924 0.00047817719 0.00040044866 7.7728532e-05       721540            0 4.8313575e+18            0 
-     500    575.80828 971012841      161        3       22    41956.623 0.00047819074 0.00040045366 7.7737077e-05       721286            0 4.7808934e+18            0 
-     510    591.95143 971015357      230        2       30    41943.219 0.00047821244 0.00040047723 7.7735212e-05       721084            0 4.8225454e+18            0 
-     520    608.25501 971016233      248        3       21    41929.833 0.00047824645 0.00040050754 7.7738917e-05       720863            0 4.9068039e+18            0 
-     530    624.73153 971016682      184        1       17    41916.451 0.00047827842 0.00040053799 7.774043e-05       720591            0  4.85777e+18            0 
-     540     641.3573 971015856      300        2       26    41903.031 0.00047832275 0.00040057873 7.7744022e-05       720330            0  4.85312e+18            0 
-     550    658.02293 971014358      192        0       25    41889.625 0.00047834533 0.00040060059 7.7744745e-05       720087            0 4.8486388e+18            0 
-     560    674.86359 971015076      273        3       28    41876.247 0.00047836945 0.00040062296 7.7746493e-05       719872            0 4.8443174e+18            0 
-     570    691.80201 971016680      292        5       21    41862.874 0.00047838395 0.00040062746 7.7756496e-05       719523            0 4.961151e+18            0 
-     580    708.79475 971015076      196        1       18    41849.534 0.00047839098 0.00040063347 7.7757517e-05       719268            0 4.9154015e+18            0 
-     590    725.93899 971015108      252        1       21    41836.151 0.00047840638 0.00040065357 7.7752809e-05       718996            0 4.8712002e+18            0 
-     600    743.59119 971018360      300        2       23    41822.795 0.00047841822 0.00040066349 7.7754727e-05       718750            0 4.9817545e+18            0 
-     610    760.94877 971019908      258        5       27    41809.509 0.00047839842  0.000400643 7.7755415e-05       718385            0 4.9756081e+18            0 
-     620    778.53006 971019502      255        1       27    41796.145 0.0004784087 0.00040065176 7.7756934e-05       718085            0 4.9325726e+18            0 
-     630    796.11555 971019171      275        3       22      41782.8 0.00047840077 0.00040064434 7.7756436e-05       717824            0 4.9274004e+18            0 
-     640    813.76713 971015929      290        3       20    41769.431 0.00047841164 0.00040065037 7.7761277e-05       717526            0 4.9942493e+18            0 
-     650    831.47874 971016066      301        2       24    41756.066 0.00047843412 0.00040067909 7.7755025e-05       717349            0 4.9175327e+18            0 
-     660    849.73461 971013835      245        1       26    41742.703 0.00047845948 0.00040070109 7.7758389e-05       717057            0 4.8431373e+18            0 
-     670    867.79721 971013720      297        5       28    41729.278 0.00047848549 0.00040072892 7.7756565e-05       716771            0 4.8396063e+18            0 
-     680    886.12601 971014726      265        2       26    41715.946 0.0004784806 0.00040071912 7.7761473e-05       716439            0 4.9376373e+18            0 
-     690    904.31839 971016501      290        3       23    41702.578 0.00047849261 0.00040073002 7.7762594e-05       716220            0 4.9661709e+18            0 
-     700    923.00697 971017640      306        2       17    41689.164 0.0004785195 0.00040074694 7.7772553e-05       715997            0 4.9281814e+18            0 
-     710    941.50633 971015158      334        4       20    41675.821 0.00047851686 0.00040074625 7.7770608e-05       715754            0 4.9560454e+18            0 
-     720    959.98012 971015679      310        5       25     41662.44 0.00047851699 0.00040074446 7.7772536e-05       715456            0 4.9511932e+18            0 
-     730    978.56612 971016864      338        2       26    41649.066 0.00047852786 0.00040075456 7.7773301e-05       715264            0 4.9779801e+18            0 
-     740     997.2904 971013878      312        5       24    41635.703 0.00047852309 0.00040075213 7.7770965e-05       715069            0 5.0662059e+18            0 
-     750    1016.1582 971012642      359        3       19    41622.276 0.00047854912 0.00040078209 7.7767031e-05       714809            0 5.1214151e+18            0 
-     760    1035.0296 971015534      480        5       25    41608.848 0.00047857413 0.00040080222 7.7771914e-05       714638            0 5.114645e+18            0 
-     770    1053.9717 971019144      347        6       15    41595.538 0.00047856394 0.00040079568 7.7768264e-05       714440            0 5.1080504e+18            0 
-     780    1073.1711 971015825      368        3       21    41582.142 0.00047857136 0.00040080119 7.7770176e-05       714250            0 5.1311139e+18            0 
-     790    1092.4157 971014772      335        7       21    41568.798 0.00047858167 0.00040080378 7.7777889e-05       713906            0 5.1244779e+18            0 
-     800    1112.1298 971014465      376        4       17    41555.397 0.00047860066 0.00040082211 7.7778542e-05       713620            0 5.0605019e+18            0 
-     810    1131.6373 971016888      339        2       24    41542.064 0.00047860353 0.00040082637 7.7777164e-05       713440            0 5.0549003e+18            0 
-     820    1151.2232 971017139      328        5       29    41528.765 0.00047859943 0.00040082156 7.7777873e-05       713219            0 5.0213826e+18            0 
-     830    1170.9611 971015660      372        3       21    41515.384 0.00047861404 0.00040084227 7.7771779e-05       712971            0 5.0163865e+18            0 
-     840    1190.8194 971018548      347        2       20    41502.052 0.00047861612 0.0004008386 7.7777529e-05       712788            0 5.0115093e+18            0 
-     850    1210.7686 971020383      410        2       25     41488.65 0.00047863216 0.00040085233 7.7779826e-05       712583            0 4.9796831e+18            0 
-     860     1230.857 971019089      469        5       31    41475.283 0.00047864894 0.00040086249 7.7786454e-05       712250            0 4.9753454e+18            0 
-     870    1251.0367 971020063      383        2       17    41461.848 0.0004786737 0.00040087663 7.7797065e-05       711961            0 4.9446652e+18            0 
-     880    1271.3915 971017451      361        2       32     41448.48 0.00047867437 0.00040086859 7.7805779e-05       711715            0 4.8885396e+18            0 
-     890    1291.8181 971016701      347        6       35    41435.135 0.00047868659 0.00040088253 7.7804069e-05       711396            0 4.937068e+18            0 
-     900    1312.7584 971018678      433        7       26    41421.792 0.0004786917 0.00040089065 7.7801057e-05       711135            0 4.8822725e+18            0 
-     910    1333.4911 971015595      372        7       20    41408.452 0.00047866746 0.00040086875 7.7798707e-05       710968            0 4.8792422e+18            0 
-     920    1354.2053 971013223      523        3       25    41395.079 0.00047867644 0.00040087505 7.7801389e-05       710608            0 4.8762776e+18            0 
-     930    1375.1396 971014695      478        6       24    41381.711 0.00047867844 0.00040087557 7.7802871e-05       710386            0 4.8486388e+18            0 
-     940     1396.145 971015459      411        4       26    41368.333 0.00047868181 0.00040087897 7.780284e-05       710156            0 4.8705376e+18            0 
-     950    1417.1794 971016623      403        7       16    41354.991 0.00047868837 0.00040088266 7.7805708e-05       709947            0 4.9646289e+18            0 
-     960    1438.3088 971019268      375        4       20    41341.651 0.00047868313 0.00040088254 7.7800589e-05       709726            0 4.9369335e+18            0 
-     970    1459.7007 971021455      455        5       25    41328.261 0.00047868716 0.00040088864 7.7798515e-05       709542            0 4.8860897e+18            0 
-     980    1481.0332 971019515      523        4       17    41314.901 0.00047869221 0.0004008949 7.7797308e-05       709263            0 4.8832366e+18            0 
-     990    1502.4588 971020424      437        4       28    41301.563 0.00047869113 0.00040088981 7.7801324e-05       708991            0 4.8804412e+18            0 
-    1000    1524.5723 971022191      432        5       19    41288.198 0.00047869373 0.00040089661 7.7797127e-05       708691            0 4.8546936e+18            0 
-Loop time of 1524.57 on 96 procs for 1000 steps with 971022191 particles
-
-MPI task timing breakdown:
-Section |  min time  |  avg time  |  max time  |%varavg| %total
----------------------------------------------------------------
-Move    | 176.07     | 382.03     | 458.97     | 242.8 | 25.06
-Coll    | 302.55     | 638.19     | 770.73     | 342.0 | 41.86
-Sort    | 77.914     | 161.02     | 197.2      | 135.7 | 10.56
-Comm    | 17.831     | 23.385     | 27.871     |  78.7 |  1.53
-Modify  | 25.45      | 198.92     | 615.03     | 717.1 | 13.05
-Output  | 32.126     | 32.14      | 32.15      |   0.0 |  2.11
-Other   |            | 88.89      |            |       |  5.83
-
-Particle moves    = 971270493559 (971B)
-Cells touched     = 1028288888189 (1.03T)
-Particle comms    = 1604293865 (1.6B)
-Boundary collides = 0 (0K)
-Boundary exits    = 257523422 (258M)
-SurfColl checks   = 6800898311 (6.8B)
-SurfColl occurs   = 30219035 (30.2M)
-Surf reactions    = 23617 (23.6K)
-Collide attempts  = 216453 (0.216M)
-Collide occurs    = 2024 (2.02K)
-Reactions         = 0 (0K)
-Particles stuck   = 0
-Axisymm bad moves = 0
-
-Particle-moves/CPUsec/proc: 6.63622e+06
-Particle-moves/step: 9.7127e+08
-Cell-touches/particle/step: 1.0587
-Particle comm iterations/step: 1
-Particle fraction communicated: 0.00165175
-Particle fraction colliding with boundary: 0
-Particle fraction exiting boundary: 0.000265141
-Surface-checks/particle/step: 0.00700206
-Surface-collisions/particle/step: 3.11129e-05
-Surf-reactions/particle/step: 2.43156e-08
-Collision-attempts/particle/step: 2.22856e-07
-Collisions/particle/step: 2.08387e-09
-Reactions/particle/step: 0
-
-Surface reaction tallies:
-  id recomb style prob #-of-reactions 5
-    reaction all: 23617
-    reaction O+ --> O: 23143
-    reaction N+ --> N: 474
-
-Particles: 1.01148e+07 ave 1.6199e+07 max 4.35547e+06 min
-Histogram: 1 0 13 0 5 73 0 1 0 3
-Cells:      46875 ave 46875 max 46875 min
-Histogram: 96 0 0 0 0 0 0 0 0 0
-GhostCell: 9962.33 ave 12485 max 7205 min
-Histogram: 8 8 0 28 0 20 0 27 0 5
-EmptyCell: 0 ave 0 max 0 min
-Histogram: 96 0 0 0 0 0 0 0 0 0
-Surfs:    76 ave 76 max 76 min
-Histogram: 96 0 0 0 0 0 0 0 0 0
-GhostSurf: 0 ave 0 max 0 min
-Histogram: 96 0 0 0 0 0 0 0 0 0
-
-shell "rm -f data/rho.dat data/nrho.dat data/T.dat data/vx.dat"
+  total     (ave,min,max) = 958.861 25.3079 1456.31
+Step CPU Np Natt Ncoll Nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_neut c_probe_ion c_n_cone c_n_fwd v_cone_frac 
+       0            0 652088887        0        0        0    42625.476            0            0            0       491065            0            0            0        85519      4415624  0.019367365 
+      10    8.5786961 652088995        0        0      266    42386.695 0.00043640294 0.00036556461 7.0838327e-05       488286            0 2.7916405e+18            0        86059      4417466  0.019481531 
+      20    17.119765 652088527        0        0      268    42147.882 0.00045668301 0.00038244423 7.4238775e-05       485819            0 3.4729338e+18            0        85610      4418473  0.019375472 
+      30    25.898736 652088940        0        0      273    41909.138 0.0004638723 0.00038842778 7.5444523e-05       483203            0 3.9623285e+18            0        85904      4418235  0.019443058 
+      40    34.892149 652092532        0        0      264     41670.36 0.00046756671 0.0003915324 7.6034317e-05       480420            0 3.9321278e+18            0        85679      4419303  0.019387446 
+      50     45.50976 652090349        0        0      269    41431.615 0.00046979663 0.0003934409 7.6355729e-05       477664            0 4.1019326e+18            0        85733      4421255    0.0193911 
+      60    55.129751 652144934        0        0      283    41193.975 0.00047135246 0.00039475821 7.6594249e-05       474835            0 4.1531373e+18            0        85709      4418512  0.019397707 
+      70    65.125447 653192991      217        1      264    40969.466 0.00047240963 0.00039564567 7.6763958e-05       472815            0 4.2980451e+18            0        84977      4418611  0.019231609 
+      80    75.655555 655758387       18        0      303    40748.819 0.00047322122 0.00039632244 7.6898776e-05       472091            0 4.5493401e+18            0        85725      4422018  0.019385946 
+      90    86.831046 658732255        2        0      327    40525.319 0.00047385419 0.00039686926 7.6984923e-05       471646            0 4.4923171e+18            0        85330      4421143  0.019300439 
+     100    98.722099 661744229       16        0      279    40302.632 0.00047441927 0.00039732442 7.7094845e-05       471190            0 4.3515733e+18            0        85667      4420904  0.019377711 
+     110    110.98992 664765484     2054       22      296    40081.977 0.00047483134 0.00039766434 7.7166995e-05       470705            0 4.305351e+18            0        85352      4418223  0.019318174 
+     120    123.95534 667794205       23        1      317    39863.378 0.00047517886 0.00039796074 7.7218123e-05       470216            0 4.3143535e+18            0        85295      4421821  0.019289564 
+     130    137.39789 670828095       19        0      270    39646.677 0.00047549985 0.00039822786 7.7271996e-05       469817            0 4.3952356e+18            0        85311      4418964  0.019305656 
+     140       151.43 673870440     1405       13      262    39432.021 0.00047577254 0.00039845913 7.7313406e-05       469262            0 4.5871505e+18            0        85447      4418321  0.019339247 
+     150    165.91984 676914882     1733       16      257    39219.426 0.00047598566 0.00039864634 7.733932e-05       468869            0 4.613833e+18            0        85889      4422263  0.019421957 
+     160    180.76277 679963031     1031        8      285    39008.739 0.00047617945 0.00039880309 7.7376366e-05       468323            0 4.6252802e+18            0        85216      4421239  0.019274235 
+     170    195.98347 683019064      607        5      286    38799.719 0.00047636952 0.00039895144 7.7418084e-05       468044            0 4.5343752e+18            0        85356      4419981  0.019311395 
+     180    211.46834 686076488      435        3      249    38592.794 0.00047651111 0.00039907293 7.7438184e-05       467533            0 4.5701546e+18   
