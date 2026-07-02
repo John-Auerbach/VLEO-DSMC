@@ -490,6 +490,89 @@ The atmospheric data pipeline works as follows:
    mixture         atm nrho ${nrho} vstream ${vx} 0.0 0.0 temp ${T}
    ```
 
+### Including Ionospheric Ions (`--ions` flag)
+
+By default `load_atm_data.py` writes only the six neutral species from NRLMSIS. Passing `--ions` additionally queries the **International Reference Ionosphere (IRI)** model for the ionospheric ion populations (O⁺, O₂⁺, NO⁺, N⁺) at the same location/time and folds them into the generated `data/atm.sparta`:
+
+```bash
+# neutrals only (default)
+python3 tools/load_atm_data.py 150
+
+# neutrals + IRI ions for ambipolar DSMC
+python3 tools/load_atm_data.py 150 --ions
+```
+
+With `--ions`, the generated `data/atm.sparta` differs from the neutral-only file in three ways:
+
+1. **Extra ion variables** are written for use in the input script (ion/electron temperatures and electron density):
+   ```
+   variable        Ti   equal 1012.34   # IRI ion temperature (K)
+   variable        Te   equal 2456.78   # IRI electron temperature (K)
+   variable        ne   equal 3.21e+11  # IRI electron density (m^-3)
+   ```
+2. **The species line gains the ion species plus the electron `e`.** `N2+` is always defined (it is referenced by `fix ambipolar`) even though IRI supplies no N₂⁺ density:
+   ```
+   species         species/air.species N2 O2 O He Ar N O+ O2+ NO+ N+ N2+ e
+   ```
+3. **Ion mixture fractions** are number-density-weighted alongside the neutrals, so `nrho` now represents neutrals + ions combined.
+
+**How ions are modeled in SPARTA (ambipolar approximation):** SPARTA tracks each ion as a single particle that carries a bound electron `e`, rather than resolving free electrons (which would require WAY smaller timesteps). The `in.esasat_ROAR` input script has an example of this. First, declare the ambipolar fix **before** any particles are created or injected, so created/injected ions carry their electron:
+
+```
+# AMBIPOLAR IONS -----------------------------------------------------------
+# 'e' is the bound electron of each ion; must be defined before
+# create_particles / emit. Ion species come from data/atm.sparta.
+fix             ambi ambipolar e O+ N+ O2+ N2+ NO+
+```
+
+Then enable ambipolar ionization/recombination in the collision step. The collision model must use a mixture containing **all** species (including `e` and `N2+`), so the built-in `all` mixture is used even though the flow mixture `atm` (no `e`) still drives injection:
+
+```
+collide         vss all vss/air.vss     # VSS over every species incl. e, N2+
+collide_modify  ambipolar yes           # ionization/recombination during collisions
+```
+
+Finally, ions recombine to their parent neutral when they strike the surface via a surface reaction model:
+
+```
+surf_react      recomb prob surf/esasat.react   # ion -> neutral on contact
+surf_modify     ampt_xnorm  collide diffuse_xnorm  react recomb
+surf_modify     ampt_yznorm collide diffuse_yznorm react recomb
+```
+
+### Flux Probes and Subgroup Averaging
+
+To measure the incident particle flux at a point in the flow (e.g. to confirm the injected beam matches `nrho·vstream`, or to separate ion vs neutral flux), `in.esasat_ROAR` inserts a **transparent probe surface** — a small disk that tallies particles passing through it without perturbing the flow:
+
+```
+# flux probe: transparent disk at center of -x RAM face
+read_surf       surf/3mm2_esasat_flux_probe.surf group probe transparent
+surf_collide    probe_t transparent          # particles pass through, still tallied
+surf_modify     probe collide probe_t
+```
+
+Additionally, a simple rectangular probe `surf/freestream_flux_probe.surf` has been provided for easy use.
+
+**Splitting the tally by species (mixture groups).** A SPARTA *mixture* can partition its species into named **groups**, and `compute surf ... nflux_incident` then returns one column per group. Here a copy of `atm` (so it inherits `nrho`/`vstream`/`temp`) is split into `neutrals` and `ions` groups, giving a two-column flux tally:
+
+```
+# split the tally into neutral vs ion contributions
+mixture         atm copy probemix
+mixture         probemix N2 O2 O He Ar N group neutrals   # col 1
+mixture         probemix O+ O2+ NO+ N+ N2+   group ions   # col 2
+compute         probe_flux surf probe probemix nflux_incident
+```
+
+**Averaging over only the probe's facets:** A per-surf `compute`/`fix ave/surf` produces a value for **every** surface element in the whole simulation — the probe disk *and* every facet of the satellite body (non-group facets just sit at `0.0`). If you then `reduce ave` over *all* facets, the probe's flux gets divided by the total facet count (probe + all the zero body facets) and comes out far too low. This was an ongoing problem with momentum flux calculations that has now been solved. The `subset probe` keyword restricts the reduction to **only the probe group's facets**, so you get the true mean flux across the disk instead of it being diluted by every other side in the domain:
+
+```
+fix             probe_avg  ave/surf probe 1 1 1 c_probe_flux[*] ave running
+compute         probe_neut reduce ave f_probe_avg[1] subset probe   # mean over probe facets only
+compute         probe_ion  reduce ave f_probe_avg[2] subset probe   # mean over probe facets only
+```
+
+The same pattern generalizes to any measurement you want broken out (per-group heating on a real surface, ram vs skin drag, etc.): optionally split species into mixture groups for per-column results, run a per-surf `compute`, wrap it in a running `ave/surf` over the target surface group, and `reduce ... subset <group>` so the average covers only the facets you care about. Live values are echoed each `stats` interval via `c_probe_neut`/`c_probe_ion` in `stats_style`.
+
 ### Species Data Files
 
 - **`species/air.species`** - Molecular properties (mass, rotational/vibrational DOF, etc.) for N₂, O₂, O, N, He, Ar, and ionized species
@@ -972,5 +1055,5 @@ We used Clift sphere correlation here for continuum flow line, but that represen
 
 Check my work:
 
-![alt text](image.png)
-![alt text](image-1.png)
+![alt text](examples/image.png)
+![alt text](examples/image-1.png)
