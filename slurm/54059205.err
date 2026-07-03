@@ -10,4 +10,4 @@ Also make sure that all modulefiles written in TCL start with the string
 
 
 
-[2026-07-02T16:11:59.848] error: *** JOB 54053520 ON p-sc-2313 CANCELLED AT 2026-07-02T16:11:59 DUE to SIGNAL Terminated ***
+[2026-07-02T16:13:11.396] error: *** JOB 54059205 ON p-sc-2312 CANCELLED AT 2026-07-02T16:13:11 DUE to SIGNAL Terminated ***
