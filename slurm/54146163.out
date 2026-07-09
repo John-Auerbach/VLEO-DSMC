@@ -1,0 +1,7 @@
+=== Converting dumps in 'dumps' to Parquet ===
+Processing dumps from: dumps
+Using 48 parallel workers
+Incremental mode: skipping frames already converted (use --force to redo all)
+
+Processing grid dumps (1/3)...
+  [grid] dispatching 101 frame(s) across 48 worker(s)...

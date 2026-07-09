@@ -1,0 +1,83 @@
+SPARTA (24 Sep 2025)
+Running on 96 MPI task(s)
+Created orthogonal box = (-0.5 -0.5 -0.5) to (0.5 0.5 0.5)
+Loaded NRLMSIS data: rho=1.662932e-11 nrho=574610200000000 T=978.3039 vx=7725.8
+MEAN FREE PATH = 4755.35476469327 m
+MEAN MOLEC VEL = 1090.17949977506 m/s
+CELL SIZE MUST BE LESS THAN 1585.11825489776 m
+MEAN COLL TIME = 4.36199246607963 s
+MEAN TRANSIT TIME = 1.45399748869321 s
+TIMESTEP MUST BE < 0.484665829564403 s
+Created 45000000 child grid cells
+  CPU time = 0.488002 secs
+  create/ghost percent = 15.9152 84.0848
+Balance grid migrated 44218125 cells
+  CPU time = 1.29585 secs
+  reassign/sort/migrate/ghost percent = 41.5159 0.76401 35.1805 22.5395
+Reading surface file ...
+  12 triangles
+  -0.4475 0.4475 xlo xhi
+  -0.28625 0.28625 ylo yhi
+  -0.3395 0.3395 zlo zhi
+  0.5725 min triangle edge length
+  0.194364 min triangle area
+  403784 = cells with surfs
+  410368 = total surfs in all grid cells
+  6 = max surfs in one grid cell
+  171.75 = min surf-size/cell-size ratio
+  403784 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  3 tiny edges removed
+  29280576 15315640 403784 = cells outside/inside/overlapping surfs
+  403784 = surf cells with 1,2,etc splits
+  0.652088887497361 0.6520888875 = cell-wise and global flow volume
+  CPU time = 0.416778 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 1.95266 2.51135 11.049 19.584 64.903 50.4272 0.00340637
+  surf2grid time = 0.081622 secs
+  map/comm1/comm2/comm3/comm4/split percent = 24.2291 0 0 0 0 60.3771
+0 = initial surface count in group ampt_xnorm
+4 = final surface count in group ampt_xnorm
+0 = initial surface count in group ampt_yznorm
+8 = final surface count in group ampt_yznorm
+Reading surface file ...
+  64 triangles
+  -0.4485 -0.4485 xlo xhi
+  -0.000977 0.000977 ylo yhi
+  -0.000977 0.000977 zlo zhi
+  9.58782e-05 min triangle edge length
+  4.67801e-08 min triangle area
+  403788 = cells with surfs
+  410624 = total surfs in all grid cells
+  64 = max surfs in one grid cell
+  0.0287635 = min surf-size/cell-size ratio
+  403784 0 = cells overlapping surfs, overlap cells with unmarked corner pts
+  6 tiny edges removed
+  29280576 15315640 403784 = cells outside/inside/overlapping surfs
+  403784 = surf cells with 1,2,etc splits
+  0.652088887497361 0.6520888875 = cell-wise and global flow volume
+  CPU time = 0.479972 secs
+  read/check/sort/surf2grid/ghost/inout/particle percent = 0.674505 9.99377 9.70835 20.5747 59.0487 37.2123 0.00206637
+  surf2grid time = 0.0987528 secs
+  map/comm1/comm2/comm3/comm4/split percent = 57.1162 0 0 0 0 33.8566
+particles per particle = 574610.2
+Creating particles ...
+Created 652088887 particles
+  CPU time = 7.16837 secs
+flux check: expected nrho*vstream = 4.43932348316e+18 #/m^2/s
+flux check (ion):     expected ne*vstream       = 3.4178514281e+15 #/m^2/s
+flux check (neutral): expected (nrho-ne)*vstream = 4.4359056317319e+18 #/m^2/s
+Memory usage per proc in Mbytes:
+  particles (ave,min,max) = 829.917 0 1272
+  grid      (ave,min,max) = 163.959 110.764 165.427
+  surf      (ave,min,max) = 0.00956726 0.00956726 0.00956726
+  total     (ave,min,max) = 1072.48 244.181 1516.18
+Step CPU Np Natt Ncoll Nsreact c_Tbox c_drag c_drag_xnorm c_drag_walls c_ions[1] c_ions[6] c_probe_neut c_probe_ion 
+       0            0 652088887        0        0        0    42625.191            0            0            0       490755            0            0            0 
+     100    161.75018 661750104        0        0      283    40302.601 0.00047443988 0.00039734917 7.7090706e-05       471104            0 4.0285308e+18            0 
+     200    383.94515 692233419       55        0      272    38184.303 0.00047682617 0.0003993366 7.7489566e-05       466847            0 4.2013496e+18            0 
+     300    643.28318 723256704     1629       14      273    36249.251 0.00047764166 0.00040002225 7.7619408e-05       462516            0 4.5653988e+18            0 
+     400    932.91843 754808488     1873       12      308    34479.303 0.00047803462 0.00040036008 7.7674545e-05       458794            0 4.4415627e+18            0 
+     500    1262.9759 786896808     1357       10      237    32858.757 0.00047826343 0.00040055305 7.7710379e-05       455686            0 4.3326846e+18            0 
+     600     1639.952 819497602     2266       21      242    31373.213 0.00047842898 0.00040069313 7.7735844e-05       452754            0 4.3845827e+18            0 
+     700    2079.1535 852582224     3392       29      297    30011.272 0.00047854389 0.00040079093 7.7752959e-05       450081            0 4.3806057e+18            0 
+     800    2577.4521 886062694     6516       58      305    28763.985 0.00047863115 0.00040086814 7.7763003e-05       447987            0 4.4135628e+18            0 
+ERROR: Too much buffered per-proc info for dump (../dump.cpp:291)

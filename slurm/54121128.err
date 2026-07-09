@@ -1,0 +1,23 @@
+Lmod has detected the following error: The following module(s) are unknown:
+"gcc/14.2.0"
+
+Please check the spelling or version number. Also try "module spider ..."
+It is also possible your cache file is out-of-date; it may help to try:
+  $ module --ignore_cache load "gcc/14.2.0"
+
+Also make sure that all modulefiles written in TCL start with the string
+#%Module
+
+
+
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[9146,1],21]
+  Exit code:    1
+--------------------------------------------------------------------------

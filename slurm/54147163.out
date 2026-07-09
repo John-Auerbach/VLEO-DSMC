@@ -1,0 +1,57 @@
+Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
+=== Generating plots and animations ===
+Saved plot to /storage/home/jxa5508/VLEO-DSMC/outputs/drag.png
+Found 48 grid timesteps in dumps/esasat/
+Precomputing 48 frames with 8 worker(s)...
+  grid frame 1/48 (step 0) done
+  grid frame 2/48 (step 200) done
+  grid frame 3/48 (step 1200) done
+  grid frame 4/48 (step 100) done
+  grid frame 5/48 (step 1100) done
+  grid frame 6/48 (step 1000) done
+  grid frame 7/48 (step 1300) done
+  grid frame 8/48 (step 1400) done
+  grid frame 9/48 (step 1500) done
+  grid frame 10/48 (step 1900) done
+  grid frame 11/48 (step 1600) done
+  grid frame 12/48 (step 1700) done
+  grid frame 13/48 (step 2000) done
+  grid frame 14/48 (step 1800) done
+  grid frame 15/48 (step 2100) done
+  grid frame 16/48 (step 2200) done
+  grid frame 17/48 (step 2300) done
+  grid frame 18/48 (step 2400) done
+  grid frame 19/48 (step 10000) done
+  grid frame 20/48 (step 10200) done
+  grid frame 21/48 (step 10500) done
+  grid frame 22/48 (step 10100) done
+  grid frame 23/48 (step 10300) done
+  grid frame 24/48 (step 10400) done
+  grid frame 25/48 (step 10600) done
+  grid frame 26/48 (step 11300) done
+  grid frame 27/48 (step 10700) done
+  grid frame 28/48 (step 11000) done
+  grid frame 29/48 (step 11100) done
+  grid frame 30/48 (step 10900) done
+  grid frame 31/48 (step 11200) done
+  grid frame 32/48 (step 10800) done
+  grid frame 33/48 (step 11400) done
+  grid frame 34/48 (step 11800) done
+  grid frame 35/48 (step 11900) done
+  grid frame 36/48 (step 11500) done
+  grid frame 37/48 (step 12200) done
+  grid frame 38/48 (step 12000) done
+  grid frame 39/48 (step 11700) done
+  grid frame 40/48 (step 11600) done
+  grid frame 41/48 (step 12100) done
+  grid frame 42/48 (step 12600) done
+  grid frame 43/48 (step 12400) done
+  grid frame 44/48 (step 12700) done
+  grid frame 45/48 (step 12800) done
+  grid frame 46/48 (step 12900) done
+  grid frame 47/48 (step 12300) done
+  grid frame 48/48 (step 12500) done
+vmin=0.00e+00 #/m^3, vmax=7.27e+16 #/m^3
+Saved outputs/grid_density_heatmap.mp4 (codec=libx264)
+Saved outputs/grid_density_heatmap_log.mp4 (codec=libx264)
+=== Plotting complete. Outputs written to outputs/ ===

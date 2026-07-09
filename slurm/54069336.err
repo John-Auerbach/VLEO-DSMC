@@ -1,0 +1,13 @@
+Lmod has detected the following error: The following module(s) are unknown:
+"gcc/14.2.0"
+
+Please check the spelling or version number. Also try "module spider ..."
+It is also possible your cache file is out-of-date; it may help to try:
+  $ module --ignore_cache load "gcc/14.2.0"
+
+Also make sure that all modulefiles written in TCL start with the string
+#%Module
+
+
+
+[2026-07-03T02:16:40.599] error: *** JOB 54069336 ON p-sc-2312 CANCELLED AT 2026-07-03T02:16:40 DUE to SIGNAL Terminated ***

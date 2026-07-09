@@ -1,0 +1,16 @@
+=== Converting dumps in 'dumps/esasat/' to Parquet ===
+Processing dumps from: dumps/esasat/
+Using 48 parallel workers
+Incremental mode: skipping frames already converted (use --force to redo all)
+
+Processing grid dumps (1/3)...
+
+Processing surface dumps (2/3)...
+
+Processing particle dumps (3/3)... (8 worker(s))
+
+Completed:
+particle frames: 0
+grid frames: 0
+surface frames: 0
+=== Conversion complete. Now run: sbatch scripts/analyze_job.sh dumps/esasat/ ===

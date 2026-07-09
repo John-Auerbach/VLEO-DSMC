@@ -1,0 +1,24 @@
+Lmod has detected the following error: The following module(s) are unknown:
+"gcc/14.2.0"
+
+Please check the spelling or version number. Also try "module spider ..."
+It is also possible your cache file is out-of-date; it may help to try:
+  $ module --ignore_cache load "gcc/14.2.0"
+
+Also make sure that all modulefiles written in TCL start with the string
+#%Module
+
+
+
+[2026-07-07T01:24:26.140] error: *** JOB 54129601 ON p-sc-2310 CANCELLED AT 2026-07-07T01:24:26 DUE TO TIME LIMIT ***
+--------------------------------------------------------------------------
+ORTE has lost communication with a remote daemon.
+
+  HNP daemon   : [[38609,0],0] on node p-sc-2310
+  Remote daemon: [[38609,0],1] on node p-sc-2311
+
+This is usually due to either a failure of the TCP network
+connection to the node, or possibly an internal failure of
+the daemon itself. We cannot recover from this failure, and
+therefore will terminate the job.
+--------------------------------------------------------------------------

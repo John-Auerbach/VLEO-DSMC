@@ -1,0 +1,55 @@
+=== Converting dumps in 'dumps/esasat/' to Parquet ===
+Processing dumps from: dumps/esasat/
+Using 48 parallel workers
+Incremental mode: skipping frames already converted (use --force to redo all)
+
+Processing grid dumps (1/3)...
+  [grid] dispatching 130 frame(s) across 48 worker(s)...
+  [grid] done 1/130 (0%): grid.11200.dat
+  [grid] done 2/130 (1%): grid.12500.dat
+  [grid] done 3/130 (2%): grid.11100.dat
+  [grid] done 4/130 (3%): grid.11700.dat
+  [grid] done 5/130 (3%): grid.1700.dat
+  [grid] done 6/130 (4%): grid.10600.dat
+  [grid] done 7/130 (5%): grid.12100.dat
+  [grid] done 8/130 (6%): grid.12600.dat
+  [grid] done 9/130 (6%): grid.2100.dat
+  [grid] done 10/130 (7%): grid.10300.dat
+  [grid] done 11/130 (8%): grid.12900.dat
+  [grid] done 12/130 (9%): grid.10500.dat
+  [grid] done 13/130 (10%): grid.11300.dat
+  [grid] done 14/130 (10%): grid.2400.dat
+  [grid] done 15/130 (11%): grid.10000.dat
+  [grid] done 16/130 (12%): grid.1200.dat
+  [grid] done 17/130 (13%): grid.1800.dat
+  [grid] done 18/130 (13%): grid.1100.dat
+  [grid] done 19/130 (14%): grid.1600.dat
+  [grid] done 20/130 (15%): grid.2000.dat
+  [grid] done 21/130 (16%): grid.200.dat
+  [grid] done 22/130 (16%): grid.12200.dat
+  [grid] done 23/130 (17%): grid.11000.dat
+  [grid] done 24/130 (18%): grid.1500.dat
+  [grid] done 25/130 (19%): grid.11800.dat
+  [grid] done 26/130 (20%): grid.10200.dat
+  [grid] done 27/130 (20%): grid.12700.dat
+  [grid] done 28/130 (21%): grid.10400.dat
+  [grid] done 29/130 (22%): grid.1900.dat
+  [grid] done 30/130 (23%): grid.0.dat
+  [grid] done 31/130 (23%): grid.10100.dat
+  [grid] done 32/130 (24%): grid.12800.dat
+  [grid] done 33/130 (25%): grid.2200.dat
+  [grid] done 34/130 (26%): grid.11500.dat
+  [grid] done 35/130 (26%): grid.1300.dat
+  [grid] done 36/130 (27%): grid.12400.dat
+  [grid] done 37/130 (28%): grid.11900.dat
+  [grid] done 38/130 (29%): grid.10800.dat
+  [grid] done 39/130 (30%): grid.10700.dat
+  [grid] done 40/130 (30%): grid.11600.dat
+  [grid] done 41/130 (31%): grid.11400.dat
+  [grid] done 42/130 (32%): grid.12300.dat
+  [grid] done 43/130 (33%): grid.100.dat
+  [grid] done 44/130 (33%): grid.1400.dat
+  [grid] done 45/130 (34%): grid.2300.dat
+  [grid] done 46/130 (35%): grid.12000.dat
+  [grid] done 47/130 (36%): grid.1000.dat
+  [grid] done 48/130 (36%): grid.10900.dat

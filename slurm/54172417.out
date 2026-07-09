@@ -1,0 +1,126 @@
+=== Converting dumps in 'dumps/esasat250/' to Parquet ===
+Processing dumps from: dumps/esasat250/
+Using 48 parallel workers
+Incremental mode: skipping frames already converted (use --force to redo all)
+
+Processing grid dumps (1/3)...
+  [grid] dispatching 109 frame(s) across 48 worker(s)...
+  [grid] done 1/109 (0%): grid.10000.dat
+  [grid] done 2/109 (1%): grid.10200.dat
+  [grid] done 3/109 (2%): grid.3700.dat
+  [grid] done 4/109 (3%): grid.3900.dat
+  [grid] done 5/109 (4%): grid.1000.dat
+  [grid] done 6/109 (5%): grid.0.dat
+  [grid] done 7/109 (6%): grid.4200.dat
+  [grid] done 8/109 (7%): grid.1800.dat
+  [grid] done 9/109 (8%): grid.3800.dat
+  [grid] done 10/109 (9%): grid.2100.dat
+  [grid] done 11/109 (10%): grid.1700.dat
+  [grid] done 12/109 (11%): grid.10700.dat
+  [grid] done 13/109 (11%): grid.1300.dat
+  [grid] done 14/109 (12%): grid.200.dat
+  [grid] done 15/109 (13%): grid.3000.dat
+  [grid] done 16/109 (14%): grid.400.dat
+  [grid] done 17/109 (15%): grid.3300.dat
+  [grid] done 18/109 (16%): grid.10100.dat
+  [grid] done 19/109 (17%): grid.2800.dat
+  [grid] done 20/109 (18%): grid.1100.dat
+  [grid] done 21/109 (19%): grid.1600.dat
+  [grid] done 22/109 (20%): grid.2900.dat
+  [grid] done 23/109 (21%): grid.1200.dat
+  [grid] done 24/109 (22%): grid.10500.dat
+  [grid] done 25/109 (22%): grid.2400.dat
+  [grid] done 26/109 (23%): grid.3400.dat
+  [grid] done 27/109 (24%): grid.2200.dat
+  [grid] done 28/109 (25%): grid.1400.dat
+  [grid] done 29/109 (26%): grid.10800.dat
+  [grid] done 30/109 (27%): grid.2700.dat
+  [grid] done 31/109 (28%): grid.3200.dat
+  [grid] done 32/109 (29%): grid.2600.dat
+  [grid] done 33/109 (30%): grid.4300.dat
+  [grid] done 34/109 (31%): grid.10300.dat
+  [grid] done 35/109 (32%): grid.1500.dat
+  [grid] done 36/109 (33%): grid.2500.dat
+  [grid] done 37/109 (33%): grid.4000.dat
+  [grid] done 38/109 (34%): grid.2000.dat
+  [grid] done 39/109 (35%): grid.10400.dat
+  [grid] done 40/109 (36%): grid.1900.dat
+  [grid] done 41/109 (37%): grid.10600.dat
+  [grid] done 42/109 (38%): grid.300.dat
+  [grid] done 43/109 (39%): grid.100.dat
+  [grid] done 44/109 (40%): grid.4100.dat
+  [grid] done 45/109 (41%): grid.3500.dat
+  [grid] done 46/109 (42%): grid.3100.dat
+  [grid] done 47/109 (43%): grid.2300.dat
+  [grid] done 48/109 (44%): grid.3600.dat
+  [grid] done 49/109 (44%): grid.4400.dat
+  [grid] done 50/109 (45%): grid.4700.dat
+  [grid] done 51/109 (46%): grid.4500.dat
+  [grid] done 52/109 (47%): grid.4800.dat
+  [grid] done 53/109 (48%): grid.4600.dat
+  [grid] done 54/109 (49%): grid.500.dat
+  [grid] done 55/109 (50%): grid.4900.dat
+  [grid] done 56/109 (51%): grid.5300.dat
+  [grid] done 57/109 (52%): grid.5400.dat
+  [grid] done 58/109 (53%): grid.5500.dat
+  [grid] done 59/109 (54%): grid.5800.dat
+  [grid] done 60/109 (55%): grid.5000.dat
+  [grid] done 61/109 (55%): grid.5100.dat
+  [grid] done 62/109 (56%): grid.6600.dat
+  [grid] done 63/109 (57%): grid.5900.dat
+  [grid] done 64/109 (58%): grid.6400.dat
+  [grid] done 65/109 (59%): grid.5200.dat
+  [grid] done 66/109 (60%): grid.7500.dat
+  [grid] done 67/109 (61%): grid.6100.dat
+  [grid] done 68/109 (62%): grid.6000.dat
+  [grid] done 69/109 (63%): grid.7700.dat
+  [grid] done 70/109 (64%): grid.5700.dat
+  [grid] done 71/109 (65%): grid.7200.dat
+  [grid] done 72/109 (66%): grid.5600.dat
+  [grid] done 73/109 (66%): grid.7600.dat
+  [grid] done 74/109 (67%): grid.6200.dat
+  [grid] done 75/109 (68%): grid.7100.dat
+  [grid] done 76/109 (69%): grid.7000.dat
+  [grid] done 77/109 (70%): grid.7800.dat
+  [grid] done 78/109 (71%): grid.8400.dat
+  [grid] done 79/109 (72%): grid.6300.dat
+  [grid] done 80/109 (73%): grid.6900.dat
+  [grid] done 81/109 (74%): grid.8500.dat
+  [grid] done 82/109 (75%): grid.600.dat
+  [grid] done 83/109 (76%): grid.7900.dat
+  [grid] done 84/109 (77%): grid.6700.dat
+  [grid] done 85/109 (77%): grid.700.dat
+  [grid] done 86/109 (78%): grid.8000.dat
+  [grid] done 87/109 (79%): grid.7300.dat
+  [grid] done 88/109 (80%): grid.6800.dat
+  [grid] done 89/109 (81%): grid.8600.dat
+  [grid] done 90/109 (82%): grid.7400.dat
+  [grid] done 91/109 (83%): grid.8700.dat
+  [grid] done 92/109 (84%): grid.8200.dat
+  [grid] done 93/109 (85%): grid.8300.dat
+  [grid] done 94/109 (86%): grid.6500.dat
+  [grid] done 95/109 (87%): grid.800.dat
+  [grid] done 96/109 (88%): grid.8100.dat
+  [grid] done 97/109 (88%): grid.9100.dat
+  [grid] done 98/109 (89%): grid.8800.dat
+  [grid] done 99/109 (90%): grid.9000.dat
+  [grid] done 100/109 (91%): grid.900.dat
+  [grid] done 101/109 (92%): grid.8900.dat
+  [grid] done 102/109 (93%): grid.9200.dat
+  [grid] done 103/109 (94%): grid.9400.dat
+  [grid] done 104/109 (95%): grid.9300.dat
+  [grid] done 105/109 (96%): grid.9600.dat
+  [grid] done 106/109 (97%): grid.9800.dat
+  [grid] done 107/109 (98%): grid.9500.dat
+  [grid] done 108/109 (99%): grid.9700.dat
+  [grid] done 109/109 (100%): grid.9900.dat
+
+Processing surface dumps (2/3)...
+
+Processing particle dumps (3/3)... (8 worker(s))
+
+Completed:
+particle frames: 0
+grid frames: 109
+surface frames: 0
+=== Conversion complete. Now run: sbatch scripts/analyze_job.sh dumps/esasat250/ ===
