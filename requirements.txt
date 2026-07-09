@@ -21,5 +21,7 @@ tzdata==2025.2
 pyarrow==15.0.0
 fastparquet==2024.5.0
 pymsis==0.12.0
-iri2016==1.11.1
 cmake==4.3.4
+# IRI ionosphere model used by tools/load_atm_data_goddard.py --ions.
+# Git-only package (not on PyPI); builds a Fortran lib on first use (needs cmake above).
+iri2020 @ git+https://github.com/space-physics/iri2020
