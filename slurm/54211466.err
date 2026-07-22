@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/storage/home/jxa5508/VLEO-DSMC/scripts/grid_density_heatmap.py", line 42, in <module>
+    first_step, first_df, box0 = load_parquet_single("grid", timesteps[0], folder_path)
+                                                             ~~~~~~~~~^^^
+IndexError: list index out of range

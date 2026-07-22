@@ -1,0 +1,6 @@
+Using ffmpeg: /swst/apps/ffmpeg/4.3.2_gcc-8.5.0/bin/ffmpeg
+=== Generating plots and animations ===
+Saved plot to /storage/home/jxa5508/VLEO-DSMC/outputs/drag.png
+Found 0 grid timesteps in dumps
+grid_density_heatmap.py failed (non-fatal)
+=== Plotting complete. Outputs written to outputs/ ===
